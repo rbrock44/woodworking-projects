@@ -2,7 +2,7 @@ import { Projects, Project } from "../type/project.type";
 
 export async function getProjects(): Promise<Projects> {
   try {
-    const response = await fetch("/public/project-list.json");
+    const response = await fetch("project-list.json");
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -23,7 +23,7 @@ function getLocalProjects(error: any): Promise<Projects> {
   };
 
   return Promise.resolve({
-    projectByYear: [
+    projectsByYear: [
       {
         year: '2023',
         projects: [

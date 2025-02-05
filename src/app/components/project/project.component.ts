@@ -7,11 +7,11 @@ import {Image} from '../../type/project.type';
   imports: [
     CommonModule
     ],
-  selector: 'app-projects',
-  templateUrl: './projects.component.html',
-  styleUrls: ['./projects.component.scss'],
+  selector: 'app-project',
+  templateUrl: './project.component.html',
+  styleUrls: ['./project.component.scss'],
 })
-export class FlashCardsComponent {
+export class ProjectComponent {
   @Input() images: Image[] = [];
   currentIndex: number = 0; // Initialize at 0 for the first image
   singleView = false;
