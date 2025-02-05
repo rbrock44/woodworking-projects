@@ -1,0 +1,50 @@
+{
+  "projectsByYear": [
+    {
+      "year": "2023",
+      "projects": [
+        {
+          "name": "benches",
+          "images": [ 
+            { "name": "20231013_1750", "desc": "", "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg" } 
+          ]
+        },
+        {
+          "name": "christmas",
+          "images": [ 
+            { "name": "20231013_1750", "desc": "", "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg" } 
+          ]
+        },
+        {
+          "name": "cutting-board",
+          "images": [ 
+            { "name": "20231013_1750", "desc": "", "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg" } 
+          ]
+        }
+      ]
+    },
+    {
+      "year": "2024",
+      "projects": [
+        {
+          "name": "baby-rattles",
+          "images": [ 
+            { "name": "20241013_1750", "desc": "", "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg" } 
+          ]
+        },
+        {
+          "name": "christmas",
+          "images": [
+            { "name": "20241013_1750", "desc": "", "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg" } 
+          ]
+        },
+        {
+          "name": "hammer",
+          "images": [ 
+            { "name": "20241013_1750", "desc": "", "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg" } 
+          ]
+        }
+      ]
+    }
+  ]
+}
