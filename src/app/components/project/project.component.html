@@ -1,0 +1,29 @@
+<div class="image-container">
+  <div *ngIf="!this.singleView" class="image-grid">
+<!--image grid-->
+    <div>
+      <div *ngFor="let image of this.images; let i = index">
+        <img src="{{image.url}}" alt="{{image.desc}}" (click)="this.onImageClick(i)">
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="this.singleView">
+    <div class="sticky-header">
+      <p (click)="this.backClick()" class="back-button">Back</p>
+    </div>
+    <span class="progress-info">{{this.currentIndex + 1}}/{{this.images.length}}</span>
+    <button (click)="this.goToPrevious()" class="arrow-button left-arrow">
+      &#8592;
+    </button>
+
+    <div>
+      <img src="{{this.images[this.currentIndex].url}}" alt="{{this.images[this.currentIndex].desc}}">
+      <p>{{this.images[this.currentIndex].desc}}</p>
+    </div>
+
+    <button (click)="this.goToNext()" class="arrow-button right-arrow">
+      &#8594;
+    </button>
+  </div>
+</div>
