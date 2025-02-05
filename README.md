@@ -1,5 +1,11 @@
 # WoodworkingProjects
 
+[Live Site](woodworking-projects.ryan-brock.com)
+
+This project is to show off the woodworking projects. [Image Repo](https://github.com/rbrock44/woodworking-projects-images/). All images should be compressed (I used [TinyPNG](https://tinypng.com/) previously).
+
+Github actions to deploy on commit to master are wired up
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.7.
 
 ## Development server
