@@ -7,11 +7,12 @@
         <div class="links-section">
           <ul class="list-group">
             <li class="list-group-item" *ngFor="let projectsByYear of this.data.projectsByYear; let i = index">
-              <p>{{projectsByYear.year}}</p>
+              <p>{{ projectsByYear.year }}</p>
               <div class="sub-list-container">
                 <ul class="sub-list">
-                  <li *ngFor="let project of projectsByYear.projects" (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
-                    <p class="project-name">{{project.name}}</p>
+                  <li *ngFor="let project of projectsByYear.projects"
+                      (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
+                    <p class="project-name">{{ project.name }}</p>
                     <div>
 
                     </div>
@@ -27,8 +28,10 @@
         <div class="sticky-header">
           <p (click)="this.homeClick()" class="home-button">Home</p>
         </div>
-        <p><strong>Year:</strong> {{this.selectedYear}}</p>
-        <p><strong>Project:</strong> {{this.selectedProject.name}}</p>
+        <p><strong>Year:</strong> {{ this.selectedYear }}</p>
+        <p><strong>Project:</strong> {{ this.selectedProject.name }}</p>
+        <p *ngIf="this.selectedProject.description != undefined && this.selectedProject.description != ''">
+          <strong>Desc:</strong> {{ this.selectedProject.description }}</p>
 
         <app-project
           [images]="this.selectedProject.images">
@@ -39,4 +42,4 @@
   </div>
 </main>
 
-<router-outlet />
+<router-outlet/>

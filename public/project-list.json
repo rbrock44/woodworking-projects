@@ -5,26 +5,28 @@
       "projects": [
         {
           "name": "Urn",
+          "description": "This was my first ever lathe project",
           "images": [
             {
               "name": "20230221_0308_00",
-              "desc": "My first ever lathe project",
+              "desc": "",
               "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/urn/20230221_0308_00.jpg"
             },
             {
               "name": "20230221_0308_01",
-              "desc": "My first ever lathe project",
+              "desc": "",
               "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/urn/20230221_0308_01.jpg"
             },
             {
               "name": "20230221_0430",
-              "desc": "My first ever lathe project",
+              "desc": "",
               "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/urn/20230221_0430.jpg"
             }
           ]
         },
         {
           "name": "Electric Guitar",
+          "description": "This was made from a spalted Maple tree cut down at the SEMO River Campus. I lived nearby at was able to save a few pieces before it hauled off. This took over a 1 year to dry after the guitar shape was cut from the log (chainsaw + bandsaw)",
           "images": [
             {
               "name": "20230331_2107",
@@ -70,22 +72,101 @@
         },
         {
           "name": "Cutting Board",
+          "description": "This was made from black walnut boards given to me by my gf's brother when we visited North Carolina. He milled it from a tree about to be burned (that he cut down)",
           "images": [
+            {
+              "name": "20230512_2012",
+              "desc": "Side 1",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/cutting-board/20230512_2012.jpg"
+            },
+            {
+              "name": "20230512_2013",
+              "desc": "Side 2",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/cutting-board/20230512_2013.jpg"
+            },
+            {
+              "name": "20230808_2148",
+              "desc": "The laser Engraving",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/cutting-board/20230808_2148.jpg"
+            },
+            {
+              "name": "20230811_1844",
+              "desc": "The full cutting board",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/cutting-board/20230811_1844.jpg"
+            }
           ]
         },
         {
           "name": "Mallet",
+          "description": "This was made from a fallen tree (at my gf's aunt's in Kansas City) and a broken cedar cane bought for $1 at an estate sale",
           "images": [
+            {
+              "name": "20230623_0132",
+              "desc": "Side 1",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/mallet/20230623_0132.jpg"
+            },
+            {
+              "name": "20230623_0133",
+              "desc": "Hitting Side 2",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/mallet/20230623_0133.jpg"
+            },
+            {
+              "name": "20230623_0134",
+              "desc": "Side 3",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/mallet/20230623_0134.jpg"
+            },
+            {
+              "name": "20230623_0135",
+              "desc": "Side 4",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/mallet/20230623_0135.jpg"
+            },
+            {
+              "name": "20230623_0136",
+              "desc": "Top View",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/mallet/20230623_0136.jpg"
+            }
           ]
         },
         {
           "name": "Benches",
+          "description": "My grandpa bought the metal frames very cheap at an auction, ended up giving one to my grandparents and one to my aunt",
           "images": [
+            {
+              "name": "20230718_2211",
+              "desc": "Just starting assembly",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/benches/20230718_2211.jpg"
+            },
+            {
+              "name": "20230722_1555",
+              "desc": "1 (of 2) benches complete",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/benches/20230722_1555.jpg"
+            },
+            {
+              "name": "20230722_1556",
+              "desc": "2 (of 2) benches compelete",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/benches/20230722_1556.jpg"
+            },
+            {
+              "name": "20230722_1557",
+              "desc": "Both benches complete",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/benches/20230722_1557.jpg"
+            }
           ]
         },
         {
           "name": "End Table",
+          "desc": "This was made from a $5 cypress cookie (estate sale find), ($20) metals legs from amazon and leftover cedar",
           "images": [
+            {
+              "name": "20230811_1843",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/end-table/20230811_1843.jpg"
+            },
+            {
+              "name": "20230811_1844",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/end-table/20230811_1844.jpg"
+            }
           ]
         },
         {
@@ -95,17 +176,45 @@
         },
         {
           "name": "Post Maul",
+          "desc": "Another estate sale find, for $5 (post maul head) that I fitted a hickory handle to",
           "images": [
+            {
+              "name": "20231008_0101",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/post-maul/20231008_0101.jpg"
+            }
           ]
         },
         {
           "name": "Ladder",
+          "desc": "This got created when I needed to repurpose some crepe myrtle limbs that died in my yard",
           "images": [
+            {
+              "name": "20231014_2321",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/ladder/20231014_2321.jpg"
+            }
           ]
         },
         {
           "name": "Hammer",
+          "desc": "This little hammer was found at an estate sale in a bucket for 50 cents. I use it often to stamp the year plus my initials in the projects",
           "images": [
+            {
+              "name": "20231026_0241",
+              "desc": "Made in Germany",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/hammer/20231026_0241.jpg"
+            },
+            {
+              "name": "20231026_0242",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/hammer/20231026_0242.jpg"
+            },
+            {
+              "name": "20231027_2316",
+              "desc": "With handle (oak)",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/hammer/20231027_2316.jpg"
+            }
           ]
         },
         {
