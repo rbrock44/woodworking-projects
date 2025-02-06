@@ -30,8 +30,8 @@
         </div>
         <p><strong>Year:</strong> {{ this.selectedYear }}</p>
         <p><strong>Project:</strong> {{ this.selectedProject.name }}</p>
-        <p *ngIf="this.selectedProject.description != undefined && this.selectedProject.description != ''">
-          <strong>Desc:</strong> {{ this.selectedProject.description }}</p>
+        <p *ngIf="this.selectedProject.desc != undefined && this.selectedProject.desc != ''">
+          <strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
 
         <app-project
           [images]="this.selectedProject.images">
