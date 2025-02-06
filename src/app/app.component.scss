@@ -31,6 +31,7 @@
 
 .links-section {
   margin-top: 30px;
+  overflow-y: auto;
 }
 
 .list-group {
@@ -110,6 +111,16 @@ p {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.project-name {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.sub-list-container {
+  overflow-y: auto;
+  max-height: 33vh;
 }
 
 @media (max-width: 460px) {

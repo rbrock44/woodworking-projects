@@ -8,10 +8,10 @@
           <ul class="list-group">
             <li class="list-group-item" *ngFor="let projectsByYear of this.data.projectsByYear; let i = index">
               <p>{{projectsByYear.year}}</p>
-              <div>
+              <div class="sub-list-container">
                 <ul class="sub-list">
-                  <li *ngFor="let project of projectsByYear.projects" (click)="this.projectClick(project)" class="sub-list-item">
-                    <p>{{project.name}}</p>
+                  <li *ngFor="let project of projectsByYear.projects" (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
+                    <p class="project-name">{{project.name}}</p>
                     <div>
 
                     </div>
@@ -27,7 +27,7 @@
         <div class="sticky-header">
           <p (click)="this.homeClick()" class="home-button">Home</p>
         </div>
-        <p><strong>Year:</strong> {{this.selectedProject.name}}</p>
+        <p><strong>Year:</strong> {{this.selectedYear}}</p>
         <p><strong>Project:</strong> {{this.selectedProject.name}}</p>
 
         <app-project

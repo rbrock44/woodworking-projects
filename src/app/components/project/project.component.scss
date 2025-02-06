@@ -45,3 +45,11 @@
   padding-bottom: 10px;
 }
 
+.image-row {
+  display: flex;
+  flex-direction: row;
+}
+
+img {
+  cursor: pointer;
+}

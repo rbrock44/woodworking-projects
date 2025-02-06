@@ -20,6 +20,7 @@ import {ProjectComponent} from "./components/project/project.component";
 export class AppComponent implements OnInit {
   title = 'woodworking-projects';
   selectedProject: Project | undefined = undefined;
+  selectedYear: string = '';
   data: Projects = { projectsByYear: [] };
 
   ngOnInit(): void {
@@ -28,11 +29,13 @@ export class AppComponent implements OnInit {
     });
   }
 
-  projectClick(project: Project): void {
+  projectClick(project: Project, year: string): void {
     this.selectedProject = project;
+    this.selectedYear = year;
   }
 
   homeClick(): void {
     this.selectedProject = undefined;
+    this.selectedYear = '';
   }
 }
