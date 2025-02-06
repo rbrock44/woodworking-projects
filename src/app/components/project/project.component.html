@@ -21,7 +21,7 @@
         &#8592;
       </button>
 
-      <div>
+      <div class="image-desc">
         <img ngSrc="{{this.images[this.currentIndex].url}}" height="300" width="300" alt="{{this.images[this.currentIndex].desc}}">
         <p class="image-desc" *ngIf="this.images[this.currentIndex].desc != ''">{{this.images[this.currentIndex].desc}}</p>
       </div>
