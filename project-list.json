@@ -5,7 +5,7 @@
       "projects": [
         {
           "name": "Urn",
-          "description": "This was my first ever lathe project",
+          "desc": "This was my first ever lathe project",
           "images": [
             {
               "name": "20230221_0308_00",
@@ -26,7 +26,7 @@
         },
         {
           "name": "Electric Guitar",
-          "description": "This was made from a spalted Maple tree cut down at the SEMO River Campus. I lived nearby at was able to save a few pieces before it hauled off. This took over a 1 year to dry after the guitar shape was cut from the log (chainsaw + bandsaw)",
+          "desc": "This was made from a spalted Maple tree cut down at the SEMO River Campus. I lived nearby at was able to save a few pieces before it hauled off. This took over a 1 year to dry after the guitar shape was cut from the log (chainsaw + bandsaw)",
           "images": [
             {
               "name": "20230331_2107",
@@ -72,7 +72,7 @@
         },
         {
           "name": "Cutting Board",
-          "description": "This was made from black walnut boards given to me by my gf's brother when we visited North Carolina. He milled it from a tree about to be burned (that he cut down)",
+          "desc": "This was made from black walnut boards given to me by my gf's brother when we visited North Carolina. He milled it from a tree about to be burned (that he cut down)",
           "images": [
             {
               "name": "20230512_2012",
@@ -98,7 +98,7 @@
         },
         {
           "name": "Mallet",
-          "description": "This was made from a fallen tree (at my gf's aunt's in Kansas City) and a broken cedar cane bought for $1 at an estate sale",
+          "desc": "This was made from a fallen tree (at my gf's aunt's in Kansas City) and a broken cedar cane bought for $1 at an estate sale",
           "images": [
             {
               "name": "20230623_0132",
@@ -129,7 +129,7 @@
         },
         {
           "name": "Benches",
-          "description": "My grandpa bought the metal frames very cheap at an auction, ended up giving one to my grandparents and one to my aunt",
+          "desc": "My grandpa bought the metal frames very cheap at an auction, ended up giving one to my grandparents and one to my aunt",
           "images": [
             {
               "name": "20230718_2211",
@@ -172,6 +172,56 @@
         {
           "name": "Cookie Slice (Tree)",
           "images": [
+            {
+              "name": "20230910_0016",
+              "desc": "Freshly unloaded from the tractor, side 1 is up",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230910_0016.jpg"
+            },
+            {
+              "name": "20230914_0256",
+              "desc": "First few router sled passed on side 1",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230914_0256.jpg"
+            },
+            {
+              "name": "20230914_0258",
+              "desc": "The router sled used to get sides flat",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230914_0258.jpg"
+            },
+            {
+              "name": "20230915_0133",
+              "desc": "Side 1 is getting there",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230915_0133.jpg"
+            },
+            {
+              "name": "20230915_0303",
+              "desc": "Side 2 looking good",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230915_0303.jpg"
+            },
+            {
+              "name": "20230917_0001",
+              "desc": "Almost got side 1 flat",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230917_0001.jpg"
+            },
+            {
+              "name": "20230917_0045",
+              "desc": "Side 1 is so close",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230917_0045.jpg"
+            },
+            {
+              "name": "20230918_0147",
+              "desc": "Side 2 is flat",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230918_0147.jpg"
+            },
+            {
+              "name": "20230918_0214",
+              "desc": "Side 1 is flat",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230918_0214.jpg"
+            },
+            {
+              "name": "20230918_0226",
+              "desc": "Ended up at 5 inches thick, time to dry",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/tree-cookie/20230918_0226.jpg"
+            }
           ]
         },
         {
@@ -229,22 +279,86 @@
       "projects": [
         {
           "name": "Hammer",
+          "desc": "This hammer (head) was $1 at a yard sale. The handle was made on the lathe from hickory",
           "images": [
+            {
+              "name": "20240228_2350",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/hammer/20240228_2350.jpg"
+            },
+            {
+              "name": "20240228_2351",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/hammer/20240228_2351.jpg"
+            },
+            {
+              "name": "20240228_2352",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/hammer/20240228_2352.jpg"
+            },
+            {
+              "name": "20240228_2353",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/hammer/20240228_2353.jpg"
+            }
           ]
         },
         {
           "name": "Baby Rattles",
+          "desc": "Needed a baby shower gift for a friend, ended up with these rattles (and food safe finish on them)",
           "images": [
+            {
+              "name": "20241013_1750",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/hammer/20241013_1750.jpg"
+            },
+            {
+              "name": "20241013_1944",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/hammer/20241013_1944.jpg"
+            }
           ]
         },
         {
           "name": "Pergola",
+          "desc": "More of the crepe myrtle tree/bush died, I was able to save the rest! This was a single evening project saving many pieces from eventually rotting or burn pile",
           "images": [
+            {
+              "name": "20241017_0042",
+              "desc": "Where it was created/built",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/pergola/20241017_0042.jpg"
+            },
+            {
+              "name": "20241017_0043",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/pergola/20241017_0043.jpg"
+            },
+            {
+              "name": "20241017_0044",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/pergola/20241017_0044.jpg"
+            },
+            {
+              "name": "20240228_2353",
+              "desc": "Final location",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/pergola/20240228_2353.jpg"
+            }
           ]
         },
         {
           "name": "Cookie Slice (Tree)",
+          "desc": "Same cookie slice from before, used the router sled some and let it dry more",
           "images": [
+            {
+              "name": "20241123_1744",
+              "desc": "Side 2",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/tree-cookie/20241123_1744.jpg"
+            },
+            {
+              "name": "20241123_1747",
+              "desc": "Side 1",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/tree-cookie/20241123_1747.jpg"
+            }
           ]
         },
         {
