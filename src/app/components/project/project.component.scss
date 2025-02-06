@@ -21,6 +21,7 @@
 .image-item {
   display: flex;
   justify-content: center;
+  flex-flow: wrap;
 }
 
 .arrow-button {
