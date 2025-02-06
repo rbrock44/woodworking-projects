@@ -18,6 +18,10 @@
   object-fit: cover;
 }
 
+.image-item {
+  display: flex;
+  justify-content: center;
+}
 
 .arrow-button {
   width: 15%;
