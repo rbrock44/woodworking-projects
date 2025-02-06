@@ -6,7 +6,7 @@ export interface Image {
 
 export interface Project {
   name: string;
-  description?: string | undefined;
+  desc?: string | undefined;
   images: Image[];
 }
 
