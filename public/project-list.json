@@ -119,33 +119,28 @@
       "year": "2024",
       "projects": [
         {
-          "name": "baby-rattles",
+          "name": "Hammer",
           "images": [
-            {
-              "name": "20241013_1750",
-              "desc": "",
-              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg"
-            }
           ]
         },
         {
-          "name": "christmas",
+          "name": "Baby Rattles",
           "images": [
-            {
-              "name": "20241013_1750",
-              "desc": "",
-              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg"
-            }
           ]
         },
         {
-          "name": "hammer",
+          "name": "Pergola",
           "images": [
-            {
-              "name": "20241013_1750",
-              "desc": "",
-              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2024/baby-rattles/20241013_1750.jpg"
-            }
+          ]
+        },
+        {
+          "name": "Cookie Slice (Tree)",
+          "images": [
+          ]
+        },
+        {
+          "name": "Christmas",
+          "images": [
           ]
         }
       ]

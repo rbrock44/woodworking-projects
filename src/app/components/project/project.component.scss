@@ -1,8 +1,4 @@
 .image-container {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
   margin-top: 20px;
 }
 
@@ -52,4 +48,45 @@
 
 img {
   cursor: pointer;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+}
+
+.back-button {
+  display: inline-block;
+  margin-right: 20px;
+  padding: 0 10px 0 10px;
+  font-size: 1rem;
+  color: #007bff;
+  text-decoration: none;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 0 10px 0 10px;
+}
+
+.image-desc {
+  text-align: center;
+}
+
+.index {
+  display: flex;
+  justify-content: center;
 }
