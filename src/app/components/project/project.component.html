@@ -1,7 +1,7 @@
 <div class="image-container">
   <div *ngIf="!this.singleView" class="image-grid">
 <!--image grid-->
-    <div class="image-row">
+    <div class="image-item">
       <div *ngFor="let image of this.images; let i = index">
         <img ngSrc="{{image.url}}" width="150" height="150" alt="{{image.desc}}" (click)="this.onImageClick(i)">
       </div>

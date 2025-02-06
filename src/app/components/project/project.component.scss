@@ -2,11 +2,22 @@
   margin-top: 20px;
 }
 
-.flash-cards-row {
-  display: flex;
-  align-items: center;
-  width: 100%;
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px; /* 5px space on each side (total 10px between images) */
+  max-width: 100vw; /* Prevent grid from exceeding screen width */
+  margin: 0 auto; /* Center the grid */
+  padding: 5px; /* Optional padding around the grid */
+  justify-content: center;
 }
+
+.image-item img {
+  display: block;
+  border: 5px solid transparent; /* 5px spacing effect */
+  object-fit: cover;
+}
+
 
 .arrow-button {
   width: 15%;
