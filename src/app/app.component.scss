@@ -29,7 +29,7 @@
 .links-section {
   margin-top: 30px;
   overflow-y: auto;
-  max-height: 70vh;
+  max-height: 80vh;
 }
 
 .list-group {
@@ -119,6 +119,12 @@ p {
 .sub-list-container {
   overflow-y: auto;
   max-height: 31vh;
+}
+
+@media (max-height: 720px) {
+  .links-section {
+    max-height: 60vh;
+  }
 }
 
 @media (max-width: 460px) {
