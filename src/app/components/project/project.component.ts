@@ -16,6 +16,27 @@ export class ProjectComponent {
   @Input() images: Image[] = [];
   currentIndex: number = 0; // Initialize at 0 for the first image
   singleView = false;
+  defaultImage = { height: 400, width: 300 };
+  singleImage = { ...defaultImage };
+
+  constructor() {
+    this.adjustImageSize(window.innerWidth);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.adjustImageSize(event.target.innerWidth);
+  }
+
+  private adjustImageSize(width: number) {
+    if (width < 500) {
+      this.singleImage = { height: 250, width: 200 }; // Smaller size for small screens
+    } else if (width > 900) {
+      this.singleImage = { height: 500, width: 400 }; // Larger size for bigger screens
+    } else {
+      this.singleImage = { ...defaultImage }; // Default size
+    }
+  }
 
   goToPrevious() {
     if (this.currentIndex > 0) {

@@ -110,3 +110,9 @@ img {
 .image-plus-desc {
   width: min-content;
 }
+
+@media (max-height: 700px) {
+  .image-grid {
+    max-height: 60vh;
+  }
+}
