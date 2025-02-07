@@ -17,7 +17,7 @@ export class ProjectComponent {
   currentIndex: number = 0; // Initialize at 0 for the first image
   singleView = false;
   defaultImage = { height: 400, width: 300 };
-  singleImage = { ...defaultImage };
+  singleImage = { ...this.defaultImage };
 
   constructor() {
     this.adjustImageSize(window.innerWidth);
@@ -34,7 +34,7 @@ export class ProjectComponent {
     } else if (width > 900) {
       this.singleImage = { height: 500, width: 400 }; // Larger size for bigger screens
     } else {
-      this.singleImage = { ...defaultImage }; // Default size
+      this.singleImage = { ...this.defaultImage }; // Default size
     }
   }
 
