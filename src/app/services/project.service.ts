@@ -6,7 +6,9 @@ export async function getProjects(): Promise<Projects> {
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return (await response.json()) as Projects;
+    const projects = (await response.json()) as Projects;
+    projects.projectsByYear.sort((a, b) => Number(b.year) - Number(a.year));
+    return projects;
   } catch (error) {
     console.error("Failed to fetch projects:", error);
     return getLocalProjects(error);
