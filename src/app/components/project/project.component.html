@@ -5,8 +5,8 @@
       <div *ngFor="let image of this.images; let i = index">
         <img
           ngSrc="{{image.url}}"
+          height="200"
           width="150"
-          height="150"
           alt="{{image.desc}}"
           (click)="this.onImageClick(i)"
         >

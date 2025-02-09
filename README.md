@@ -2,7 +2,14 @@
 
 [Live Site](woodworking-projects.ryan-brock.com)
 
-This project is to show off the woodworking projects. [Image Repo](https://github.com/rbrock44/woodworking-projects-images/). All images should be compressed (I used [TinyPNG](https://tinypng.com/) previously).
+This project is to show off the woodworking projects. [Image Repo](https://github.com/rbrock44/woodworking-projects-images/). </br> 
+The following should be done to all images uploaded to that repo: </br>
+* compressed (I used [TinyPNG](https://tinypng.com/) previously).
+* Aspect ratio of 4:3 (height:width)
+  * User must install [ImageMagick](https://imagemagick.org/script/download.php#windows) before running scripts 
+  * [find_not_3_by_4_aspect_ratio.ps1](https://github.com/rbrock44/woodworking-projects-images/blob/master/scripts/find_not_3_by_4_aspect_ratio.ps1) will create a not_3_by_4.txt file and output problem image paths
+  * [fix_not_3_by_4.ps1](https://github.com/rbrock44/woodworking-projects-images/blob/master/scripts/fix_not_3_by_4.ps1) will read the not_3_by_4.txt file and pad black or white to make image 4:3 aspect ratio
+  * Please delete not_3_by_4.txt file before pushing images to repo!
 
 Github actions to deploy on commit to master are wired up
 
