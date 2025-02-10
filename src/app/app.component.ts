@@ -11,7 +11,7 @@ import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.co
   imports: [
     CommonModule,
     RouterOutlet,
-    ProjectComponent,
+    ImagesViewerComponent,
   ],
   providers: [],
   templateUrl: './app.component.html',
