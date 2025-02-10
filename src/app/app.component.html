@@ -33,9 +33,9 @@
         <p *ngIf="this.selectedProject.desc != undefined && this.selectedProject.desc != ''">
           <strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
 
-        <app-project
+        <app-images-viewer
           [images]="this.selectedProject.images">
-        </app-project>
+        </app-images-viewer>
       </div>
 
     </div>

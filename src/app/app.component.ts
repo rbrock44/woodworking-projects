@@ -3,7 +3,7 @@ import {RouterOutlet} from '@angular/router';
 import {Project, Projects} from "./type/project.type";
 import {getProjects} from "./services/project.service";
 import {CommonModule} from "@angular/common";
-import {ProjectComponent} from "./components/project/project.component";
+import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
 
 @Component({
   selector: 'app-root',

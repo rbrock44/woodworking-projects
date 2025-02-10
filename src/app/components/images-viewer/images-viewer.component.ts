@@ -8,11 +8,11 @@ import {Image} from '../../type/project.type';
     CommonModule,
     NgOptimizedImage
   ],
-  selector: 'app-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss'],
+  selector: 'app-images-viewer',
+  templateUrl: './images-viewer.component.html',
+  styleUrls: ['./images-viewer.component.scss'],
 })
-export class ProjectComponent {
+export class ImagesViewerComponent {
   @Input() images: Image[] = [];
   currentIndex: number = 0; // Initialize at 0 for the first image
   singleView = false;

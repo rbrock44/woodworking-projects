@@ -12,7 +12,6 @@
         >
       </div>
     </div>
-
   </div>
 
   <div *ngIf="this.singleView">
@@ -34,8 +33,9 @@
           width="{{this.singleImage.width}}"
           alt="{{this.images[this.currentIndex].desc}}"
         >
-        <p class="image-desc"
-           *ngIf="this.images[this.currentIndex].desc != ''">{{ this.images[this.currentIndex].desc }}</p>
+        <p class="image-desc" *ngIf="this.images[this.currentIndex].desc != ''">
+          {{ this.images[this.currentIndex].desc }}
+        </p>
       </div>
 
       <button (click)="this.goToNext()" class="arrow-button right-arrow">
