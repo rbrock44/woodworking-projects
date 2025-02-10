@@ -7,7 +7,7 @@ import {ImageOverlayComponent} from '../image-overlay/image-overlay.component';
   standalone: true,
   imports: [
     CommonModule,
-    ImageOverlayComponent
+    ImageOverlayComponent,
     NgOptimizedImage,
   ],
   selector: 'app-images-viewer',

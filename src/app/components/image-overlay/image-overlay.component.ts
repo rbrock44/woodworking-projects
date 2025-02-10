@@ -1,9 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnChanges, HostListener } from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+  ],
   selector: 'app-image-overlay',
   templateUrl: './image-overlay.component.html',
-  styleUrls: ['./image-overlay.component.css']
+  styleUrls: ['./image-overlay.component.scss']
 })
 export class ImageOverlayComponent implements OnChanges {
   @Input() imageSrc: string = '';
