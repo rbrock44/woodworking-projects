@@ -32,6 +32,7 @@
           height="{{this.singleImage.height}}"
           width="{{this.singleImage.width}}"
           alt="{{this.images[this.currentIndex].desc}}"
+          (click)="this.onSingleImageClick()"
         >
         <p class="image-desc" *ngIf="this.images[this.currentIndex].desc != ''">
           {{ this.images[this.currentIndex].desc }}

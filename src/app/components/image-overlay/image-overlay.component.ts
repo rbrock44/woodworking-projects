@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit, HostListener } from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 @Component({
@@ -10,12 +10,16 @@ import {CommonModule} from '@angular/common';
   templateUrl: './image-overlay.component.html',
   styleUrls: ['./image-overlay.component.scss']
 })
-export class ImageOverlayComponent implements OnChanges {
+export class ImageOverlayComponent implements OnInit {
   @Input() imageSrc: string = '';
   @Output() close = new EventEmitter<void>();
 
   imageWidth = 0;
   imageHeight = 0;
+
+  ngOnInit() {
+    this.calculateSize();
+  }
 
   ngOnChanges() {
     this.calculateSize();
