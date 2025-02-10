@@ -29,7 +29,9 @@ export class ProjectComponent {
   }
 
   private adjustImageSize(width: number) {
-    if (width < 500) {
+    if (width < 315) {
+      this.singleImage = { height: 200, width: 150 }; // tiny size for tiny screens
+    } else if (width < 500) {
       this.singleImage = { height: 267, width: 200 }; // Smaller size for small screens
     } else if (width > 900) {
       this.singleImage = { height: 533, width: 400 }; // Larger size for bigger screens

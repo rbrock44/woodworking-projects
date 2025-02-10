@@ -116,3 +116,9 @@ img {
     max-height: 60vh;
   }
 }
+
+@media (max-width: 350px) {
+  .arrow-button {
+    font-size: 1rem;
+  }
+}
