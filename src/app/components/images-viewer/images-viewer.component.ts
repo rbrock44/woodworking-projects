@@ -1,12 +1,14 @@
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {Component, Input, OnInit, HostListener} from '@angular/core';
 import {Image} from '../../type/project.type';
+import {ImageOverlayComponent} from '../image-overlay/image-overlay.component';
 
 @Component({
   standalone: true,
   imports: [
     CommonModule,
-    NgOptimizedImage
+    ImageOverlayComponent
+    NgOptimizedImage,
   ],
   selector: 'app-images-viewer',
   templateUrl: './images-viewer.component.html',
@@ -14,7 +16,8 @@ import {Image} from '../../type/project.type';
 })
 export class ImagesViewerComponent {
   @Input() images: Image[] = [];
-  currentIndex: number = 0; // Initialize at 0 for the first image
+  currentIndex: number = 0;
+  isOverlayOpen: boolean = false;
   singleView = false;
   defaultImage = { height: 400, width: 300 };
   singleImage = { ...this.defaultImage };
@@ -56,9 +59,13 @@ export class ImagesViewerComponent {
     }
   }
 
-  onImageClick(index: number): void {
+  onGridImageClick(index: number): void {
     this.currentIndex = index;
     this.singleView = true;
+  }
+
+  onSingleImageClick(): void {
+    this.isOverlayOpen = true;
   }
 
   backClick(): void {

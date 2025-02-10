@@ -8,7 +8,7 @@
           height="200"
           width="150"
           alt="{{image.desc}}"
-          (click)="this.onImageClick(i)"
+          (click)="this.onGridImageClick(i)"
         >
       </div>
     </div>
@@ -45,3 +45,9 @@
 
   </div>
 </div>
+
+<app-image-overlay
+  *ngIf="this.isOverlayOpen"
+  [imageSrc]="this.images[this.currentIndex].url"
+  (close)="this.isOverlayOpen = false">
+</app-image-overlay>

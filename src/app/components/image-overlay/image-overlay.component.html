@@ -1,0 +1,10 @@
+<div class="overlay" (click)="this.closeOverlay()">
+  <div
+    class="image-overlay"
+    [ngStyle]="{'width.px': this.imageWidth, 'height.px': this.imageHeight}"
+    (click)="$event.stopPropagation()"
+  >
+    <img [src]="this.imageSrc" alt="Enlarged Image">
+    <button class="close-btn" (click)="this.closeOverlay()">X</button>
+  </div>
+</div>
