@@ -1102,6 +1102,32 @@
           ]
         }
       ]
+    },
+	{
+      "year": "2025",
+      "projects": [
+        {
+          "name": "Baby Rattles",
+          "desc": "Needed a baby shower gift for my gf's cousin, ended up with these rattles (and food safe finish on them)",
+          "images": [
+            {
+              "name": "20250224_1932",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/baby-rattles/20250224_1932.jpg"
+            },
+            {
+              "name": "20250228_0220",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/baby-rattles/20250228_0220.jpg"
+            },
+			{
+              "name": "20250228_0222",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/baby-rattles/20250228_0222.jpg"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
