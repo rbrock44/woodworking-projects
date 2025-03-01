@@ -1,6 +1,6 @@
 # WoodworkingProjects
 
-[Live Site](woodworking-projects.ryan-brock.com)
+[Live Site](https://woodworking-projects.ryan-brock.com/)
 
 This project is to show off the woodworking projects. [Image Repo](https://github.com/rbrock44/woodworking-projects-images/). </br> 
 The following should be done to all images uploaded to that repo: </br>
