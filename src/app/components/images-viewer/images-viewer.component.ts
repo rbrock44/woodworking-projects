@@ -23,7 +23,7 @@ export class ImagesViewerComponent {
   singleImage = { ...this.defaultImage };
 
   constructor() {
-    this.adjustImageSize(window.innerWidth);
+    this.adjustImageSize(window.innerWidth, window.innerHeight);
   }
 
   @HostListener('window:resize', ['$event'])
