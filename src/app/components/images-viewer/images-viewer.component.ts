@@ -40,23 +40,23 @@ export class ImagesViewerComponent {
     const large = { height: 533, width: 400 };
 
     if (width < 315) {
-      widthImage = tiny;
+      widthImage = { ...tiny };
     } else if (width < 500) {
-      widthImage = small;
+      widthImage = { ...small };
     } else if (width > 900) {
-      widthImage = large;
+      widthImage = { ...large };
     } else {
       widthImage = { ...this.defaultImage };
     }
 
     if (height < 315) {
-      this.singleImage = tiny;
+      heightImage = { ...tiny };
     } else if (height < 550) {
-      this.singleImage = small;
+      heightImage = { ...small };
     } else if (height > 800) {
-      this.singleImage = large;
+      heightImage = { ...large };
     } else {
-      this.singleImage = { ...this.defaultImage };
+      heightImage = { ...this.defaultImage };
     }
 
     if (widthImage.height > heightImage.height) {
