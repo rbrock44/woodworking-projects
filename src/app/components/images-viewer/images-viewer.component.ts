@@ -28,18 +28,41 @@ export class ImagesViewerComponent {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    this.adjustImageSize(event.target.innerWidth);
+    this.adjustImageSize(event.target.innerWidth, event.target.innerHeight);
   }
 
-  private adjustImageSize(width: number) {
+  private adjustImageSize(width: number, height: number) {
+    let widthImage = { height: 0, width: 0 };
+    let heightImage = { height: 0, width: 0 };
+
+    const tiny = { height: 200, width: 150 };
+    const small = { height: 267, width: 200 };
+    const large = { height: 533, width: 400 };
+
     if (width < 315) {
-      this.singleImage = { height: 200, width: 150 }; // tiny size for tiny screens
+      widthImage = tiny;
     } else if (width < 500) {
-      this.singleImage = { height: 267, width: 200 }; // Smaller size for small screens
+      widthImage = small;
     } else if (width > 900) {
-      this.singleImage = { height: 533, width: 400 }; // Larger size for bigger screens
+      widthImage = large;
     } else {
-      this.singleImage = { ...this.defaultImage }; // Default size
+      widthImage = { ...this.defaultImage };
+    }
+
+    if (height < 315) {
+      this.singleImage = tiny;
+    } else if (height < 550) {
+      this.singleImage = small;
+    } else if (height > 800) {
+      this.singleImage = large;
+    } else {
+      this.singleImage = { ...this.defaultImage };
+    }
+
+    if (widthImage.height > heightImage.height) {
+      this.singleImage = heightImage;
+    } else {
+      this.singleImage = widthImage;
     }
   }
 
