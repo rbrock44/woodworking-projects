@@ -35,6 +35,7 @@ export class ImagesViewerComponent {
     let widthImage = { height: 0, width: 0 };
     let heightImage = { height: 0, width: 0 };
 
+    const superTiny = { height: 150, width: 112.5 };
     const tiny = { height: 200, width: 150 };
     const small = { height: 267, width: 200 };
     const large = { height: 533, width: 400 };
@@ -49,9 +50,11 @@ export class ImagesViewerComponent {
       widthImage = { ...this.defaultImage };
     }
 
-    if (height < 315) {
-      heightImage = { ...tiny };
-    } else if (height < 550) {
+    if (height < 500) {
+      heightImage = { ...superTiny };
+    } else if (height < 600) {
+       eightImage = { ...tiny };
+    } else if (height < 700) {
       heightImage = { ...small };
     } else if (height > 800) {
       heightImage = { ...large };
