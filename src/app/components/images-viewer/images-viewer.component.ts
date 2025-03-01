@@ -53,7 +53,7 @@ export class ImagesViewerComponent {
     if (height < 500) {
       heightImage = { ...superTiny };
     } else if (height < 600) {
-       eightImage = { ...tiny };
+      heightImage = { ...tiny };
     } else if (height < 700) {
       heightImage = { ...small };
     } else if (height > 800) {
