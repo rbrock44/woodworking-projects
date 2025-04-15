@@ -8,11 +8,26 @@ export async function getProjects(): Promise<Projects> {
     }
     const projects = (await response.json()) as Projects;
     projects.projectsByYear.sort((a, b) => Number(b.year) - Number(a.year));
-    return projects;
+    return addAllCategory(projects);
   } catch (error) {
     console.error("Failed to fetch projects:", error);
-    return getLocalProjects(error);
+    return addAllCategory(getLocalProjects(error));
   }
+}
+
+function addAllCategory(project: Projects): Projects {
+  const allProjects = projectsData.projectsByYear.flatMap(entry => entry.projects);
+  const allProjectsByYear: ProjectsByYear =
+    {
+      year: 'All',
+      projects: allProjects,
+    };
+
+  const updatedProjects: Projects = {
+    projectsByYear: [allProjectsByYear, ...projectsData.projectsByYear],
+  };
+
+  return updatedProjects;
 }
 
 function getLocalProjects(error: any): Promise<Projects> {

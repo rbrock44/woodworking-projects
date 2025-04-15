@@ -39,7 +39,6 @@
 }
 
 .list-group-item {
-  max-height: 35vh;
   margin-bottom: 15px;
   font-size: 1.2rem;
   padding: 10px;
@@ -118,13 +117,6 @@ p {
 
 .sub-list-container {
   overflow-y: auto;
-  max-height: 31vh;
-}
-
-@media (max-height: 830px) {
-  .links-section {
-    max-height: 60vh;
-  }
 }
 
 @media (max-width: 460px) {
