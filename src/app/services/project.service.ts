@@ -15,13 +15,13 @@ export async function getProjects(): Promise<Projects> {
   }
 }
 
-function addAllCategory(project: Projects): Projects {
+async function addAllCategory(projectsData: Projects): Promise<Projects> {
   const allProjects = projectsData.projectsByYear.flatMap(entry => entry.projects);
-  const allProjectsByYear: ProjectsByYear =
-    {
-      year: 'All',
-      projects: allProjects,
-    };
+
+  const allProjectsByYear: ProjectsByYear = {
+    year: 'All',
+    projects: allProjects,
+  };
 
   const updatedProjects: Projects = {
     projectsByYear: [allProjectsByYear, ...projectsData.projectsByYear],
