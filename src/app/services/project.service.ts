@@ -1,4 +1,4 @@
-import { Projects, Project } from "../type/project.type";
+import { Projects, Project, ProjectsByYear } from "../type/project.type";
 
 export async function getProjects(): Promise<Projects> {
   try {
@@ -11,7 +11,7 @@ export async function getProjects(): Promise<Projects> {
     return addAllCategory(projects);
   } catch (error) {
     console.error("Failed to fetch projects:", error);
-    return addAllCategory(getLocalProjects(error));
+    return await addAllCategory(getLocalProjects(error));
   }
 }
 
