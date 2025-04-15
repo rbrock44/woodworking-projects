@@ -11,7 +11,7 @@ export async function getProjects(): Promise<Projects> {
     return addAllCategory(projects);
   } catch (error) {
     console.error("Failed to fetch projects:", error);
-    return await addAllCategory(getLocalProjects(error));
+    return addAllCategory(await getLocalProjects(error));
   }
 }
 
