@@ -1126,6 +1126,53 @@
               "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/baby-rattles/20250228_0222.jpg"
             }
           ]
+        },
+		{
+          "name": "Walking Stick",
+          "desc": "My grandpa bought this walking stick at an auction. He really liked it but it was missing a top and side piece",
+          "images": [
+            {
+              "name": "20250327_0224",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/walking-stick/20250327_0224.jpg"
+            },
+            {
+              "name": "20250404_2228",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/walking-stick/20250404_2228.jpg"
+            },
+			{
+              "name": "20250404_2229",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/walking-stick/20250404_2229.jpg"
+            },
+          ]
+        },
+		{
+          "name": "Round End Table",
+          "desc": "I found the bottom on sale at hobby lobby for $34.99. I was able to use a circle router jig for the top",
+          "images": [
+            {
+              "name": "20250414_0105",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/round-end-table/20250414_0105.jpg"
+            },
+            {
+              "name": "20250414_0106",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/round-end-table/20250414_0106.jpg"
+            },
+			{
+              "name": "20250414_1339",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/round-end-table/20250414_1339.jpg"
+            },
+			{
+              "name": "20250416_1903",
+              "desc": "",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2025/round-end-table/20250416_1903.jpg"
+            }
+          ]
         }
       ]
     }
