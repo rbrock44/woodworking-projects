@@ -10,7 +10,10 @@
               <div class="project-row">
                 <p class="year-text">{{ projectsByYear.year }}</p>
 
-                <button class="all-button" *ngIf="projectsByYear.year != 'All'" (click)="this.allProjectsByYear(projectsByYear.year);">
+                <button class="all-button"
+                        *ngIf="projectsByYear.year != 'All' || projectsByYear.projects.length == 1"
+                        (click)="this.allProjectsByYear(projectsByYear.year);"
+                >
                   All
                 </button>
               </div>
