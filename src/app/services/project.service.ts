@@ -22,7 +22,7 @@ async function addAllCategory(projectsData: Projects): Promise<Projects> {
 
   const allProject: Project = {
     name: 'All',
-    desc: 'All of the project from all of the years',
+    desc: 'All of the projects from all of the years',
     images: allImages,
   };
 
