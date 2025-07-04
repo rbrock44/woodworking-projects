@@ -82,7 +82,7 @@
   padding: 0 10px 0 10px;
 }
 
-.home-button {
+.home-button, .all-button {
   display: inline-block;
   padding: 0 10px 0 10px;
   font-size: 1rem;
@@ -94,8 +94,14 @@
   transition: all 0.3s ease;
 }
 
-.home-button:hover {
+.home-button:hover, .all-button:hover {
   background-color: #bfbfbf;
+}
+
+.project-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 p {
@@ -112,6 +118,7 @@ p {
 .project-name {
   text-align: left;
   padding-left: 20px;
+  margin: 0;
 }
 
 .sub-list-container {

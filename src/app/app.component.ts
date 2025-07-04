@@ -38,4 +38,18 @@ export class AppComponent implements OnInit {
     this.selectedProject = undefined;
     this.selectedYear = '';
   }
+
+  allProjectsByYear(year: string): void {
+    const images = this.data.projectsByYear.filter(x => x.year === year)
+      .flatMap(entry => entry.projects)
+      .flatMap(project => project.images);
+    const yearProject: Project = {
+      name: year,
+      description: `All of ${year}`,
+      images: images
+    }
+
+    this.selectedProject = yearProject;
+    this.selectedYear = year;
+  }
 }

@@ -7,15 +7,18 @@
         <div class="links-section">
           <ul class="list-group">
             <li class="list-group-item" *ngFor="let projectsByYear of this.data.projectsByYear; let i = index">
-              <p>{{ projectsByYear.year }}</p>
+              <div class="project-row">
+                <p>{{ projectsByYear.year }}</p>
+
+                <button class="all-button" (click)="this.allProjectsByYear(projectsByYear.year);">
+                  All
+                </button>
+              </div>
               <div class="sub-list-container">
                 <ul class="sub-list">
                   <li *ngFor="let project of projectsByYear.projects"
                       (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
-                    <p class="project-name">{{ project.name }}</p>
-                    <div>
-
-                    </div>
+                      <p class="project-name">{{ project.name }}</p>
                   </li>
                 </ul>
               </div>
