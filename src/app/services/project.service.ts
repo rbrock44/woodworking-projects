@@ -26,7 +26,7 @@ async function addAllCategory(projectsData: Projects): Promise<Projects> {
   };
 
   const allProjectsByYear: ProjectsByYear = {
-    year: 'All',
+    year: 'All the years',
     projects: [allProject],
   };
 

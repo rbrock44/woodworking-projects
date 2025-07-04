@@ -32,7 +32,7 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  background-color: #f0f0f0;
+  background-color: #ddd;
   border: 1px solid #ccc;
   border-radius: 5px;
   transition: background-color 0.3s ease;
@@ -47,7 +47,7 @@
 }
 
 .arrow-button:hover {
-  background-color: #d0d0d0;
+  background-color: #bfbfbf;
 }
 
 .progress-info {
@@ -81,6 +81,7 @@ img {
   border-radius: 5px;
   transition: all 0.3s ease;
   margin: 5px 10px 5px 5px;
+  background-color: #ddd;
 }
 
 .back-button:hover {

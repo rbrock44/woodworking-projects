@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
       .flatMap(entry => entry.projects)
       .flatMap(project => project.images);
     const yearProject: Project = {
-      name: year,
+      name: '',
       desc: `All of ${year}`,
       images: images
     }
