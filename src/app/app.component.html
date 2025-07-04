@@ -8,7 +8,7 @@
           <ul class="list-group">
             <li class="list-group-item" *ngFor="let projectsByYear of this.data.projectsByYear; let i = index">
               <div class="project-row">
-                <p>{{ projectsByYear.year }}</p>
+                <p class="year-text">{{ projectsByYear.year }}</p>
 
                 <button class="all-button" (click)="this.allProjectsByYear(projectsByYear.year);">
                   All
