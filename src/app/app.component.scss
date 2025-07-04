@@ -92,16 +92,28 @@
   border: 1px solid #2e2e2e;
   border-radius: 5px;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .home-button:hover, .all-button:hover {
   background-color: #bfbfbf;
 }
 
+.all-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.year-text {
+  margin: 0;
+}
+
 .project-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
+  text-align: center;
+  padding-right: 50px;
 }
 
 p {
