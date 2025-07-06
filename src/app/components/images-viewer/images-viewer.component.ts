@@ -28,6 +28,13 @@ export class ImagesViewerComponent {
     this.adjustImageSize(window.innerWidth, window.innerHeight);
   }
 
+  ngOnInit(): void {
+    const imageParam = this.route.snapshot.queryParamMap.get('image');
+    if (imageParam !== null && imageParam !== '') {
+      this.currentIndex = this.images.indexOf(image => image.name === imageParam);
+    }
+  }
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.adjustImageSize(event.target.innerWidth, event.target.innerHeight);
