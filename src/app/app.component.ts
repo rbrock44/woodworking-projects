@@ -9,9 +9,7 @@ import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.co
   selector: 'app-root',
   standalone: true,
   imports: [
-    ActivatedRoute,
     CommonModule,
-    Location,
     RouterOutlet,
     ImagesViewerComponent,
   ],
@@ -20,86 +18,85 @@ import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.co
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-    title = 'woodworking-projects';
-    selectedProject: Project | undefined = undefined;
-    selectedYear: string = '';
-    data: Projects = { projectsByYear: [] };
-    yearParam = 'year';
-    projectParam = 'project';
+  title = 'woodworking-projects';
+  selectedProject: Project | undefined = undefined;
+  selectedYear: string = '';
+  data: Projects = { projectsByYear: [] };
+  yearUrlParam: string = 'year';
+  projectUrlParam: string = 'project';
 
-    constructor(
-      private route: ActivatedRoute,
-      private location: Location
-      ) {}
+  constructor(
+    private route: ActivatedRoute,
+    private location: Location
+    ) {}
 
-    ngOnInit(): void {
-      getProjects().then((response) => {
-        this.data = response;
+  ngOnInit(): void {
+    getProjects().then((response) => {
+      this.data = response;
 
-        const yearParam = this.route.snapshot.queryParamMap.get(yearParam);
-        const projectParam = this.route.snapshot.queryParamMap.get(projectParam);
+      const yearParam = this.route.snapshot.queryParamMap.get(yearUrlParam);
+      const projectParam = this.route.snapshot.queryParamMap.get(projectUrlParam);
 
-        if (yearParam && projectParam !== null) {
-          this.selectedYear = yearParam;
+      if (yearParam && projectParam !== null) {
+        this.selectedYear = yearParam;
 
-          if (projectParam === '') {
-            this.allProjectsByYear(yearParam);
-          } else {
-            const yearGroup = this.data.projectsByYear.find(x => x.year === yearParam);
-            const foundProject = yearGroup?.projects.find(p => p.name === projectParam);
-            if (foundProject) {
-              this.selectedProject = foundProject;
-            }
+        if (projectParam === '') {
+          this.allProjectsByYear(yearParam);
+        } else {
+          const yearGroup = this.data.projectsByYear.find(x => x.year === yearParam);
+          const foundProject = yearGroup?.projects.find(p => p.name === projectParam);
+          if (foundProject) {
+            this.selectedProject = foundProject;
           }
         }
-      });
-    }
-
-    projectClick(project: Project, year: string): void {
-      this.selectedProject = project;
-      this.selectedYear = year;
-
-      const newUrl = this.buildUrl(year, project.name);
-      this.location.replaceState(newUrl);
-    }
-
-    homeClick(): void {
-      this.selectedProject = undefined;
-      this.selectedYear = '';
-
-      this.location.replaceState(this.buildUrl(null, null));
-    }
-
-    allProjectsByYear(year: string): void {
-      const images = this.data.projectsByYear
-        .filter(x => x.year === year)
-        .flatMap(entry => entry.projects)
-        .flatMap(project => project.images);
-
-      const yearProject: Project = {
-        name: '',
-        desc: `All of ${year}`,
-        images: images
-      };
-
-      this.selectedProject = yearProject;
-      this.selectedYear = year;
-
-      this.location.replaceState(this.buildUrl(year, ''));
-    }
-
-    private buildUrl(year: string | null, project: string | null): string {
-      const queryParams = new URLSearchParams();
-
-      if (year !== null && year !== '') {
-        queryParams.set(yearParam, year);
       }
+    });
+  }
 
-      if (project !== null) {
-        queryParams.set(projectParam, project);
-      }
+  projectClick(project: Project, year: string): void {
+    this.selectedProject = project;
+    this.selectedYear = year;
 
-      return `${location.pathname}?${queryParams.toString()}`;
+    const newUrl = this.buildUrl(year, project.name);
+    this.location.replaceState(newUrl);
+  }
+
+  homeClick(): void {
+    this.selectedProject = undefined;
+    this.selectedYear = '';
+
+    this.location.replaceState(this.buildUrl(null, null));
+  }
+
+  allProjectsByYear(year: string): void {
+    const images = this.data.projectsByYear
+      .filter(x => x.year === year)
+      .flatMap(entry => entry.projects)
+      .flatMap(project => project.images);
+
+    const yearProject: Project = {
+      name: '',
+      desc: `All of ${year}`,
+      images: images
+    };
+
+    this.selectedProject = yearProject;
+    this.selectedYear = year;
+
+    this.location.replaceState(this.buildUrl(year, ''));
+  }
+
+  private buildUrl(year: string | null, project: string | null): string {
+    const queryParams = new URLSearchParams();
+
+    if (year !== null && year !== '') {
+      queryParams.set(yearUrlParam, year);
     }
+
+    if (project !== null) {
+      queryParams.set(projectUrlParam, project);
+    }
+
+    return `${location.pathname}?${queryParams.toString()}`;
   }
 }
