@@ -31,7 +31,7 @@ export class ImagesViewerComponent {
   ngOnInit(): void {
     const imageParam = this.route.snapshot.queryParamMap.get('image');
     if (imageParam !== null && imageParam !== '') {
-      this.currentIndex = this.images.indexOf(image => image.name === imageParam);
+      this.currentIndex = this.images.findIndex(image => image.name === imageParam);
     }
   }
 
