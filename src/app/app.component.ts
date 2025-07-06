@@ -34,8 +34,8 @@ export class AppComponent implements OnInit {
     getProjects().then((response) => {
       this.data = response;
 
-      const yearParam = this.route.snapshot.queryParamMap.get(yearUrlParam);
-      const projectParam = this.route.snapshot.queryParamMap.get(projectUrlParam);
+      const yearParam = this.route.snapshot.queryParamMap.get(this.yearUrlParam);
+      const projectParam = this.route.snapshot.queryParamMap.get(this.projectUrlParam);
 
       if (yearParam && projectParam !== null) {
         this.selectedYear = yearParam;
@@ -90,11 +90,11 @@ export class AppComponent implements OnInit {
     const queryParams = new URLSearchParams();
 
     if (year !== null && year !== '') {
-      queryParams.set(yearUrlParam, year);
+      queryParams.set(this.yearUrlParam, year);
     }
 
     if (project !== null) {
-      queryParams.set(projectUrlParam, project);
+      queryParams.set(this.projectUrlParam, project);
     }
 
     return `${location.pathname}?${queryParams.toString()}`;
