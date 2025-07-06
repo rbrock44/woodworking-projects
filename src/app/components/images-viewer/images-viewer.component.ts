@@ -32,6 +32,7 @@ export class ImagesViewerComponent {
     const imageParam = this.route.snapshot.queryParamMap.get('image');
     if (imageParam !== null && imageParam !== '') {
       this.currentIndex = this.images.findIndex(image => image.name === imageParam);
+      this.singleImage = true;
     }
   }
 
