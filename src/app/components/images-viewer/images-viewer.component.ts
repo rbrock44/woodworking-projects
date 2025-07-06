@@ -2,7 +2,7 @@ import {CommonModule, Location, NgOptimizedImage} from '@angular/common';
 import {Component, Input, OnInit, HostListener} from '@angular/core';
 import {Image} from '../../type/project.type';
 import {ImageOverlayComponent} from '../image-overlay/image-overlay.component';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, RouterOutlet} from '@angular/router';
 
 @Component({
   standalone: true,
@@ -10,6 +10,7 @@ import {ActivatedRoute} from '@angular/router';
     CommonModule,
     ImageOverlayComponent,
     NgOptimizedImage,
+    RouterOutlet
   ],
   selector: 'app-images-viewer',
   templateUrl: './images-viewer.component.html',
