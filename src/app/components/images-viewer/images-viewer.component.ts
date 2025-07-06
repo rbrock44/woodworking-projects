@@ -90,9 +90,8 @@ export class ImagesViewerComponent {
     this.currentIndex = index;
     this.singleView = true;
 
-    const imageName = this.selectedProject?.images[index]?.name || '';
-    const newUrl = this.buildUrlWithImageParam(imageName);
-    this.location.replaceState(newUrl);
+    const imageName = this.images[index]?.name || '';
+    this.location.replaceState(this.buildImageUrl(imageName));
   }
 
   onSingleImageClick(): void {
@@ -102,20 +101,19 @@ export class ImagesViewerComponent {
   backClick(): void {
     this.singleView = false;
 
-    const newUrl = this.buildUrlWithImageParam(null);
-    this.location.replaceState(newUrl);
+    this.location.replaceState(this.buildImageUrl(null));
   }
 
-  private buildUrlWithImageParam(imageName: string | null): string {
-    const queryParams = new URLSearchParams();
+  private buildImageUrl(imageName: string | null): string {
+    const queryParams = new URLSearchParams(this.route.snapshot.queryParamMap as any);
 
-    const year = this.selectedYear;
-    const project = this.selectedProject?.name;
-
-    if (year) queryParams.set('year', year);
-    if (project !== undefined) queryParams.set('project', project);
-    if (imageName !== null) queryParams.set('image', imageName);
+    if (imageName === null) {
+      queryParams.delete('image');
+    } else {
+      queryParams.set('image', imageName);
+    }
 
     return `${location.pathname}?${queryParams.toString()}`;
   }
+
 }
