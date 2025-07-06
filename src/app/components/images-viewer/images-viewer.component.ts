@@ -1,7 +1,8 @@
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import {CommonModule, Location, NgOptimizedImage} from '@angular/common';
 import {Component, Input, OnInit, HostListener} from '@angular/core';
 import {Image} from '../../type/project.type';
 import {ImageOverlayComponent} from '../image-overlay/image-overlay.component';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   standalone: true,
@@ -22,7 +23,7 @@ export class ImagesViewerComponent {
   defaultImage = { height: 400, width: 300 };
   singleImage = { ...this.defaultImage };
 
-  constructor() {
+  constructor(private route: ActivatedRoute, private location: Location) {
     this.adjustImageSize(window.innerWidth, window.innerHeight);
   }
 
@@ -88,6 +89,10 @@ export class ImagesViewerComponent {
   onGridImageClick(index: number): void {
     this.currentIndex = index;
     this.singleView = true;
+
+    const imageName = this.selectedProject?.images[index]?.name || '';
+    const newUrl = this.buildUrlWithImageParam(imageName);
+    this.location.replaceState(newUrl);
   }
 
   onSingleImageClick(): void {
@@ -96,5 +101,21 @@ export class ImagesViewerComponent {
 
   backClick(): void {
     this.singleView = false;
+
+    const newUrl = this.buildUrlWithImageParam(null);
+    this.location.replaceState(newUrl);
+  }
+
+  private buildUrlWithImageParam(imageName: string | null): string {
+    const queryParams = new URLSearchParams();
+
+    const year = this.selectedYear;
+    const project = this.selectedProject?.name;
+
+    if (year) queryParams.set('year', year);
+    if (project !== undefined) queryParams.set('project', project);
+    if (imageName !== null) queryParams.set('image', imageName);
+
+    return `${location.pathname}?${queryParams.toString()}`;
   }
 }

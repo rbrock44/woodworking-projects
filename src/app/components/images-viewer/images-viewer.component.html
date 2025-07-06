@@ -22,7 +22,11 @@
       <span class="progress-info">{{ this.currentIndex + 1 }}/{{ this.images.length }}</span>
     </div>
     <div class="button-row">
-      <button (click)="this.goToPrevious()" class="arrow-button left-arrow">
+      <button
+        (click)="this.goToPrevious()"
+        class="arrow-button left-arrow"
+        [disabled]="this.currentIndex === 0"
+      >
         &#8592;
       </button>
 
@@ -39,7 +43,11 @@
         </p>
       </div>
 
-      <button (click)="this.goToNext()" class="arrow-button right-arrow">
+      <button
+        (click)="this.goToNext()"
+        class="arrow-button right-arrow"
+        [disabled]="this.currentIndex + 1 === this.images.length"
+      >
         &#8594;
       </button>
     </div>
