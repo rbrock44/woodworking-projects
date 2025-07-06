@@ -8,7 +8,6 @@
   gap: 10px; /* 5px space on each side (total 10px between images) */
   max-width: 90vw;
   max-height: 75vh;
-  margin: 0 auto;
   padding: 5px;
   justify-content: center;
   overflow-y: auto;
@@ -100,6 +99,7 @@ img {
 
 .image-desc {
   text-align: center;
+
 }
 
 .index {

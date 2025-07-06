@@ -33,8 +33,8 @@ export class ImageOverlayComponent implements OnInit {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
-    const maxWidth = screenWidth * 0.9; // 90% of screen width
-    const maxHeight = screenHeight * 0.9; // 90% of screen height
+    const maxWidth = screenWidth * 0.95; // 90% of screen width
+    const maxHeight = screenHeight * 0.95; // 90% of screen height
 
     // Maintain 3:4 aspect ratio
     let width = maxWidth;
