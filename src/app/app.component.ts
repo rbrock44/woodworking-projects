@@ -9,7 +9,9 @@ import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.co
   selector: 'app-root',
   standalone: true,
   imports: [
+    ActivatedRoute,
     CommonModule,
+    Location,
     RouterOutlet,
     ImagesViewerComponent,
   ],
@@ -22,6 +24,8 @@ export class AppComponent implements OnInit {
     selectedProject: Project | undefined = undefined;
     selectedYear: string = '';
     data: Projects = { projectsByYear: [] };
+    yearParam = 'year';
+    projectParam = 'project';
 
     constructor(
       private route: ActivatedRoute,
@@ -32,8 +36,8 @@ export class AppComponent implements OnInit {
       getProjects().then((response) => {
         this.data = response;
 
-        const yearParam = this.route.snapshot.queryParamMap.get('year');
-        const projectParam = this.route.snapshot.queryParamMap.get('project');
+        const yearParam = this.route.snapshot.queryParamMap.get(yearParam);
+        const projectParam = this.route.snapshot.queryParamMap.get(projectParam);
 
         if (yearParam && projectParam !== null) {
           this.selectedYear = yearParam;
@@ -88,11 +92,11 @@ export class AppComponent implements OnInit {
       const queryParams = new URLSearchParams();
 
       if (year !== null && year !== '') {
-        queryParams.set('year', year);
+        queryParams.set(yearParam, year);
       }
 
       if (project !== null) {
-        queryParams.set('project', project);
+        queryParams.set(projectParam, project);
       }
 
       return `${location.pathname}?${queryParams.toString()}`;
