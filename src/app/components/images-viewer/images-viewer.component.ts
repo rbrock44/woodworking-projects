@@ -106,7 +106,7 @@ export class ImagesViewerComponent {
   }
 
   private buildImageUrl(imageName: string | null): string {
-    const queryParams = new URLSearchParams(this.route.snapshot.queryParamMap as any);
+    const queryParams = new URLSearchParams(window.location.search);
 
     if (imageName === null) {
       queryParams.delete('image');
@@ -114,7 +114,6 @@ export class ImagesViewerComponent {
       queryParams.set('image', imageName);
     }
 
-    console.log('image query params: ', queryParams, this.route.snapshot.queryParamMap)
     return `${location.pathname}?${queryParams.toString()}`;
   }
 
