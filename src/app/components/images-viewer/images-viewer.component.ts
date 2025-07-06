@@ -82,6 +82,7 @@ export class ImagesViewerComponent {
   goToPrevious() {
     if (this.currentIndex > 0) {
       this.currentIndex--;
+      this.replaceImageUrlParam(this.currentIndex);
     } else {
       // set to end ??
     }
@@ -90,6 +91,7 @@ export class ImagesViewerComponent {
   goToNext() {
     if (this.currentIndex < this.images.length - 1) {
       this.currentIndex++;
+      this.replaceImageUrlParam(this.currentIndex);
     } else {
       // reshuffle cards
     }
@@ -99,8 +101,7 @@ export class ImagesViewerComponent {
     this.currentIndex = index;
     this.singleView = true;
 
-    const imageName = this.images[index]?.name || '';
-    this.location.replaceState(this.buildImageUrl(imageName));
+    this.replaceImageUrlParam(this.currentIndex);
   }
 
   onSingleImageClick(): void {
@@ -110,7 +111,19 @@ export class ImagesViewerComponent {
   backClick(): void {
     this.singleView = false;
 
-    this.location.replaceState(this.buildImageUrl(null));
+    this.replaceImageUrlParam(null);
+  }
+
+  private replaceImageUrlParam(index: number | null): void {
+    let url = '';
+    if (index === null) {
+      url = this.buildImageUrl(null);
+    } else {
+      const imageName = this.images[index]?.name || '';
+      url = this.buildImageUrl(imageName);
+    }
+
+    this.location.replaceState(url);
   }
 
   private buildImageUrl(imageName: string | null): string {
