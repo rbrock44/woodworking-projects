@@ -96,7 +96,11 @@ export class AppComponent implements OnInit {
     if (project !== null) {
       queryParams.set(this.projectUrlParam, project);
     }
-
-    return `${location.pathname}?${queryParams.toString()}`;
+    const end = queryParams.toString();
+    if (end !== '') {
+      return `${location.pathname}?${queryParams.toString()}`;
+    } else {
+      return location.pathname;
+    }
   }
 }
