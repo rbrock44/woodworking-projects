@@ -114,6 +114,14 @@ export class ImagesViewerComponent {
     this.replaceImageUrlParam(null);
   }
 
+  getThumbnailImage(url: string): string {
+    if (url.endsWith('.jpg')) {
+      return url.slice(0, -4) + '-150x200.jpg';
+    } else {
+      return url;
+    }
+  }
+
   private replaceImageUrlParam(index: number | null): void {
     let url = '';
     if (index === null) {
@@ -137,5 +145,4 @@ export class ImagesViewerComponent {
 
     return `${location.pathname}?${queryParams.toString()}`;
   }
-
 }

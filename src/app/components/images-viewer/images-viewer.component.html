@@ -4,7 +4,7 @@
     <div class="image-item">
       <div *ngFor="let image of this.images; let i = index">
         <img
-          ngSrc="{{image.url}}"
+          ngSrc="{{this.getThumbnailImage(image.url)}}"
           height="200"
           width="150"
           alt="{{image.desc}}"
