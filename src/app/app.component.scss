@@ -11,7 +11,6 @@
 }
 
 .container {
-  max-height: 94vh;
   margin: 0 auto;
   padding: 10px;
   background-color: dimgrey;
@@ -140,5 +139,17 @@ p {
 @media (max-width: 460px) {
   .container {
     width: 80vw;
+  }
+}
+
+@media (max-height: 650px) {
+  .links-section {
+    max-height: 70vh;
+  }
+}
+
+@media (max-height: 450px) {
+  .links-section {
+    max-height: 60vh;
   }
 }
