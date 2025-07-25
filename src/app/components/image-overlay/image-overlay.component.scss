@@ -45,7 +45,7 @@
   background: rgba(50, 50, 50, 0.9);
 }
 
-.nav-zone {
+.image-zone {
   position: absolute;
   top: 0;
   width: 30%;
@@ -53,12 +53,12 @@
   z-index: 1;
 }
 
-.nav-zone.left {
+.image-zone.left {
   left: 0;
   cursor: url('data:image/svg+xml;utf8,<svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>') 12 12, pointer;
 }
 
-.nav-zone.right {
+.image-zone.right {
   right: 0;
   cursor: url('data:image/svg+xml;utf8,<svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>') 12 12, pointer;
 }
