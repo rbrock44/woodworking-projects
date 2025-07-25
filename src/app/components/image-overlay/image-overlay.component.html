@@ -1,4 +1,7 @@
 <div class="overlay" (click)="this.closeOverlay()">
+  <div class="nav-zone left" (click)="this.previous.emit()" title="Previous"></div>
+  <div class="nav-zone right" (click)="this.next.emit()" title="Next"></div>
+
   <div
     class="image-overlay"
     [ngStyle]="{'width.px': this.imageWidth, 'height.px': this.imageHeight}"

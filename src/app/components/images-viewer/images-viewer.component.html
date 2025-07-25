@@ -58,5 +58,7 @@
 <app-image-overlay
   *ngIf="this.isOverlayOpen"
   [imageSrc]="this.images[this.currentIndex].url"
-  (close)="this.isOverlayOpen = false">
+  (close)="this.isOverlayOpen = false"
+  (previous)="this.goToPrevious()"
+  (next)="this.goToNext()">
 </app-image-overlay>
