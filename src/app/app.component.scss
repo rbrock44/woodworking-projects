@@ -136,12 +136,6 @@ p {
   overflow-y: auto;
 }
 
-@media (max-width: 460px) {
-  .container {
-    width: 80vw;
-  }
-}
-
 @media (max-height: 650px) {
   .links-section {
     max-height: 70vh;
