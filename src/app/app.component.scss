@@ -136,6 +136,12 @@ p {
   overflow-y: auto;
 }
 
+@media (max-width: 380px) {
+  .container {
+    max-width: 90%;
+  }
+}
+
 @media (max-width: 460px) {
   .container {
     max-width: 80%;
