@@ -40,7 +40,7 @@ export class ImageOverlayComponent implements OnInit {
 
     // Maintain 3:4 aspect ratio
     let width = maxWidth;
-    let height = (width * 4) / 3;
+    let height = ((width * 4) / 3) - 2;
 
     if (height > maxHeight) {
       height = maxHeight;
