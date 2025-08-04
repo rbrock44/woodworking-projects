@@ -16,6 +16,7 @@
   background-color: dimgrey;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 80%;
 }
 
 .title {
@@ -136,9 +137,9 @@ p {
   overflow-y: auto;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 1080px) {
   .container {
-    max-width: 90%;
+    max-width: 85%;
   }
 }
 
