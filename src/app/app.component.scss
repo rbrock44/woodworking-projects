@@ -140,12 +140,6 @@ p {
 
 @media (max-width: 750px) {
   .container {
-    max-width: auto;
-  }
-}
-
-@media (max-width: 460px) {
-  .container {
     max-width: 90%;
   }
 }

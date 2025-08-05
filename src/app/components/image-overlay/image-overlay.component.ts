@@ -48,7 +48,7 @@ export class ImageOverlayComponent implements OnInit {
     }
 
     this.imageWidth = width;
-    this.imageHeight = height - 6;
+    this.imageHeight = height - 4;
   }
 
   @HostListener('window:resize', [])
