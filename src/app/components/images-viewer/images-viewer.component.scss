@@ -30,6 +30,9 @@
 .click-to-enlarge {
   font-size: 14px;
   color: #444;
+  margin: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .arrow-button {
@@ -114,7 +117,7 @@ img {
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 5px;
+  padding-bottom: 10px
 }
 
 .image-plus-desc {
