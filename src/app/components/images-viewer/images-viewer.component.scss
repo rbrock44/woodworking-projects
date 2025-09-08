@@ -5,7 +5,8 @@
 .image-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px; /* 5px space on each side (total 10px between images) */
+  gap: 10px;
+  /* 5px space on each side (total 10px between images) */
   max-width: 90vw;
   max-height: 75vh;
   padding: 5px;
@@ -15,7 +16,8 @@
 
 .image-item img {
   display: block;
-  border: 5px solid transparent; /* 5px spacing effect */
+  border: 5px solid transparent;
+  /* 5px spacing effect */
   object-fit: cover;
 }
 
@@ -108,7 +110,11 @@ img {
 
 .index {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  text-align: center;
+  gap: 5px;
 }
 
 .image-plus-desc {

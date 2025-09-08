@@ -1,12 +1,15 @@
 <div class="image-container">
-  <div *ngIf="!this.singleView" class="image-grid">
+  <div *ngIf="!this.singleView">
     <p class="click-to-enlarge">Click any image to enlarge</p>
 
-    <!-- image grid -->
-    <div class="image-item">
-      <div *ngFor="let image of this.images; let i = index">
-        <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" alt="{{image.desc}}"
-          (click)="this.onGridImageClick(i)">
+    <div class="image-grid">
+
+      <!-- image grid -->
+      <div class="image-item">
+        <div *ngFor="let image of this.images; let i = index">
+          <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" alt="{{image.desc}}"
+            (click)="this.onGridImageClick(i)">
+        </div>
       </div>
     </div>
   </div>
