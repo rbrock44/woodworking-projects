@@ -1,5 +1,5 @@
 .image-container {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .image-grid {
@@ -23,6 +23,11 @@
   display: flex;
   justify-content: center;
   flex-flow: wrap;
+}
+
+.click-to-enlarge {
+  font-size: 14px;
+  color: #444;
 }
 
 .arrow-button {

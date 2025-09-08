@@ -1,15 +1,12 @@
 <div class="image-container">
   <div *ngIf="!this.singleView" class="image-grid">
-    <!--image grid-->
+    <p class="click-to-enlarge">Click any image to enlarge</p>
+
+    <!-- image grid -->
     <div class="image-item">
       <div *ngFor="let image of this.images; let i = index">
-        <img
-          ngSrc="{{this.getThumbnailImage(image.url)}}"
-          height="200"
-          width="150"
-          alt="{{image.desc}}"
-          (click)="this.onGridImageClick(i)"
-        >
+        <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" alt="{{image.desc}}"
+          (click)="this.onGridImageClick(i)">
       </div>
     </div>
   </div>
@@ -20,34 +17,24 @@
     </div>
     <div class="index">
       <span class="progress-info">{{ this.currentIndex + 1 }}/{{ this.images.length }}</span>
+      <p class="click-to-enlarge">Click image to enlarge</p>
     </div>
     <div class="button-row">
-      <button
-        (click)="this.goToPrevious()"
-        class="arrow-button left-arrow"
-        [disabled]="this.currentIndex === 0"
-      >
+      <button (click)="this.goToPrevious()" class="arrow-button left-arrow" [disabled]="this.currentIndex === 0">
         &#8592;
       </button>
 
       <div class="image-plus-desc">
-        <img
-          ngSrc="{{this.images[this.currentIndex].url}}"
-          height="{{this.singleImage.height}}"
-          width="{{this.singleImage.width}}"
-          alt="{{this.images[this.currentIndex].desc}}"
-          (click)="this.onSingleImageClick()"
-        >
+        <img ngSrc="{{this.images[this.currentIndex].url}}" height="{{this.singleImage.height}}"
+          width="{{this.singleImage.width}}" alt="{{this.images[this.currentIndex].desc}}"
+          (click)="this.onSingleImageClick()">
         <p class="image-desc" *ngIf="this.images[this.currentIndex].desc != ''">
           {{ this.images[this.currentIndex].desc }}
         </p>
       </div>
 
-      <button
-        (click)="this.goToNext()"
-        class="arrow-button right-arrow"
-        [disabled]="this.currentIndex + 1 === this.images.length"
-      >
+      <button (click)="this.goToNext()" class="arrow-button right-arrow"
+        [disabled]="this.currentIndex + 1 === this.images.length">
         &#8594;
       </button>
     </div>
@@ -55,10 +42,6 @@
   </div>
 </div>
 
-<app-image-overlay
-  *ngIf="this.isOverlayOpen"
-  [imageSrc]="this.images[this.currentIndex].url"
-  (close)="this.isOverlayOpen = false"
-  (previous)="this.goToPrevious()"
-  (next)="this.goToNext()">
+<app-image-overlay *ngIf="this.isOverlayOpen" [imageSrc]="this.images[this.currentIndex].url"
+  (close)="this.isOverlayOpen = false" (previous)="this.goToPrevious()" (next)="this.goToNext()">
 </app-image-overlay>

@@ -40,8 +40,6 @@
         <p *ngIf="this.selectedProject.desc != undefined && this.selectedProject.desc != ''">
           <strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
 
-        <p class="click-to-enlarge">Click Image to enlarge</p>
-
         <app-images-viewer
           [images]="this.selectedProject.images">
         </app-images-viewer>
