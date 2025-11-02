@@ -3,6 +3,9 @@ import { ImageSize, Image, Projects, ProjectsByYear } from "../type/project.type
 export const URL_PARAM_IMAGE: string = 'image';
 export const URL_PARAM_PROJECT: string = 'project';
 export const URL_PARAM_YEAR: string = 'year';
+export const URL_PARAM_INDEX: string = 'index';
+
+export const CSS_SELECTOR_IMAGES: string = '.image-item img'
 
 export const IMAGE_SIZE_DEFAULT: ImageSize = { height: 400, width: 300 };
 const IMAGE_SIZE_SUPER_TINY: ImageSize = { height: 150, width: 112.5 };
@@ -54,7 +57,7 @@ export function createThumbnailImageUrl(url: string): string {
 export function createImageForAll(year: string, projectName: string, image: Image): Image {
     return {
         name: image.name,
-        desc: `(${year} - ${projectName})` + image.desc !== '' ? ` - ${image.desc}` : '',
+        desc: `(${year} - ${projectName})` + (image.desc.trim() !== '' ? ` - ${image.desc}` : ''),
         url: image.url
     }
 }
