@@ -1,8 +1,9 @@
 import {CommonModule, Location, NgOptimizedImage} from '@angular/common';
 import {Component, Input, OnInit, HostListener} from '@angular/core';
-import {Image} from '../../type/project.type';
+import {Image, ImageSize} from '../../type/project.type';
 import {ImageOverlayComponent} from '../image-overlay/image-overlay.component';
-import {ActivatedRoute, RouterOutlet} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
+import { adjustImageToScreenSize, createThumbnailImageUrl, IMAGE_SIZE_DEFAULT, URL_PARAM_IMAGE } from '../../constant/constants';
 
 @Component({
   standalone: true,
@@ -10,7 +11,6 @@ import {ActivatedRoute, RouterOutlet} from '@angular/router';
     CommonModule,
     ImageOverlayComponent,
     NgOptimizedImage,
-    RouterOutlet
   ],
   selector: 'app-images-viewer',
   templateUrl: './images-viewer.component.html',
@@ -21,15 +21,14 @@ export class ImagesViewerComponent {
   currentIndex: number = 0;
   isOverlayOpen: boolean = false;
   singleView = false;
-  defaultImage = { height: 400, width: 300 };
-  singleImage = { ...this.defaultImage };
+  singleImage: ImageSize = { ...IMAGE_SIZE_DEFAULT };
 
   constructor(private route: ActivatedRoute, private location: Location) {
     this.adjustImageSize(window.innerWidth, window.innerHeight);
   }
 
   ngOnInit(): void {
-    const imageParam = this.route.snapshot.queryParamMap.get('image');
+    const imageParam = this.route.snapshot.queryParamMap.get(URL_PARAM_IMAGE);
     if (imageParam !== null && imageParam !== '') {
       this.currentIndex = this.images.findIndex(image => image.name === imageParam);
       this.singleView = true;
@@ -42,41 +41,7 @@ export class ImagesViewerComponent {
   }
 
   private adjustImageSize(width: number, height: number) {
-    let widthImage = { height: 0, width: 0 };
-    let heightImage = { height: 0, width: 0 };
-
-    const superTiny = { height: 150, width: 112.5 };
-    const tiny = { height: 200, width: 150 };
-    const small = { height: 267, width: 200 };
-    const large = { height: 533, width: 400 };
-
-    if (width < 315) {
-      widthImage = { ...tiny };
-    } else if (width < 500) {
-      widthImage = { ...small };
-    } else if (width > 900) {
-      widthImage = { ...large };
-    } else {
-      widthImage = { ...this.defaultImage };
-    }
-
-    if (height < 500) {
-      heightImage = { ...superTiny };
-    } else if (height < 600) {
-      heightImage = { ...tiny };
-    } else if (height < 700) {
-      heightImage = { ...small };
-    } else if (height > 800) {
-      heightImage = { ...large };
-    } else {
-      heightImage = { ...this.defaultImage };
-    }
-
-    if (widthImage.height > heightImage.height) {
-      this.singleImage = heightImage;
-    } else {
-      this.singleImage = widthImage;
-    }
+      this.singleImage = adjustImageToScreenSize(width, height);
   }
 
   goToPrevious() {
@@ -115,11 +80,7 @@ export class ImagesViewerComponent {
   }
 
   getThumbnailImage(url: string): string {
-    if (url.endsWith('.jpg')) {
-      return url.slice(0, -4) + '-150x200.jpg';
-    } else {
-      return url;
-    }
+    return createThumbnailImageUrl(url);
   }
 
   private replaceImageUrlParam(index: number | null): void {
@@ -138,9 +99,9 @@ export class ImagesViewerComponent {
     const queryParams = new URLSearchParams(window.location.search);
 
     if (imageName === null) {
-      queryParams.delete('image');
+      queryParams.delete(URL_PARAM_IMAGE);
     } else {
-      queryParams.set('image', imageName);
+      queryParams.set(URL_PARAM_IMAGE, imageName);
     }
 
     return `${location.pathname}?${queryParams.toString()}`;

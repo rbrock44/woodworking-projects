@@ -1,4 +1,5 @@
-import { Projects, Project, ProjectsByYear } from "../type/project.type";
+import { createImageForAll, extractAllImages } from "../constant/constants";
+import { Projects, Project, ProjectsByYear, Image } from "../type/project.type";
 
 export async function getProjects(): Promise<Projects> {
   try {
@@ -8,17 +9,15 @@ export async function getProjects(): Promise<Projects> {
     }
     const projects = (await response.json()) as Projects;
     projects.projectsByYear.sort((a, b) => Number(b.year) - Number(a.year));
-    return addAllCategory(projects);
+    return addAllYearAndProject(projects);
   } catch (error) {
     console.error("Failed to fetch projects:", error);
-    return addAllCategory(await getLocalProjects(error));
+    return addAllYearAndProject(await getLocalProjects(error));
   }
 }
 
-async function addAllCategory(projectsData: Projects): Promise<Projects> {
-  const allImages = projectsData.projectsByYear
-    .flatMap(entry => entry.projects)
-    .flatMap(project => project.images);
+async function addAllYearAndProject(projectsData: Projects): Promise<Projects> {
+  const allImages: Image[] = extractAllImages(projectsData);  
 
   const allProject: Project = {
     name: 'All',
@@ -62,3 +61,4 @@ function getLocalProjects(error: any): Promise<Projects> {
     ]
   });
 }
+

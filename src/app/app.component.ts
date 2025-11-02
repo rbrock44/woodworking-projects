@@ -4,6 +4,7 @@ import {Project, Projects} from "./type/project.type";
 import {getProjects} from "./services/project.service";
 import {CommonModule, Location} from "@angular/common";
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
+import { extractImagesByYear, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 @Component({
   selector: 'app-root',
@@ -22,8 +23,6 @@ export class AppComponent implements OnInit {
   selectedProject: Project | undefined = undefined;
   selectedYear: string = '';
   data: Projects = { projectsByYear: [] };
-  yearUrlParam: string = 'year';
-  projectUrlParam: string = 'project';
 
   constructor(
     private route: ActivatedRoute,
@@ -34,8 +33,8 @@ export class AppComponent implements OnInit {
     getProjects().then((response) => {
       this.data = response;
 
-      const yearParam = this.route.snapshot.queryParamMap.get(this.yearUrlParam);
-      const projectParam = this.route.snapshot.queryParamMap.get(this.projectUrlParam);
+      const yearParam = this.route.snapshot.queryParamMap.get(URL_PARAM_YEAR);
+      const projectParam = this.route.snapshot.queryParamMap.get(URL_PARAM_PROJECT);
 
       if (yearParam && projectParam !== null) {
         this.selectedYear = yearParam;
@@ -69,11 +68,7 @@ export class AppComponent implements OnInit {
   }
 
   allProjectsByYear(year: string): void {
-    const images = this.data.projectsByYear
-      .filter(x => x.year === year)
-      .flatMap(entry => entry.projects)
-      .flatMap(project => project.images);
-
+    const images = extractImagesByYear(this.data.projectsByYear.filter(x => x.year === year)[0]);
     const yearProject: Project = {
       name: '',
       desc: `All of ${year}`,
@@ -90,11 +85,11 @@ export class AppComponent implements OnInit {
     const queryParams = new URLSearchParams();
 
     if (year !== null && year !== '') {
-      queryParams.set(this.yearUrlParam, year);
+      queryParams.set(URL_PARAM_YEAR, year);
     }
 
     if (project !== null) {
-      queryParams.set(this.projectUrlParam, project);
+      queryParams.set(URL_PARAM_PROJECT, project);
     }
     const end = queryParams.toString();
     if (end !== '') {
