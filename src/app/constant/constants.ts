@@ -1,4 +1,7 @@
-import { ImageSize, Image, Projects, ProjectsByYear } from "../type/project.type";
+import { ImageSize, Image, Projects, ProjectsByYear, Project } from "../type/project.type";
+
+export const PROJECT_LIST: string = 'project-list.json';
+export const ALL: string = 'All';
 
 export const URL_PARAM_IMAGE: string = 'image';
 export const URL_PARAM_PROJECT: string = 'project';
@@ -94,4 +97,28 @@ export function extractImagesByYear(projectsByYear: ProjectsByYear): Image[] {
     return allImages;
 }
 
+function createAllProjectsByYear(images: Image[]): ProjectsByYear {
+    const allProject: Project = {
+        name: ALL,
+        desc: 'All of the projects from all of the years',
+        images: images,
+    };
 
+    const allProjectsByYear: ProjectsByYear = {
+        year: ALL,
+        projects: [allProject],
+    };
+
+    return allProjectsByYear;
+}
+
+export function addAllProjectsByYear(projectsData: Projects): Projects {
+    const allImages: Image[] = extractAllImages(projectsData);
+    const allProjectsByYear: ProjectsByYear = createAllProjectsByYear(allImages);
+
+    const updatedProjects: Projects = {
+        projectsByYear: [allProjectsByYear, ...projectsData.projectsByYear],
+    };
+
+    return updatedProjects;
+}

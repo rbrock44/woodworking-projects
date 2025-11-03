@@ -1,9 +1,9 @@
-import { createImageForAll, extractAllImages } from "../constant/constants";
-import { Projects, Project, ProjectsByYear, Image } from "../type/project.type";
+import { addAllProjectsByYear, PROJECT_LIST } from "../constant/constants";
+import { Project, Projects } from "../type/project.type";
 
 export async function getProjects(): Promise<Projects> {
   try {
-    const response = await fetch("project-list.json");
+    const response = await fetch(PROJECT_LIST);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -17,24 +17,7 @@ export async function getProjects(): Promise<Projects> {
 }
 
 async function addAllYearAndProject(projectsData: Projects): Promise<Projects> {
-  const allImages: Image[] = extractAllImages(projectsData);  
-
-  const allProject: Project = {
-    name: 'All',
-    desc: 'All of the projects from all of the years',
-    images: allImages,
-  };
-
-  const allProjectsByYear: ProjectsByYear = {
-    year: 'All',
-    projects: [allProject],
-  };
-
-  const updatedProjects: Projects = {
-    projectsByYear: [allProjectsByYear, ...projectsData.projectsByYear],
-  };
-
-  return updatedProjects;
+  return addAllProjectsByYear(projectsData);
 }
 
 function getLocalProjects(error: any): Promise<Projects> {
