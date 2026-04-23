@@ -2064,6 +2064,48 @@
           ]
         }
       ]
+    },
+    {
+      "year": "2026",
+      "projects": [
+        {
+          "name": "Rug Beater",
+          "desc": "Bought this old rug beater from a yard sale for $3 and built a better handle",
+          "images": [
+            {
+              "name": "20260412_1856",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/rug-beater/20260412_1856.jpg",
+              "desc": ""
+            },
+            {
+              "name": "20260412_1857",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/rug-beater/20260412_1857.jpg",
+              "desc": ""
+            },
+            {
+              "name": "20260413_2320",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/rug-beater/20260413_2320.jpg",
+              "desc": ""
+            }
+          ]
+        },
+        {
+          "name": "Storage",
+          "desc": "",
+          "images": [
+            {
+              "name": "20260412_1900",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/storage/20260412_1900.jpg",
+              "desc": "Bought this cabinet for $60 (was $140) from Lowe's, cutoff a couple inches on the bottom and installed a new bottom"
+            },
+            {
+              "name": "20260412_1901",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/storage/20260412_1901.jpg",
+              "desc": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
