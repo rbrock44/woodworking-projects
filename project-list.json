@@ -2066,7 +2066,7 @@
       ]
     },
     {
-      "year": "2026",
+      "year": "2026y",
       "projects": [
         {
           "name": "Rug Beater",
@@ -2101,6 +2101,32 @@
             {
               "name": "20260412_1901",
               "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/storage/20260412_1901.jpg",
+              "desc": ""
+            }
+          ]
+        },
+        {
+          "name": "Miter Saw Bench",
+          "desc": "",
+          "images": [
+            {
+              "name": "20260525_0057",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/miter-saw-bench/20260525_0057.jpg",
+              "desc": ""
+            },
+            {
+              "name": "20260525_0058",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/miter-saw-bench/20260525_0058.jpg",
+              "desc": ""
+            },
+            {
+              "name": "20260525_0059",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/miter-saw-bench/20260525_0059.jpg",
+              "desc": ""
+            },
+            {
+              "name": "20260525_0100",
+              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2026/miter-saw-bench/20260525_0100.jpg",
               "desc": ""
             }
           ]
