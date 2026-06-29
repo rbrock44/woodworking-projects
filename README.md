@@ -16,6 +16,7 @@ Screenshots:
 - [What's My Purpose?](#-whats-my-purpose)
 - [How to Use](#-how-to-use)
 - [Technologies](#-technologies)
+- [VS Code Workspace](#-vs-code-workspace)
 - [Getting Started (Local Setup)](#-getting-started-local-setup)
   - [Run Locally](#run-locally)
   - [Test](#test)
@@ -53,10 +54,27 @@ Screenshots:
 
 ---
 
+## 🖥️ VS Code Workspace
+
+A `woodworking.code-workspace` file is included in this repo. It opens both this project and the [woodworking-projects-images](https://github.com/rbrock44/woodworking-projects-images/) repo in a single VS Code instance.
+
+**For the workspace file to work correctly, both repos must live side by side in the same parent folder:**
+
+```
+parent-folder/
+├── woodworking-projects/        ← this repo
+└── woodworking-projects-images/ ← image repo
+```
+
+Open the workspace by selecting **File > Open Workspace from File...** and choosing `woodworking.code-workspace`.
+
+---
+
 ## 🚀 Getting Started (Local Setup)
 
 * Install [node](https://nodejs.org/en) - v18 is needed (v20 also works)
 * Clone [repo](https://github.com/rbrock44/woodworking-projects)
+* Clone [image repo](https://github.com/rbrock44/woodworking-projects-images/) into the same parent folder (required for the VS Code workspace)
 
 ---
 

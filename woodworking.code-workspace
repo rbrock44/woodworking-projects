@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "name": "Project Website",
+      "path": "."
+    },
+    {
+      "name": "Image Repository",
+      "path": "../woodworking-projects-images"
+    }
+  ],
+  "extensions": {
+    "recommendations": [
+      "angular.ng-template",
+      "ms-vscode.powershell",
+      "github.vscode-github-actions"
+    ]
+  }
+}
