@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {RouterOutlet, ActivatedRoute} from '@angular/router';
 import {Project, Projects} from "./type/project.type";
 import {getProjects} from "./services/project.service";
@@ -14,6 +14,7 @@ import { extractImagesByYear, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './consta
 ],
     providers: [],
     templateUrl: './app.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {

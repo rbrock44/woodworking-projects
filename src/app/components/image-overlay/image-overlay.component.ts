@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 @Component({
@@ -7,6 +7,7 @@ import {CommonModule} from '@angular/common';
     ],
     selector: 'app-image-overlay',
     templateUrl: './image-overlay.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./image-overlay.component.scss']
 })
 export class ImageOverlayComponent implements OnInit {

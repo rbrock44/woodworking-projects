@@ -1,5 +1,5 @@
 import { Location, NgOptimizedImage } from '@angular/common';
-import { Component, Input, OnInit, HostListener } from '@angular/core';
+import { Component, Input, OnInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { ActivatedRoute } from '@angular/router';
@@ -12,6 +12,7 @@ import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, 
 ],
     selector: 'app-images-viewer',
     templateUrl: './images-viewer.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./images-viewer.component.scss']
 })
 export class ImagesViewerComponent {
