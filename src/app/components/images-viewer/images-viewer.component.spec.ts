@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { ImagesViewerComponent } from './images-viewer.component';
 
 describe('ImagesViewerComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ImagesViewerComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
   });
 

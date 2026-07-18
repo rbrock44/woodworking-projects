@@ -6,15 +6,14 @@ import { ActivatedRoute } from '@angular/router';
 import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, IMAGE_SIZE_DEFAULT, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
-  standalone: true,
-  imports: [
-    CommonModule,
-    ImageOverlayComponent,
-    NgOptimizedImage,
-  ],
-  selector: 'app-images-viewer',
-  templateUrl: './images-viewer.component.html',
-  styleUrls: ['./images-viewer.component.scss'],
+    imports: [
+        CommonModule,
+        ImageOverlayComponent,
+        NgOptimizedImage,
+    ],
+    selector: 'app-images-viewer',
+    templateUrl: './images-viewer.component.html',
+    styleUrls: ['./images-viewer.component.scss']
 })
 export class ImagesViewerComponent {
   @Input() images: Image[] = [];

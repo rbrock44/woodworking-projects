@@ -2,13 +2,12 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit, HostListener
 import {CommonModule} from '@angular/common';
 
 @Component({
-  standalone: true,
-  imports: [
-    CommonModule,
-  ],
-  selector: 'app-image-overlay',
-  templateUrl: './image-overlay.component.html',
-  styleUrls: ['./image-overlay.component.scss']
+    imports: [
+        CommonModule,
+    ],
+    selector: 'app-image-overlay',
+    templateUrl: './image-overlay.component.html',
+    styleUrls: ['./image-overlay.component.scss']
 })
 export class ImageOverlayComponent implements OnInit {
   @Input() imageSrc: string = '';

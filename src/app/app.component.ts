@@ -7,16 +7,15 @@ import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.co
 import { extractImagesByYear, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    ImagesViewerComponent,
-  ],
-  providers: [],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    imports: [
+        CommonModule,
+        RouterOutlet,
+        ImagesViewerComponent,
+    ],
+    providers: [],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
   title = 'woodworking-projects';
