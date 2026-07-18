@@ -1,52 +1,61 @@
 <main class="main">
   <div class="content">
     <div class="container">
-      <div *ngIf="!this.selectedProject">
-        <h1 class="title">Woodworking Projects</h1>
-
-        <div class="links-section">
-          <ul class="list-group">
-            <li class="list-group-item" *ngFor="let projectsByYear of this.data.projectsByYear; let i = index">
-              <div class="project-row">
-                <p class="year-text">{{ projectsByYear.year }}</p>
-
-                <button class="all-button"
-                        *ngIf="projectsByYear.year != 'All' && projectsByYear.projects.length != 1"
+      @if (!this.selectedProject) {
+        <div>
+          <h1 class="title">Woodworking Projects</h1>
+          <div class="links-section">
+            <ul class="list-group">
+              @for (projectsByYear of this.data.projectsByYear; track projectsByYear; let i = $index) {
+                <li class="list-group-item">
+                  <div class="project-row">
+                    <p class="year-text">{{ projectsByYear.year }}</p>
+                    @if (projectsByYear.year != 'All' && projectsByYear.projects.length != 1) {
+                      <button class="all-button"
                         (click)="this.allProjectsByYear(projectsByYear.year);"
-                >
-                  All
-                </button>
-              </div>
-              <div class="sub-list-container">
-                <ul class="sub-list">
-                  <li *ngFor="let project of projectsByYear.projects"
-                      (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
-                      <p class="project-name">{{ project.name }}</p>
-                  </li>
-                </ul>
-              </div>
+                        >
+                        All
+                      </button>
+                    }
+                  </div>
+                  <div class="sub-list-container">
+                    <ul class="sub-list">
+                      @for (project of projectsByYear.projects; track project) {
+                        <li
+                          (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
+                          <p class="project-name">{{ project.name }}</p>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+      @if (this.selectedProject) {
+        <div class="project-container">
+          <div class="sticky-header">
+            <p (click)="this.homeClick()" class="home-button">Home</p>
+          </div>
+          <p><strong>Year:</strong> {{ this.selectedYear }}</p>
+          @if (this.selectedProject.name != undefined && this.selectedProject.name != '') {
+            <p>
+              <strong>Project:</strong> {{ this.selectedProject.name }}</p>
+            }
+            @if (this.selectedProject.desc != undefined && this.selectedProject.desc != '') {
+              <p>
+                <strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
+              }
+              <app-images-viewer
+                [images]="this.selectedProject.images">
+              </app-images-viewer>
+            </div>
+          }
 
-            </li>
-          </ul>
         </div>
       </div>
-      <div *ngIf="this.selectedProject" class="project-container">
-        <div class="sticky-header">
-          <p (click)="this.homeClick()" class="home-button">Home</p>
-        </div>
-        <p><strong>Year:</strong> {{ this.selectedYear }}</p>
-        <p *ngIf="this.selectedProject.name != undefined && this.selectedProject.name != ''">
-          <strong>Project:</strong> {{ this.selectedProject.name }}</p>
-        <p *ngIf="this.selectedProject.desc != undefined && this.selectedProject.desc != ''">
-          <strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
+    </main>
 
-        <app-images-viewer
-          [images]="this.selectedProject.images">
-        </app-images-viewer>
-      </div>
-
-    </div>
-  </div>
-</main>
-
-<router-outlet/>
+    <router-outlet/>

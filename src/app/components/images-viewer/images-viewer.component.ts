@@ -1,4 +1,4 @@
-import { CommonModule, Location, NgOptimizedImage } from '@angular/common';
+import { Location, NgOptimizedImage } from '@angular/common';
 import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
@@ -7,10 +7,9 @@ import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, 
 
 @Component({
     imports: [
-        CommonModule,
-        ImageOverlayComponent,
-        NgOptimizedImage,
-    ],
+    ImageOverlayComponent,
+    NgOptimizedImage
+],
     selector: 'app-images-viewer',
     templateUrl: './images-viewer.component.html',
     styleUrls: ['./images-viewer.component.scss']

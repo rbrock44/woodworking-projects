@@ -2,17 +2,16 @@ import {Component, OnInit} from '@angular/core';
 import {RouterOutlet, ActivatedRoute} from '@angular/router';
 import {Project, Projects} from "./type/project.type";
 import {getProjects} from "./services/project.service";
-import {CommonModule, Location} from "@angular/common";
+import { Location } from "@angular/common";
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
 import { extractImagesByYear, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 @Component({
     selector: 'app-root',
     imports: [
-        CommonModule,
-        RouterOutlet,
-        ImagesViewerComponent,
-    ],
+    RouterOutlet,
+    ImagesViewerComponent
+],
     providers: [],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
