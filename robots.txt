@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://woodworking-projects.ryan-brock.com/sitemap.xml
