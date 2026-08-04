@@ -50,6 +50,6 @@
 
     @if (this.isOverlayOpen) {
       <app-image-overlay [imageSrc]="this.images[this.currentIndex].url"
-        (close)="this.isOverlayOpen = false" (previous)="this.goToPrevious()" (next)="this.goToNext()">
+        (close)="this.closeOverlay()" (previous)="this.goToPrevious()" (next)="this.goToNext()">
       </app-image-overlay>
     }

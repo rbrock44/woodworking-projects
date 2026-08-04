@@ -1,9 +1,16 @@
 <main class="main">
   <div class="content">
     <div class="container">
-      <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
-        Directory
-      </a>
+      <div class="top-bar">
+        @if (this.selectedProject) {
+          <p (click)="this.homeClick()" class="home-button">Home</p>
+        }
+        @if (!this.isImageEnlarged) {
+          <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
+            Directory
+          </a>
+        }
+      </div>
       @if (!this.selectedProject) {
         <div>
           <h1 class="title">Woodworking Projects</h1>
@@ -39,9 +46,6 @@
       }
       @if (this.selectedProject) {
         <div class="project-container">
-          <div class="sticky-header">
-            <p (click)="this.homeClick()" class="home-button">Home</p>
-          </div>
           <p><strong>Year:</strong> {{ this.selectedYear }}</p>
           @if (this.selectedProject.name != undefined && this.selectedProject.name != '') {
             <p>
@@ -52,7 +56,8 @@
                 <strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
               }
               <app-images-viewer
-                [images]="this.selectedProject.images">
+                [images]="this.selectedProject.images"
+                (enlargedChange)="this.isImageEnlarged = $event">
               </app-images-viewer>
             </div>
           }

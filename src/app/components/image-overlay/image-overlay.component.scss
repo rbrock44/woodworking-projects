@@ -20,12 +20,16 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+  max-width: 95vw;
+  max-height: 95vh;
 }
 
 .image-overlay img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  display: block;
+  max-width: 95vw;
+  max-height: 95vh;
+  width: auto;
+  height: auto;
 }
 
 .close-btn {

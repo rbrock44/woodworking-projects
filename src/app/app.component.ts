@@ -22,6 +22,7 @@ export class AppComponent implements OnInit {
   selectedProject: Project | undefined = undefined;
   selectedYear: string = '';
   data: Projects = { projectsByYear: [] };
+  isImageEnlarged: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -62,6 +63,7 @@ export class AppComponent implements OnInit {
   homeClick(): void {
     this.selectedProject = undefined;
     this.selectedYear = '';
+    this.isImageEnlarged = false;
 
     this.location.replaceState(this.buildUrl(null, null));
   }

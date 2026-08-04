@@ -1,5 +1,5 @@
 import { Location, NgOptimizedImage } from '@angular/common';
-import { Component, Input, OnInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { ActivatedRoute } from '@angular/router';
@@ -17,6 +17,7 @@ import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, 
 })
 export class ImagesViewerComponent {
   @Input() images: Image[] = [];
+  @Output() enlargedChange = new EventEmitter<boolean>();
   currentIndex: number = 0;
   isOverlayOpen: boolean = false;
   singleView = false;
@@ -34,6 +35,7 @@ export class ImagesViewerComponent {
     }
 
     this.checkForIndex(this.route.snapshot.queryParamMap.get(URL_PARAM_INDEX));
+    this.emitEnlargedState();
   }
 
   @HostListener('window:resize', ['$event'])
@@ -82,16 +84,24 @@ export class ImagesViewerComponent {
   onGridImageClick(index: number): void {
     this.currentIndex = index;
     this.singleView = true;
+    this.emitEnlargedState();
 
     this.replaceImageUrlParam(this.currentIndex);
   }
 
   onSingleImageClick(): void {
     this.isOverlayOpen = true;
+    this.emitEnlargedState();
+  }
+
+  closeOverlay(): void {
+    this.isOverlayOpen = false;
+    this.emitEnlargedState();
   }
 
   backClick(): void {
     this.singleView = false;
+    this.emitEnlargedState();
 
     this.replaceImageUrlParam(null);
     this.checkForIndex(this.currentIndex.toString());
@@ -99,6 +109,10 @@ export class ImagesViewerComponent {
 
   getThumbnailImage(url: string): string {
     return createThumbnailImageUrl(url);
+  }
+
+  private emitEnlargedState(): void {
+    this.enlargedChange.emit(this.isOverlayOpen);
   }
 
   private replaceImageUrlParam(index: number | null): void {

@@ -44,6 +44,7 @@
 }
 
 .arrow-button {
+  flex-shrink: 0;
   font-size: var(--text-2xl);
   display: flex;
   justify-content: center;
@@ -91,6 +92,7 @@ img {
 .button-row {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .back-button {
@@ -138,7 +140,13 @@ img {
 }
 
 .image-plus-desc {
-  width: min-content;
+  min-width: 0;
+}
+
+.image-plus-desc img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 @media (max-height: 850px) {
