@@ -2,13 +2,24 @@
 
   <div
     class="image-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Project image viewer"
     (click)="$event.stopPropagation()"
   >
 
-    <div class="image-zone left" (click)="$event.stopPropagation(); this.previous.emit()" title="Previous"></div>
-    <div class="image-zone right" (click)="$event.stopPropagation(); this.next.emit()" title="Next"></div>
+    <div class="image-zone left" role="button" tabindex="0" aria-label="Previous image"
+      (click)="$event.stopPropagation(); this.previous.emit()"
+      (keydown.enter)="$event.stopPropagation(); this.previous.emit()"
+      (keydown.space)="$event.preventDefault(); $event.stopPropagation(); this.previous.emit()"
+      title="Previous"></div>
+    <div class="image-zone right" role="button" tabindex="0" aria-label="Next image"
+      (click)="$event.stopPropagation(); this.next.emit()"
+      (keydown.enter)="$event.stopPropagation(); this.next.emit()"
+      (keydown.space)="$event.preventDefault(); $event.stopPropagation(); this.next.emit()"
+      title="Next"></div>
 
     <img [src]="this.imageSrc" alt="Enlarged Image">
-    <button class="close-btn" (click)="this.closeOverlay()">X</button>
+    <button #closeBtn class="close-btn" aria-label="Close image viewer" (click)="this.closeOverlay()">X</button>
   </div>
 </div>
