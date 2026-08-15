@@ -125,9 +125,12 @@ img {
 }
 
 .image-desc {
+  display: table-caption;
+  caption-side: bottom;
   text-align: center;
   color: var(--color-text-muted);
   margin: 0;
+  overflow-wrap: break-word;
 }
 
 .index {
@@ -140,7 +143,9 @@ img {
 }
 
 .image-plus-desc {
+  display: table;
   min-width: 0;
+  max-width: 100%;
 }
 
 .image-plus-desc img {
