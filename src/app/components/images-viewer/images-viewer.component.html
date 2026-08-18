@@ -1,11 +1,26 @@
 <div class="image-container">
   @if (!this.singleView) {
     <div>
-      <p class="click-to-enlarge">Click any image to enlarge</p>
+      <div class="image-search">
+        <app-search-bar
+          [value]="this.searchTerm"
+          placeholder="Search photos"
+          label="Search photos"
+          resultNoun="photo"
+          [resultCount]="this.filteredImages.length"
+          [totalCount]="this.images.length"
+          (valueChange)="this.searchChange($event)">
+        </app-search-bar>
+      </div>
+      @if (this.filteredImages.length === 0) {
+        <p class="no-results">No photos match "{{ this.searchTerm }}"</p>
+      } @else {
+        <p class="click-to-enlarge">Click any image to enlarge</p>
+      }
       <div class="image-grid">
         <!-- image grid -->
         <div class="image-item">
-          @for (image of this.images; track image; let i = $index) {
+          @for (image of this.filteredImages; track image; let i = $index) {
             <div>
               <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" alt="{{image.desc}}"
                 (click)="this.onGridImageClick(i)">
@@ -22,7 +37,7 @@
           <p (click)="this.backClick()" class="back-button">Back</p>
         </div>
         <div class="index">
-          <span class="progress-info">{{ this.currentIndex + 1 }}/{{ this.images.length }}</span>
+          <span class="progress-info">{{ this.currentIndex + 1 }}/{{ this.filteredImages.length }}</span>
           <p class="click-to-enlarge">Click image to enlarge</p>
         </div>
         <div class="button-row">
@@ -30,17 +45,17 @@
             &#8592;
           </button>
           <div class="image-plus-desc">
-            <img ngSrc="{{this.images[this.currentIndex].url}}" height="{{this.singleImage.height}}"
-              width="{{this.singleImage.width}}" alt="{{this.images[this.currentIndex].desc}}"
+            <img ngSrc="{{this.filteredImages[this.currentIndex].url}}" height="{{this.singleImage.height}}"
+              width="{{this.singleImage.width}}" alt="{{this.filteredImages[this.currentIndex].desc}}"
               (click)="this.onSingleImageClick()">
-              @if (this.images[this.currentIndex].desc !== '') {
+              @if (this.filteredImages[this.currentIndex].desc !== '') {
                 <p class="image-desc">
-                  {{ this.images[this.currentIndex].desc }}
+                  {{ this.filteredImages[this.currentIndex].desc }}
                 </p>
               }
             </div>
             <button (click)="this.goToNext()" class="arrow-button right-arrow"
-              [disabled]="this.currentIndex + 1 === this.images.length">
+              [disabled]="this.currentIndex + 1 === this.filteredImages.length">
               &#8594;
             </button>
           </div>
@@ -49,7 +64,7 @@
     </div>
 
     @if (this.isOverlayOpen) {
-      <app-image-overlay [imageSrc]="this.images[this.currentIndex].url"
+      <app-image-overlay [imageSrc]="this.filteredImages[this.currentIndex].url"
         (close)="this.closeOverlay()" (previous)="this.goToPrevious()" (next)="this.goToNext()">
       </app-image-overlay>
     }

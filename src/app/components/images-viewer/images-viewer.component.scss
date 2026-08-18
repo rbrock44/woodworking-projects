@@ -154,6 +154,21 @@ img {
   display: block;
 }
 
+.image-search {
+  display: flex;
+  justify-content: center;
+  padding-bottom: var(--space-3);
+}
+
+.no-results {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin: 0;
+  padding-bottom: var(--space-2);
+}
+
 @media (max-height: 850px) {
   .image-grid {
     max-height: 60vh;

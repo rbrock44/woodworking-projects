@@ -122,3 +122,49 @@ export function addAllProjectsByYear(projectsData: Projects): Projects {
 
     return updatedProjects;
 }
+
+export function splitSearchTerms(search: string): string[] {
+    return search.toLowerCase().split(/\s+/).filter(term => term !== '');
+}
+
+function matchesAllTerms(terms: string[], ...fields: (string | undefined)[]): boolean {
+    const haystack = fields.filter(field => field !== undefined).join(' ').toLowerCase();
+
+    return terms.every(term => haystack.includes(term));
+}
+
+export function filterProjectsBySearch(projectsByYear: ProjectsByYear[], search: string): ProjectsByYear[] {
+    const terms = splitSearchTerms(search);
+
+    if (terms.length === 0) {
+        return projectsByYear;
+    }
+
+    // The year is part of every project's haystack, so 'bench' and '2023 bench' both work
+    const filtered: ProjectsByYear[] = [];
+
+    projectsByYear.forEach(yearGroup => {
+        const projects = yearGroup.projects.filter(project =>
+            matchesAllTerms(terms, yearGroup.year, project.name, project.desc));
+
+        if (projects.length > 0) {
+            filtered.push({ year: yearGroup.year, projects: projects });
+        }
+    });
+
+    return filtered;
+}
+
+export function countProjects(projectsByYear: ProjectsByYear[]): number {
+    return projectsByYear.reduce((total, yearGroup) => total + yearGroup.projects.length, 0);
+}
+
+export function filterImagesBySearch(images: Image[], search: string): Image[] {
+    const terms = splitSearchTerms(search);
+
+    if (terms.length === 0) {
+        return images;
+    }
+
+    return images.filter(image => matchesAllTerms(terms, image.name, image.desc));
+}

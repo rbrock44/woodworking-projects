@@ -1,0 +1,27 @@
+<div class="search-bar">
+  <div class="search-field">
+    <span class="search-icon" aria-hidden="true">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+        stroke-linecap="round">
+        <circle cx="7" cy="7" r="4.5"></circle>
+        <line x1="10.4" y1="10.4" x2="14" y2="14"></line>
+      </svg>
+    </span>
+    <input
+      class="search-input"
+      type="search"
+      autocomplete="off"
+      [attr.aria-label]="this.label"
+      [placeholder]="this.placeholder"
+      [value]="this.value"
+      (input)="this.onInput($event)">
+    @if (this.isSearching) {
+      <button class="clear-button" type="button" aria-label="Clear search" (click)="this.clear()">
+        &#10005;
+      </button>
+    }
+  </div>
+  @if (this.isSearching) {
+    <p class="result-count" role="status" aria-live="polite">{{ this.resultText }}</p>
+  }
+</div>

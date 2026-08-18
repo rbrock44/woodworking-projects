@@ -1,13 +1,15 @@
 import { Location, NgOptimizedImage } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
+import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
-import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, IMAGE_SIZE_DEFAULT, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
+import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
     imports: [
     ImageOverlayComponent,
+    SearchBarComponent,
     NgOptimizedImage
 ],
     selector: 'app-images-viewer',
@@ -15,27 +17,48 @@ import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, 
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./images-viewer.component.scss']
 })
-export class ImagesViewerComponent {
+export class ImagesViewerComponent implements OnInit, OnChanges {
   @Input() images: Image[] = [];
   @Output() enlargedChange = new EventEmitter<boolean>();
   currentIndex: number = 0;
   isOverlayOpen: boolean = false;
   singleView = false;
   singleImage: ImageSize = { ...IMAGE_SIZE_DEFAULT };
+  searchTerm: string = '';
+  filteredImages: Image[] = [];
 
   constructor(private route: ActivatedRoute, private location: Location) {
     this.adjustImageSize(window.innerWidth, window.innerHeight);
   }
 
   ngOnInit(): void {
+    this.applySearch();
+
     const imageParam = this.route.snapshot.queryParamMap.get(URL_PARAM_IMAGE);
     if (imageParam !== null && imageParam !== '') {
-      this.currentIndex = this.images.findIndex(image => image.name === imageParam);
-      this.singleView = true;
+      const index = this.filteredImages.findIndex(image => image.name === imageParam);
+      if (index !== -1) {
+        this.currentIndex = index;
+        this.singleView = true;
+      }
     }
 
     this.checkForIndex(this.route.snapshot.queryParamMap.get(URL_PARAM_INDEX));
     this.emitEnlargedState();
+  }
+
+  ngOnChanges(): void {
+    this.searchTerm = '';
+    this.applySearch();
+  }
+
+  searchChange(term: string): void {
+    this.searchTerm = term;
+    this.applySearch();
+  }
+
+  private applySearch(): void {
+    this.filteredImages = filterImagesBySearch(this.images, this.searchTerm);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -73,7 +96,7 @@ export class ImagesViewerComponent {
   }
 
   goToNext() {
-    if (this.currentIndex < this.images.length - 1) {
+    if (this.currentIndex < this.filteredImages.length - 1) {
       this.currentIndex++;
       this.replaceImageUrlParam(this.currentIndex);
     } else {
@@ -120,7 +143,7 @@ export class ImagesViewerComponent {
     if (index === null) {
       url = this.buildImageUrl(null);
     } else {
-      const imageName = this.images[index]?.name || '';
+      const imageName = this.filteredImages[index]?.name || '';
       url = this.buildImageUrl(imageName, index);
     }
 

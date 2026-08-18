@@ -14,9 +14,23 @@
       @if (!this.selectedProject) {
         <div>
           <h1 class="title">Woodworking Projects</h1>
+          <div class="search-section">
+            <app-search-bar
+              [value]="this.searchTerm"
+              placeholder="Search by project, year or description"
+              label="Search projects"
+              resultNoun="project"
+              [resultCount]="this.matchingProjectCount"
+              [totalCount]="this.totalProjectCount"
+              (valueChange)="this.searchChange($event)">
+            </app-search-bar>
+          </div>
+          @if (this.filteredProjectsByYear.length === 0 && this.searchTerm.trim() !== '') {
+            <p class="no-results">No projects match "{{ this.searchTerm }}"</p>
+          }
           <div class="links-section">
             <ul class="list-group">
-              @for (projectsByYear of this.data.projectsByYear; track projectsByYear; let i = $index) {
+              @for (projectsByYear of this.filteredProjectsByYear; track projectsByYear; let i = $index) {
                 <li class="list-group-item">
                   <div class="project-row">
                     <p class="year-text">{{ projectsByYear.year }}</p>

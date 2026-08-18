@@ -1,16 +1,18 @@
 import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {RouterOutlet, ActivatedRoute} from '@angular/router';
-import {Project, Projects} from "./type/project.type";
+import {Project, Projects, ProjectsByYear} from "./type/project.type";
 import {getProjects} from "./services/project.service";
 import { Location } from "@angular/common";
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
-import { extractImagesByYear, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
+import {SearchBarComponent} from "./components/search-bar/search-bar.component";
+import { ALL, countProjects, extractImagesByYear, filterProjectsBySearch, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 @Component({
     selector: 'app-root',
     imports: [
     RouterOutlet,
-    ImagesViewerComponent
+    ImagesViewerComponent,
+    SearchBarComponent
 ],
     providers: [],
     templateUrl: './app.component.html',
@@ -23,6 +25,10 @@ export class AppComponent implements OnInit {
   selectedYear: string = '';
   data: Projects = { projectsByYear: [] };
   isImageEnlarged: boolean = false;
+  searchTerm: string = '';
+  filteredProjectsByYear: ProjectsByYear[] = [];
+  totalProjectCount: number = 0;
+  matchingProjectCount: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -32,6 +38,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     getProjects().then((response) => {
       this.data = response;
+      this.applySearch();
 
       const yearParam = this.route.snapshot.queryParamMap.get(URL_PARAM_YEAR);
       const projectParam = this.route.snapshot.queryParamMap.get(URL_PARAM_PROJECT);
@@ -52,6 +59,18 @@ export class AppComponent implements OnInit {
     });
   }
 
+  searchChange(term: string): void {
+    this.searchTerm = term;
+    this.applySearch();
+  }
+
+  private applySearch(): void {
+    this.filteredProjectsByYear = filterProjectsBySearch(this.data.projectsByYear, this.searchTerm);
+    // The synthetic 'All' group is a shortcut, not a project, so it stays out of the count
+    this.totalProjectCount = countProjects(this.data.projectsByYear.filter(group => group.year !== ALL));
+    this.matchingProjectCount = countProjects(this.filteredProjectsByYear);
+  }
+
   projectClick(project: Project, year: string): void {
     this.selectedProject = project;
     this.selectedYear = year;
@@ -69,7 +88,8 @@ export class AppComponent implements OnInit {
   }
 
   allProjectsByYear(year: string): void {
-    const images = extractImagesByYear(this.data.projectsByYear.filter(x => x.year === year)[0]);
+    // Search-aware: 'All' covers the projects currently visible for that year
+    const images = extractImagesByYear(this.filteredProjectsByYear.filter(x => x.year === year)[0]);
     const yearProject: Project = {
       name: '',
       desc: `All of ${year}`,

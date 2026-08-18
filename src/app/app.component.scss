@@ -223,6 +223,19 @@ p {
   overflow-y: auto;
 }
 
+.search-section {
+  margin-top: var(--space-5);
+  display: flex;
+  justify-content: center;
+}
+
+.no-results {
+  margin-top: var(--space-5);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+}
+
 @media (max-width: 750px) {
   .container {
     width: 90vw;
