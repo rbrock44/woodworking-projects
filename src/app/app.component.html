@@ -1,83 +1,84 @@
 <main class="main">
-  <div class="content">
-    <div class="container">
-      <div class="top-bar">
-        @if (this.selectedProject) {
-          <p (click)="this.homeClick()" class="home-button">Home</p>
-        }
-        @if (!this.isImageEnlarged) {
-          <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
-            Directory
-          </a>
-        }
-      </div>
-      @if (!this.selectedProject) {
-        <div>
-          <h1 class="title">Woodworking Projects</h1>
-          <div class="search-section">
-            <app-search-bar
-              [value]="this.searchTerm"
-              placeholder="Search by project, year or description"
-              label="Search projects"
-              resultNoun="project"
-              [resultCount]="this.matchingProjectCount"
-              [totalCount]="this.totalProjectCount"
-              (valueChange)="this.searchChange($event)">
-            </app-search-bar>
-          </div>
+  <section class="container"
+    [class.full-width]="!!this.selectedProject || !this.dataLoaded"
+    [style.--group-count]="this.filteredProjectsByYear.length">
+    <div class="top-bar">
+      @if (this.selectedProject) {
+        <p (click)="this.homeClick()" class="home-button">Home</p>
+      }
+      @if (!this.isImageEnlarged) {
+        <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
+          Directory
+        </a>
+      }
+    </div>
+
+    @if (!this.selectedProject) {
+      <div class="home-view">
+        <h1 class="title">Woodworking Projects</h1>
+        <div class="search-section">
+          <app-search-bar
+            [value]="this.searchTerm"
+            placeholder="Search by project, year or description"
+            label="Search projects"
+            resultNoun="project"
+            [resultCount]="this.matchingProjectCount"
+            [totalCount]="this.totalProjectCount"
+            (valueChange)="this.searchChange($event)">
+          </app-search-bar>
+        </div>
+        <div class="links-section">
           @if (this.filteredProjectsByYear.length === 0 && this.searchTerm.trim() !== '') {
             <p class="no-results">No projects match "{{ this.searchTerm }}"</p>
           }
-          <div class="links-section">
-            <ul class="list-group">
-              @for (projectsByYear of this.filteredProjectsByYear; track projectsByYear; let i = $index) {
-                <li class="list-group-item">
-                  <div class="project-row">
-                    <p class="year-text">{{ projectsByYear.year }}</p>
-                    @if (projectsByYear.year != 'All' && projectsByYear.projects.length != 1) {
-                      <button class="all-button"
-                        (click)="this.allProjectsByYear(projectsByYear.year);"
-                        >
-                        All
-                      </button>
+          <ul class="list-group">
+            @for (projectsByYear of this.filteredProjectsByYear; track projectsByYear; let i = $index) {
+              <li class="list-group-item">
+                <div class="project-row">
+                  <p class="year-text">{{ projectsByYear.year }}</p>
+                  @if (projectsByYear.year != 'All' && projectsByYear.projects.length != 1) {
+                    <button class="all-button"
+                      (click)="this.allProjectsByYear(projectsByYear.year);"
+                      >
+                      All
+                    </button>
+                  }
+                </div>
+                <div class="sub-list-container">
+                  <ul class="sub-list">
+                    @for (project of projectsByYear.projects; track project) {
+                      <li
+                        (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
+                        <p class="project-name">{{ project.name }}</p>
+                      </li>
                     }
-                  </div>
-                  <div class="sub-list-container">
-                    <ul class="sub-list">
-                      @for (project of projectsByYear.projects; track project) {
-                        <li
-                          (click)="this.projectClick(project, projectsByYear.year)" class="sub-list-item">
-                          <p class="project-name">{{ project.name }}</p>
-                        </li>
-                      }
-                    </ul>
-                  </div>
-                </li>
-              }
-            </ul>
-          </div>
-        </div>
-      }
-      @if (this.selectedProject) {
-        <div class="project-container">
-          <p><strong>Year:</strong> {{ this.selectedYear }}</p>
-          @if (this.selectedProject.name != undefined && this.selectedProject.name != '') {
-            <p>
-              <strong>Project:</strong> {{ this.selectedProject.name }}</p>
+                  </ul>
+                </div>
+              </li>
             }
-            @if (this.selectedProject.desc != undefined && this.selectedProject.desc != '') {
-              <p>
-                <strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
-              }
-              <app-images-viewer
-                [images]="this.selectedProject.images"
-                (enlargedChange)="this.isImageEnlarged = $event">
-              </app-images-viewer>
-            </div>
-          }
-
+          </ul>
         </div>
       </div>
-    </main>
+    }
 
-    <router-outlet/>
+    @if (this.selectedProject) {
+      <div class="project-container">
+        <div class="project-meta">
+          <p><strong>Year:</strong> {{ this.selectedYear }}</p>
+          @if (this.selectedProject.name != undefined && this.selectedProject.name != '') {
+            <p><strong>Project:</strong> {{ this.selectedProject.name }}</p>
+          }
+          @if (this.selectedProject.desc != undefined && this.selectedProject.desc != '') {
+            <p><strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
+          }
+        </div>
+        <app-images-viewer
+          [images]="this.selectedProject.images"
+          (enlargedChange)="this.isImageEnlarged = $event">
+        </app-images-viewer>
+      </div>
+    }
+  </section>
+</main>
+
+<router-outlet/>

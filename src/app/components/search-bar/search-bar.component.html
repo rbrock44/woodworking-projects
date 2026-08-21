@@ -21,7 +21,5 @@
       </button>
     }
   </div>
-  @if (this.isSearching) {
-    <p class="result-count" role="status" aria-live="polite">{{ this.resultText }}</p>
-  }
+  <p class="result-count" role="status" aria-live="polite">{{ this.isSearching ? this.resultText : '' }}</p>
 </div>

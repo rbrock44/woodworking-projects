@@ -13,6 +13,7 @@
   --color-accent: #c48a3f;
   --color-accent-hover: #d9a75c;
   --color-overlay: rgba(12, 10, 8, 0.78);
+  --color-scroll-thumb: rgba(196, 138, 63, 0.45);
   --color-paper: #f0e9dc;
   --color-ink: #241e18;
 
@@ -58,8 +59,46 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scroll-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-scroll-thumb);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

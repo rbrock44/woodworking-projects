@@ -1,6 +1,6 @@
 <div class="image-container">
   @if (!this.singleView) {
-    <div>
+    <div class="grid-view">
       <div class="image-search">
         <app-search-bar
           [value]="this.searchTerm"
@@ -32,7 +32,7 @@
     }
 
     @if (this.singleView) {
-      <div>
+      <div class="single-view">
         <div class="sticky-header">
           <p (click)="this.backClick()" class="back-button">Back</p>
         </div>

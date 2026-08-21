@@ -29,6 +29,7 @@ export class AppComponent implements OnInit {
   filteredProjectsByYear: ProjectsByYear[] = [];
   totalProjectCount: number = 0;
   matchingProjectCount: number = 0;
+  dataLoaded: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     getProjects().then((response) => {
       this.data = response;
+      this.dataLoaded = true;
       this.applySearch();
 
       const yearParam = this.route.snapshot.queryParamMap.get(URL_PARAM_YEAR);
