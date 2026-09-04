@@ -30,6 +30,9 @@
   max-height: 95vh;
   width: auto;
   height: auto;
+  // Every image in the gallery is normalized to a 3:4 aspect ratio, so this
+  // reserves the right box before the image loads and avoids layout shift.
+  aspect-ratio: 3 / 4;
 }
 
 .close-btn {
