@@ -23,7 +23,10 @@
           @for (image of this.filteredImages; track image; let i = $index) {
             <div>
               <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" alt="{{image.desc}}"
-                (click)="this.onGridImageClick(i)">
+                role="button" tabindex="0" [attr.aria-label]="'Enlarge photo ' + (i + 1)"
+                (click)="this.onGridImageClick(i)"
+                (keydown.enter)="this.onGridImageClick(i)"
+                (keydown.space)="$event.preventDefault(); this.onGridImageClick(i)">
               </div>
             }
           </div>
@@ -47,7 +50,10 @@
           <div class="image-plus-desc">
             <img ngSrc="{{this.filteredImages[this.currentIndex].url}}" height="{{this.singleImage.height}}"
               width="{{this.singleImage.width}}" alt="{{this.filteredImages[this.currentIndex].desc}}"
-              (click)="this.onSingleImageClick()">
+              role="button" tabindex="0" aria-label="Enlarge image"
+              (click)="this.onSingleImageClick()"
+              (keydown.enter)="this.onSingleImageClick()"
+              (keydown.space)="$event.preventDefault(); this.onSingleImageClick()">
               @if (this.filteredImages[this.currentIndex].desc !== '') {
                 <p class="image-desc">
                   {{ this.filteredImages[this.currentIndex].desc }}
