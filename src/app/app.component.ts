@@ -44,21 +44,47 @@ export class AppComponent implements OnInit {
 
       const yearParam = this.route.snapshot.queryParamMap.get(URL_PARAM_YEAR);
       const projectParam = this.route.snapshot.queryParamMap.get(URL_PARAM_PROJECT);
+      this.selectFromParams(yearParam, projectParam);
 
-      if (yearParam && projectParam !== null) {
-        this.selectedYear = yearParam;
-
-        if (projectParam === '') {
-          this.allProjectsByYear(yearParam);
-        } else {
-          const yearGroup = this.data.projectsByYear.find(x => x.year === yearParam);
-          const foundProject = yearGroup?.projects.find(p => p.name === projectParam);
-          if (foundProject) {
-            this.selectedProject = foundProject;
-          }
-        }
+      // Slot a home entry in underneath a deep link so browser/mouse back lands on home.
+      if (this.selectedProject) {
+        const deepLink = this.location.path();
+        this.location.replaceState(this.buildUrl(null, null));
+        this.location.go(deepLink);
       }
     });
+
+    // Browser/mouse back and forward land here; show whichever project the URL now names.
+    this.location.subscribe(() => {
+      const params = new URLSearchParams(this.location.path().split('?')[1] ?? '');
+      const yearParam = params.get(URL_PARAM_YEAR);
+      const projectParam = params.get(URL_PARAM_PROJECT);
+
+      if (this.selectedProject && yearParam === this.selectedYear && projectParam === this.selectedProject.name) {
+        return; // same project; the images viewer handles image-level history
+      }
+
+      this.selectedProject = undefined;
+      this.selectedYear = '';
+      this.isImageEnlarged = false;
+      this.selectFromParams(yearParam, projectParam);
+    });
+  }
+
+  private selectFromParams(yearParam: string | null, projectParam: string | null): void {
+    if (yearParam && projectParam !== null) {
+      this.selectedYear = yearParam;
+
+      if (projectParam === '') {
+        this.selectAllProjectsByYear(yearParam);
+      } else {
+        const yearGroup = this.data.projectsByYear.find(x => x.year === yearParam);
+        const foundProject = yearGroup?.projects.find(p => p.name === projectParam);
+        if (foundProject) {
+          this.selectedProject = foundProject;
+        }
+      }
+    }
   }
 
   searchChange(term: string): void {
@@ -78,7 +104,7 @@ export class AppComponent implements OnInit {
     this.selectedYear = year;
 
     const newUrl = this.buildUrl(year, project.name);
-    this.location.replaceState(newUrl);
+    this.location.go(newUrl);
   }
 
   homeClick(): void {
@@ -86,10 +112,15 @@ export class AppComponent implements OnInit {
     this.selectedYear = '';
     this.isImageEnlarged = false;
 
-    this.location.replaceState(this.buildUrl(null, null));
+    this.location.go(this.buildUrl(null, null));
   }
 
   allProjectsByYear(year: string): void {
+    this.selectAllProjectsByYear(year);
+    this.location.go(this.buildUrl(year, ''));
+  }
+
+  private selectAllProjectsByYear(year: string): void {
     // Search-aware: 'All' covers the projects currently visible for that year
     const images = extractImagesByYear(this.filteredProjectsByYear.filter(x => x.year === year)[0]);
     const yearProject: Project = {
@@ -100,8 +131,6 @@ export class AppComponent implements OnInit {
 
     this.selectedProject = yearProject;
     this.selectedYear = year;
-
-    this.location.replaceState(this.buildUrl(year, ''));
   }
 
   private buildUrl(year: string | null, project: string | null): string {

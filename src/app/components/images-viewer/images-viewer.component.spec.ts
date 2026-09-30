@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideLocationMocks } from '@angular/common/testing';
+import { Location } from '@angular/common';
 import { ImagesViewerComponent } from './images-viewer.component';
 import { Image } from '../../type/project.type';
 
@@ -15,7 +17,7 @@ describe('ImagesViewerComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ImagesViewerComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideLocationMocks()],
     }).compileComponents();
   });
 
@@ -146,5 +148,40 @@ describe('ImagesViewerComponent', () => {
     fixture.componentInstance.closeOverlay();
 
     expect(states).toEqual([false, false, true, false]);
+  });
+
+  it('should close the overlay, then return to the grid, as the browser goes back', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    const viewer = fixture.componentInstance;
+    const location = TestBed.inject(Location);
+    viewer.images = makeImages(2);
+    fixture.detectChanges();
+
+    viewer.onGridImageClick(1);
+    viewer.onSingleImageClick();
+    expect(viewer.isOverlayOpen).toBe(true);
+
+    location.back();
+    expect(viewer.isOverlayOpen).toBe(false);
+    expect(viewer.singleView).toBe(true);
+    expect(viewer.currentIndex).toBe(1);
+
+    location.back();
+    expect(viewer.singleView).toBe(false);
+  });
+
+  it('should step history back when the overlay is closed from its close button', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    const viewer = fixture.componentInstance;
+    const location = TestBed.inject(Location);
+    viewer.images = makeImages(1);
+    fixture.detectChanges();
+
+    viewer.onGridImageClick(0);
+    viewer.onSingleImageClick();
+    viewer.closeOverlay();
+
+    expect(location.getState()).not.toEqual({ overlay: true });
+    expect(location.path()).toContain('image=img-0');
   });
 });

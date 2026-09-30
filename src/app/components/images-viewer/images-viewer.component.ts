@@ -1,5 +1,6 @@
 import { Location, NgOptimizedImage } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { SubscriptionLike } from 'rxjs';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
@@ -17,7 +18,7 @@ import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, 
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./images-viewer.component.scss']
 })
-export class ImagesViewerComponent implements OnInit, OnChanges {
+export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() images: Image[] = [];
   @Output() enlargedChange = new EventEmitter<boolean>();
   currentIndex: number = 0;
@@ -26,6 +27,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges {
   singleImage: ImageSize = { ...IMAGE_SIZE_DEFAULT };
   searchTerm: string = '';
   filteredImages: Image[] = [];
+  private popStateSubscription?: SubscriptionLike;
 
   constructor(private route: ActivatedRoute, private location: Location) {
     this.adjustImageSize(window.innerWidth, window.innerHeight);
@@ -45,6 +47,31 @@ export class ImagesViewerComponent implements OnInit, OnChanges {
 
     this.checkForIndex(this.route.snapshot.queryParamMap.get(URL_PARAM_INDEX));
     this.emitEnlargedState();
+
+    // Browser/mouse back and forward land here; show whichever image and overlay the entry names.
+    this.popStateSubscription = this.location.subscribe(() => this.restoreFromHistory());
+  }
+
+  ngOnDestroy(): void {
+    this.popStateSubscription?.unsubscribe();
+  }
+
+  private restoreFromHistory(): void {
+    const params = new URLSearchParams(this.location.path().split('?')[1] ?? '');
+    const imageParam = params.get(URL_PARAM_IMAGE);
+    const index = imageParam ? this.filteredImages.findIndex(image => image.name === imageParam) : -1;
+
+    this.singleView = index !== -1;
+    if (this.singleView) {
+      this.currentIndex = index;
+    }
+
+    const state = this.location.getState() as { overlay?: boolean } | null;
+    const isOverlayOpen = this.singleView && state?.overlay === true;
+    if (isOverlayOpen !== this.isOverlayOpen) {
+      this.isOverlayOpen = isOverlayOpen;
+      this.emitEnlargedState();
+    }
   }
 
   ngOnChanges(): void {
@@ -109,24 +136,32 @@ export class ImagesViewerComponent implements OnInit, OnChanges {
     this.singleView = true;
     this.emitEnlargedState();
 
-    this.replaceImageUrlParam(this.currentIndex);
+    this.location.go(this.buildImageUrl(this.filteredImages[this.currentIndex]?.name || '', this.currentIndex));
   }
 
   onSingleImageClick(): void {
     this.isOverlayOpen = true;
     this.emitEnlargedState();
+
+    // Same URL, marked in history state, so browser/mouse back closes the overlay first.
+    this.location.go(this.location.path(), '', { overlay: true });
   }
 
   closeOverlay(): void {
     this.isOverlayOpen = false;
     this.emitEnlargedState();
+
+    const state = this.location.getState() as { overlay?: boolean } | null;
+    if (state?.overlay) {
+      this.location.back();
+    }
   }
 
   backClick(): void {
     this.singleView = false;
     this.emitEnlargedState();
 
-    this.replaceImageUrlParam(null);
+    this.location.go(this.buildImageUrl(null));
     this.checkForIndex(this.currentIndex.toString());
   }
 
@@ -147,7 +182,8 @@ export class ImagesViewerComponent implements OnInit, OnChanges {
       url = this.buildImageUrl(imageName, index);
     }
 
-    this.location.replaceState(url);
+    // Keep the history state so stepping images inside the overlay leaves it marked as open.
+    this.location.replaceState(url, '', this.location.getState());
   }
 
   private buildImageUrl(imageName: string | null, index: number | null = null): string {
