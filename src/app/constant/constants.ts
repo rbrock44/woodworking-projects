@@ -124,34 +124,48 @@ export function addAllProjectsByYear(projectsData: Projects): Projects {
     return updatedProjects;
 }
 
-const MONTHS: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 /**
- * The months a project's photos span, read from their YYYYMMDD names: 'Mar 2024', 'Mar – May 2024', 'Jul 2023 – Feb 2024'.
- * The year is left off when the whole range falls in `projectYear`, since the page already shows it: 'Mar', 'Mar – May'.
+ * The months a project's photos were taken in, read from their YYYYMMDD names. Back-to-back months join into a
+ * range and gaps are listed: 'March 2024', 'March – May 2024', 'February, May 2024', 'July 2023 – February 2024'.
+ * The year is left off when every month falls in `projectYear`, since the page already shows it: 'March – May'.
  */
 export function projectMonthRange(images: Image[], projectYear?: string): string | null {
-    // yyyymm as a number, so sorting needs no date parsing or timezones
-    const months = images
+    // Months counted from year 0, so consecutive months differ by 1 even across a new year
+    const months = [...new Set(images
         .map(image => /^(\d{4})(\d{2})\d{2}/.exec(image.name))
         .filter(match => match !== null && Number(match[2]) >= 1 && Number(match[2]) <= 12)
-        .map(match => Number(match![1]) * 100 + Number(match![2]));
+        .map(match => Number(match![1]) * 12 + Number(match![2]) - 1))]
+        .sort((a, b) => a - b);
 
     if (months.length === 0) {
         return null;
     }
 
-    const first = Math.min(...months);
-    const last = Math.max(...months);
-    const monthName = (yyyymm: number) => MONTHS[(yyyymm % 100) - 1];
-    const year = (yyyymm: number) => Math.floor(yyyymm / 100);
+    const runs: [number, number][] = [];
+    months.forEach(month => {
+        const run = runs.at(-1);
+        if (run && month === run[1] + 1) {
+            run[1] = month;
+        } else {
+            runs.push([month, month]);
+        }
+    });
 
-    if (year(first) === year(last)) {
-        const months = first === last ? monthName(first) : `${monthName(first)} – ${monthName(last)}`;
-        return String(year(last)) === projectYear ? months : `${months} ${year(last)}`;
-    }
+    const year = (month: number) => Math.floor(month / 12);
+    const monthName = (month: number) => MONTHS[month % 12];
+    const hideYears = months.every(month => String(year(month)) === projectYear);
+    // A year is written once, after the last month in it, the way 'February, May 2024' reads
+    const label = (month: number, yearEndsHere: boolean) =>
+        hideYears || !yearEndsHere ? monthName(month) : `${monthName(month)} ${year(month)}`;
 
-    return `${monthName(first)} ${year(first)} – ${monthName(last)} ${year(last)}`;
+    return runs.map(([first, last], i) => {
+        const next = runs[i + 1];
+        const lastLabel = label(last, !next || year(next[0]) !== year(last));
+
+        return first === last ? lastLabel : `${label(first, year(first) !== year(last))} – ${lastLabel}`;
+    }).join(', ');
 }
 
 export function splitSearchTerms(search: string): string[] {

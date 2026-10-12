@@ -86,26 +86,34 @@ describe('projectMonthRange', () => {
   const photos = (...names: string[]): Image[] => names.map(name => ({ name, desc: '', url: '' }));
 
   it('should show a single month', () => {
-    expect(projectMonthRange(photos('20240305_1200', '20240322_0900'))).toEqual('Mar 2024');
+    expect(projectMonthRange(photos('20240305_1200', '20240322_0900'))).toEqual('March 2024');
   });
 
   it('should show a range within one year, whatever order the photos are in', () => {
-    expect(projectMonthRange(photos('20240512_1200', '20240305_1200', '20240401_1200'))).toEqual('Mar – May 2024');
+    expect(projectMonthRange(photos('20240512_1200', '20240305_1200', '20240401_1200'))).toEqual('March – May 2024');
   });
 
   it('should show both years when the range crosses one', () => {
-    expect(projectMonthRange(photos('20230715_1200', '20240203_1200'))).toEqual('Jul 2023 – Feb 2024');
+    expect(projectMonthRange(photos('20231115_1200', '20231203_1200', '20240103_1200'))).toEqual('November 2023 – January 2024');
+  });
+
+  it('should list months with gaps between them instead of spanning the gap', () => {
+    expect(projectMonthRange(photos('20250210_1200', '20250502_1200', '20250214_1200'))).toEqual('February, May 2025');
+    expect(projectMonthRange(photos('20250110_1200', '20250210_1200', '20250502_1200'), '2025')).toEqual('January – February, May');
+    expect(projectMonthRange(photos('20231105_1200', '20231201_1200', '20240110_1200', '20240401_1200')))
+      .toEqual('November 2023 – January, April 2024');
+    expect(projectMonthRange(photos('20231105_1200', '20240401_1200'))).toEqual('November 2023, April 2024');
   });
 
   it('should leave the year off when the whole range is in the project year', () => {
-    expect(projectMonthRange(photos('20240305_1200'), '2024')).toEqual('Mar');
-    expect(projectMonthRange(photos('20240305_1200', '20240512_1200'), '2024')).toEqual('Mar – May');
-    expect(projectMonthRange(photos('20240305_1200'), '2023')).toEqual('Mar 2024');
-    expect(projectMonthRange(photos('20230715_1200', '20240203_1200'), '2023')).toEqual('Jul 2023 – Feb 2024');
+    expect(projectMonthRange(photos('20240305_1200'), '2024')).toEqual('March');
+    expect(projectMonthRange(photos('20240305_1200', '20240420_1200', '20240512_1200'), '2024')).toEqual('March – May');
+    expect(projectMonthRange(photos('20240305_1200'), '2023')).toEqual('March 2024');
+    expect(projectMonthRange(photos('20231215_1200', '20240103_1200'), '2023')).toEqual('December 2023 – January 2024');
   });
 
   it('should skip names that are not a date and return null when none are', () => {
-    expect(projectMonthRange(photos('cover', '20241399_0000', '20240601_1200'))).toEqual('Jun 2024');
+    expect(projectMonthRange(photos('cover', '20241399_0000', '20240601_1200'))).toEqual('June 2024');
     expect(projectMonthRange(photos('cover'))).toBeNull();
     expect(projectMonthRange([])).toBeNull();
   });
