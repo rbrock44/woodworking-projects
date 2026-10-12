@@ -1,4 +1,4 @@
-import { countProjects, filterImagesBySearch, filterProjectsBySearch, projectMonthRange, splitSearchTerms } from './constants';
+import { countProjects, filterImagesBySearch, filterProjectsBySearch, imageAltText, projectMonthRange, splitSearchTerms } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -116,5 +116,23 @@ describe('projectMonthRange', () => {
     expect(projectMonthRange(photos('cover', '20241399_0000', '20240601_1200'))).toEqual('June 2024');
     expect(projectMonthRange(photos('cover'))).toBeNull();
     expect(projectMonthRange([])).toBeNull();
+  });
+});
+
+describe('imageAltText', () => {
+  const image = (name: string, desc = ''): Image => ({ name, desc, url: `https://example.com/${name}.jpg` });
+
+  it('should use the description when there is one', () => {
+    expect(imageAltText(image('20241013_1750', 'Sanded smooth'), 'Baby Rattles')).toEqual('Sanded smooth');
+  });
+
+  it('should fall back to the project and the date in the name', () => {
+    expect(imageAltText(image('20241013_1750'), 'Baby Rattles')).toEqual('Baby Rattles, photo from October 13, 2024');
+    expect(imageAltText(image('20120307_0045'))).toEqual('Woodworking project photo from March 7, 2012');
+  });
+
+  it('should leave the date off when the name is not one', () => {
+    expect(imageAltText(image('cover'), 'Baby Rattles')).toEqual('Baby Rattles, photo');
+    expect(imageAltText(image('20241399_0000'), ' ')).toEqual('Woodworking project photo');
   });
 });

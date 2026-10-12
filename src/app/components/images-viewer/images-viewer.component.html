@@ -22,8 +22,8 @@
         <div class="image-item">
           @for (image of this.filteredImages(); track image; let i = $index) {
             <div>
-              <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" alt="{{image.desc}}"
-                role="button" tabindex="0" [attr.aria-label]="'Enlarge photo ' + (i + 1)"
+              <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" [alt]="this.altText(image)"
+                role="button" tabindex="0" [attr.aria-label]="'Enlarge photo ' + (i + 1) + ': ' + this.altText(image)"
                 (click)="this.onGridImageClick(i)"
                 (keydown.enter)="this.onGridImageClick(i)"
                 (keydown.space)="$event.preventDefault(); this.onGridImageClick(i)">
@@ -50,8 +50,8 @@
           </button>
           <div class="image-plus-desc">
             <img ngSrc="{{image.url}}" height="{{this.singleImage().height}}"
-              width="{{this.singleImage().width}}" alt="{{image.desc}}"
-              role="button" tabindex="0" aria-label="Enlarge image"
+              width="{{this.singleImage().width}}" [alt]="this.altText(image)"
+              role="button" tabindex="0" [attr.aria-label]="'Enlarge photo: ' + this.altText(image)"
               (click)="this.onSingleImageClick()"
               (keydown.enter)="this.onSingleImageClick()"
               (keydown.space)="$event.preventDefault(); this.onSingleImageClick()">
@@ -71,7 +71,7 @@
     </div>
 
     @if (this.isOverlayOpen()) {
-      <app-image-overlay [imageSrc]="this.currentImage()!.url"
+      <app-image-overlay [imageSrc]="this.currentImage()!.url" [imageAlt]="this.altText(this.currentImage()!)"
         (close)="this.closeOverlay()" (previous)="this.goToPrevious()" (next)="this.goToNext()">
       </app-image-overlay>
     }

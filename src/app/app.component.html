@@ -120,6 +120,7 @@
         </div>
         <app-images-viewer
           [images]="project.images"
+          [projectName]="project.name"
           (enlargedChange)="this.isImageEnlarged.set($event)">
         </app-images-viewer>
       </div>

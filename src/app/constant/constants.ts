@@ -168,6 +168,24 @@ export function projectMonthRange(images: Image[], projectYear?: string): string
     }).join(', ');
 }
 
+/**
+ * Alt text for a photo: its description when it has one, otherwise the project and the date in its YYYYMMDD name,
+ * like 'Baby Rattles, photo from October 13, 2024'.
+ */
+export function imageAltText(image: Image, projectName?: string): string {
+    if (image.desc.trim() !== '') {
+        return image.desc;
+    }
+
+    const subject = projectName?.trim() ? `${projectName.trim()}, photo` : 'Woodworking project photo';
+    const match = /^(\d{4})(\d{2})(\d{2})/.exec(image.name);
+    const month = match ? Number(match[2]) : 0;
+
+    return month >= 1 && month <= 12
+        ? `${subject} from ${MONTHS[month - 1]} ${Number(match![3])}, ${match![1]}`
+        : subject;
+}
+
 export function splitSearchTerms(search: string): string[] {
     return search.toLowerCase().split(/\s+/).filter(term => term !== '');
 }

@@ -20,7 +20,7 @@
       (keydown.space)="$event.preventDefault(); $event.stopPropagation(); this.next.emit()"
       title="Next"></div>
 
-    <img [src]="this.imageSrc" alt="Enlarged Image" loading="lazy">
+    <img [src]="this.imageSrc" [alt]="this.imageAlt" loading="lazy">
     <button #closeBtn class="close-btn" aria-label="Close image viewer" (click)="this.closeOverlay()">X</button>
   </div>
 </div>

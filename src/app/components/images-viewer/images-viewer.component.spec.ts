@@ -56,6 +56,17 @@ describe('ImagesViewerComponent', () => {
     expect(singleImg.alt).toEqual('Photo 1');
   });
 
+  it('should name undescribed photos by project and date in their alt text', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    fixture.componentRef.setInput('images', [{ name: '20241013_1750', desc: '', url: 'https://example.com/a.jpg' }]);
+    fixture.componentRef.setInput('projectName', 'Baby Rattles');
+    fixture.detectChanges();
+
+    const thumb = fixture.nativeElement.querySelector('.image-item img') as HTMLImageElement;
+    expect(thumb.alt).toEqual('Baby Rattles, photo from October 13, 2024');
+    expect(thumb.getAttribute('aria-label')).toEqual('Enlarge photo 1: Baby Rattles, photo from October 13, 2024');
+  });
+
   it('should open the single view when Enter is pressed on a thumbnail', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
     fixture.componentRef.setInput('images', makeImages(3));

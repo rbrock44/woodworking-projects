@@ -5,7 +5,7 @@ import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
-import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
+import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
     imports: [
@@ -20,6 +20,8 @@ import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, 
 })
 export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   readonly images = input<Image[]>([]);
+  /** Names the photos in their alt text when they have no description. */
+  readonly projectName = input('');
   @Output() enlargedChange = new EventEmitter<boolean>();
   readonly currentIndex = signal(0);
   readonly isOverlayOpen = signal(false);
@@ -170,6 +172,10 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
 
     this.location.go(this.buildImageUrl(null));
     this.checkForIndex(this.currentIndex().toString());
+  }
+
+  altText(image: Image): string {
+    return imageAltText(image, this.projectName());
   }
 
   getThumbnailImage(url: string): string {

@@ -12,6 +12,7 @@ import {CommonModule} from '@angular/common';
 })
 export class ImageOverlayComponent implements AfterViewInit, OnDestroy {
   @Input() imageSrc: string = '';
+  @Input() imageAlt: string = '';
   @Output() close = new EventEmitter<void>();
   @Output() previous = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
