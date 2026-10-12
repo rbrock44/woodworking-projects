@@ -30,7 +30,10 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   private popStateSubscription?: SubscriptionLike;
 
   constructor(private route: ActivatedRoute, private location: Location) {
-    this.adjustImageSize(window.innerWidth, window.innerHeight);
+    // Prerendering has no window, so those pages keep the default size until the browser takes over
+    if (typeof window !== 'undefined') {
+      this.adjustImageSize(window.innerWidth, window.innerHeight);
+    }
   }
 
   ngOnInit(): void {

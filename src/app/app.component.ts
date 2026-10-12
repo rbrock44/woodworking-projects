@@ -1,14 +1,14 @@
-import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, inject} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, inject} from '@angular/core';
 import {RouterOutlet, Router, NavigationEnd} from '@angular/router';
 import {Project, Projects, ProjectsByYear} from "./type/project.type";
-import {getProjects} from "./services/project.service";
+import {getProjects, prepareProjects, PROJECTS_STATE_KEY} from "./services/project.service";
 import { isPlatformBrowser, Location } from "@angular/common";
 import { filter, firstValueFrom } from 'rxjs';
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
 import {SearchBarComponent} from "./components/search-bar/search-bar.component";
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
 import {CommandPaletteService} from "./services/command-palette.service";
-import {describePage, HOME_PAGE, SeoService} from "./services/seo.service";
+import {describePage, HOME_PAGE, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
 import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
 import { parseProjectPath, projectPath, projectSlug } from './constant/project-url';
@@ -43,17 +43,29 @@ export class AppComponent implements OnInit {
   readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
+  private readonly transferState = inject(TransferState);
+  private readonly projectList = inject(PROJECT_LIST, { optional: true });
 
   constructor(private location: Location) {}
 
   ngOnInit(): void {
-    // Prerendering only bakes in each page's meta tags; projects load and render in the browser.
+    // Prerendering renders the page from project-list.json and hands the list on to the browser.
     if (!this.isBrowser) {
+      if (this.projectList) {
+        this.transferState.set(PROJECTS_STATE_KEY, this.projectList);
+        this.data = prepareProjects(this.projectList);
+        this.dataLoaded = true;
+        this.applySearch();
+        this.selectFromPath(this.location.path());
+      }
       return;
     }
 
+    const prerendered = this.transferState.get(PROJECTS_STATE_KEY, null);
+    const projects = prerendered ? Promise.resolve(prepareProjects(prerendered)) : getProjects();
+
     // Wait for the router too, so an old ?year= link has already been redirected to its path.
-    Promise.all([getProjects(), this.initialNavigation()]).then(([response]) => {
+    Promise.all([projects, this.initialNavigation()]).then(([response]) => {
       this.data = response;
       this.dataLoaded = true;
       this.applySearch();
@@ -112,7 +124,7 @@ export class AppComponent implements OnInit {
     }
 
     // A year or project that doesn't exist (or no longer does) falls back to home.
-    if (!this.selectedProject && this.pathOnly(path) !== '') {
+    if (this.isBrowser && !this.selectedProject && this.pathOnly(path) !== '') {
       this.location.replaceState('/');
     }
 

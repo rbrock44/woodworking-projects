@@ -1,5 +1,3 @@
-<!-- Prerendered pages carry only the shell and their meta tags; projects load and render in the browser. -->
-@if (this.isBrowser) {
 <main class="main">
   <section class="container"
     [class.full-width]="!!this.selectedProject || !this.dataLoaded"
@@ -135,4 +133,3 @@
 </app-command-palette>
 
 <router-outlet/>
-}
