@@ -1,12 +1,12 @@
 <main class="main">
   <section class="container"
-    [class.full-width]="!!this.selectedProject || !this.dataLoaded"
-    [style.--group-count]="this.filteredProjectsByYear.length + (this.showFavorites ? 1 : 0)">
+    [class.full-width]="!!this.selectedProject() || !this.dataLoaded()"
+    [style.--group-count]="this.filteredProjectsByYear().length + (this.showFavorites() ? 1 : 0)">
     <div class="top-bar">
-      @if (this.selectedProject) {
+      @if (this.selectedProject()) {
         <p (click)="this.homeClick()" class="home-button">Home</p>
       }
-      @if (!this.isImageEnlarged) {
+      @if (!this.isImageEnlarged()) {
         <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
           Directory
         </a>
@@ -17,39 +17,39 @@
       }
     </div>
 
-    @if (!this.selectedProject) {
+    @if (!this.selectedProject()) {
       <div class="home-view">
         <h1 class="title">Woodworking Projects</h1>
         <div class="search-section">
           <app-search-bar
-            [value]="this.searchTerm"
+            [value]="this.searchTerm()"
             placeholder="Search by project, year or description"
             label="Search projects"
             resultNoun="project"
-            [resultCount]="this.matchingProjectCount"
-            [totalCount]="this.totalProjectCount"
+            [resultCount]="this.matchingProjectCount()"
+            [totalCount]="this.totalProjectCount()"
             (valueChange)="this.searchChange($event)">
           </app-search-bar>
         </div>
         <div class="links-section">
-          @if (this.filteredProjectsByYear.length === 0 && this.searchTerm.trim() !== '') {
-            <p class="no-results">No projects match "{{ this.searchTerm }}"</p>
+          @if (this.filteredProjectsByYear().length === 0 && this.searchTerm().trim() !== '') {
+            <p class="no-results">No projects match "{{ this.searchTerm() }}"</p>
           }
           <ul class="list-group">
-            @if (this.showFavorites) {
+            @if (this.showFavorites()) {
               <li class="list-group-item favorites-group">
                 <div class="project-row">
                   <p class="year-text">Favorites</p>
-                  @if (this.favoriteCount > 1) {
+                  @if (this.favoriteCount() > 1) {
                     <button class="all-button" (click)="this.allFavorites()">
                       All
                     </button>
                   }
                 </div>
-                @if (this.favoriteCount === 0) {
+                @if (this.favoriteCount() === 0) {
                   <p class="favorites-empty">Tap a heart to save a project here</p>
                 }
-                @for (favoritesByYear of this.filteredFavoritesByYear; track favoritesByYear.year) {
+                @for (favoritesByYear of this.filteredFavoritesByYear(); track favoritesByYear.year) {
                   <p class="favorites-year">{{ favoritesByYear.year }}</p>
                   <ul class="sub-list">
                     @for (project of favoritesByYear.projects; track project) {
@@ -66,7 +66,7 @@
                 }
               </li>
             }
-            @for (projectsByYear of this.filteredProjectsByYear; track projectsByYear; let i = $index) {
+            @for (projectsByYear of this.filteredProjectsByYear(); track projectsByYear; let i = $index) {
               <li class="list-group-item">
                 <div class="project-row">
                   <p class="year-text">{{ projectsByYear.year }}</p>
@@ -104,23 +104,23 @@
       </div>
     }
 
-    @if (this.selectedProject) {
+    @if (this.selectedProject(); as project) {
       <div class="project-container">
         <div class="project-meta">
-          <p><strong>Year:</strong> {{ this.selectedYear }}</p>
-          @if (this.selectedProject.name != undefined && this.selectedProject.name != '') {
-            <p><strong>Project:</strong> {{ this.selectedProject.name }}</p>
-            @if (this.selectedMonthRange) {
-              <p><strong>Built:</strong> {{ this.selectedMonthRange }}</p>
+          <p><strong>Year:</strong> {{ this.selectedYear() }}</p>
+          @if (project.name != undefined && project.name != '') {
+            <p><strong>Project:</strong> {{ project.name }}</p>
+            @if (this.selectedMonthRange()) {
+              <p><strong>Built:</strong> {{ this.selectedMonthRange() }}</p>
             }
           }
-          @if (this.selectedProject.desc != undefined && this.selectedProject.desc != '') {
-            <p><strong>Desc:</strong> {{ this.selectedProject.desc }}</p>
+          @if (project.desc != undefined && project.desc != '') {
+            <p><strong>Desc:</strong> {{ project.desc }}</p>
           }
         </div>
         <app-images-viewer
-          [images]="this.selectedProject.images"
-          (enlargedChange)="this.isImageEnlarged = $event">
+          [images]="project.images"
+          (enlargedChange)="this.isImageEnlarged.set($event)">
         </app-images-viewer>
       </div>
     }
@@ -128,7 +128,7 @@
 </main>
 
 <app-command-palette
-  [projectsByYear]="this.data.projectsByYear"
+  [projectsByYear]="this.data().projectsByYear"
   (projectSelect)="this.jumpToProject($event.project, $event.year)">
 </app-command-palette>
 

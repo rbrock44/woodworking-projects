@@ -1,26 +1,26 @@
 <div class="image-container">
-  @if (!this.singleView) {
+  @if (!this.singleView()) {
     <div class="grid-view">
       <div class="image-search">
         <app-search-bar
-          [value]="this.searchTerm"
+          [value]="this.searchTerm()"
           placeholder="Search photos"
           label="Search photos"
           resultNoun="photo"
-          [resultCount]="this.filteredImages.length"
-          [totalCount]="this.images.length"
+          [resultCount]="this.filteredImages().length"
+          [totalCount]="this.images().length"
           (valueChange)="this.searchChange($event)">
         </app-search-bar>
       </div>
-      @if (this.filteredImages.length === 0) {
-        <p class="no-results">No photos match "{{ this.searchTerm }}"</p>
+      @if (this.filteredImages().length === 0) {
+        <p class="no-results">No photos match "{{ this.searchTerm() }}"</p>
       } @else {
         <p class="click-to-enlarge">Click any image to enlarge</p>
       }
       <div class="image-grid">
         <!-- image grid -->
         <div class="image-item">
-          @for (image of this.filteredImages; track image; let i = $index) {
+          @for (image of this.filteredImages(); track image; let i = $index) {
             <div>
               <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" alt="{{image.desc}}"
                 role="button" tabindex="0" [attr.aria-label]="'Enlarge photo ' + (i + 1)"
@@ -34,34 +34,35 @@
       </div>
     }
 
-    @if (this.singleView) {
+    @if (this.singleView()) {
+      @let image = this.currentImage()!;
       <div class="single-view">
         <div class="sticky-header">
           <p (click)="this.backClick()" class="back-button">Back</p>
         </div>
         <div class="index">
-          <span class="progress-info">{{ this.currentIndex + 1 }}/{{ this.filteredImages.length }}</span>
+          <span class="progress-info">{{ this.currentIndex() + 1 }}/{{ this.filteredImages().length }}</span>
           <p class="click-to-enlarge">Click image to enlarge</p>
         </div>
         <div class="button-row">
-          <button (click)="this.goToPrevious()" class="arrow-button left-arrow" [disabled]="this.currentIndex === 0">
+          <button (click)="this.goToPrevious()" class="arrow-button left-arrow" [disabled]="this.currentIndex() === 0">
             &#8592;
           </button>
           <div class="image-plus-desc">
-            <img ngSrc="{{this.filteredImages[this.currentIndex].url}}" height="{{this.singleImage.height}}"
-              width="{{this.singleImage.width}}" alt="{{this.filteredImages[this.currentIndex].desc}}"
+            <img ngSrc="{{image.url}}" height="{{this.singleImage().height}}"
+              width="{{this.singleImage().width}}" alt="{{image.desc}}"
               role="button" tabindex="0" aria-label="Enlarge image"
               (click)="this.onSingleImageClick()"
               (keydown.enter)="this.onSingleImageClick()"
               (keydown.space)="$event.preventDefault(); this.onSingleImageClick()">
-              @if (this.filteredImages[this.currentIndex].desc !== '') {
+              @if (image.desc !== '') {
                 <p class="image-desc">
-                  {{ this.filteredImages[this.currentIndex].desc }}
+                  {{ image.desc }}
                 </p>
               }
             </div>
             <button (click)="this.goToNext()" class="arrow-button right-arrow"
-              [disabled]="this.currentIndex + 1 === this.filteredImages.length">
+              [disabled]="this.currentIndex() + 1 === this.filteredImages().length">
               &#8594;
             </button>
           </div>
@@ -69,8 +70,8 @@
       }
     </div>
 
-    @if (this.isOverlayOpen) {
-      <app-image-overlay [imageSrc]="this.filteredImages[this.currentIndex].url"
+    @if (this.isOverlayOpen()) {
+      <app-image-overlay [imageSrc]="this.currentImage()!.url"
         (close)="this.closeOverlay()" (previous)="this.goToPrevious()" (next)="this.goToNext()">
       </app-image-overlay>
     }

@@ -29,7 +29,7 @@ describe('ImagesViewerComponent', () => {
 
   it('should render a keyboard-accessible thumbnail per image', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
-    fixture.componentInstance.images = makeImages(3);
+    fixture.componentRef.setInput('images', makeImages(3));
     fixture.detectChanges();
 
     const thumbs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.image-item img'));
@@ -42,15 +42,15 @@ describe('ImagesViewerComponent', () => {
 
   it('should open the single view on the clicked thumbnail', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
-    fixture.componentInstance.images = makeImages(3);
+    fixture.componentRef.setInput('images', makeImages(3));
     fixture.detectChanges();
 
     const thumbs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.image-item img'));
     thumbs[1].click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.singleView).toBeTrue();
-    expect(fixture.componentInstance.currentIndex).toEqual(1);
+    expect(fixture.componentInstance.singleView()).toBeTrue();
+    expect(fixture.componentInstance.currentIndex()).toEqual(1);
 
     const singleImg = fixture.nativeElement.querySelector('.image-plus-desc img') as HTMLImageElement;
     expect(singleImg.alt).toEqual('Photo 1');
@@ -58,20 +58,20 @@ describe('ImagesViewerComponent', () => {
 
   it('should open the single view when Enter is pressed on a thumbnail', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
-    fixture.componentInstance.images = makeImages(3);
+    fixture.componentRef.setInput('images', makeImages(3));
     fixture.detectChanges();
 
     const thumbs: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.image-item img'));
     thumbs[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.singleView).toBeTrue();
-    expect(fixture.componentInstance.currentIndex).toEqual(2);
+    expect(fixture.componentInstance.singleView()).toBeTrue();
+    expect(fixture.componentInstance.currentIndex()).toEqual(2);
   });
 
   it('should navigate between images with the arrow buttons', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
-    fixture.componentInstance.images = makeImages(3);
+    fixture.componentRef.setInput('images', makeImages(3));
     fixture.detectChanges();
     fixture.componentInstance.onGridImageClick(0);
     fixture.detectChanges();
@@ -83,22 +83,22 @@ describe('ImagesViewerComponent', () => {
 
     right.click();
     fixture.detectChanges();
-    expect(fixture.componentInstance.currentIndex).toEqual(1);
+    expect(fixture.componentInstance.currentIndex()).toEqual(1);
     expect(left.disabled).toBeFalse();
 
     right.click();
     fixture.detectChanges();
-    expect(fixture.componentInstance.currentIndex).toEqual(2);
+    expect(fixture.componentInstance.currentIndex()).toEqual(2);
     expect(right.disabled).toBeTrue();
 
     left.click();
     fixture.detectChanges();
-    expect(fixture.componentInstance.currentIndex).toEqual(1);
+    expect(fixture.componentInstance.currentIndex()).toEqual(1);
   });
 
   it('should open the lightbox overlay when the single-view image is activated', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
-    fixture.componentInstance.images = makeImages(2);
+    fixture.componentRef.setInput('images', makeImages(2));
     fixture.detectChanges();
     fixture.componentInstance.onGridImageClick(0);
     fixture.detectChanges();
@@ -109,13 +109,13 @@ describe('ImagesViewerComponent', () => {
     singleImg.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isOverlayOpen).toBeTrue();
+    expect(fixture.componentInstance.isOverlayOpen()).toBeTrue();
     expect(fixture.nativeElement.querySelector('app-image-overlay')).not.toBeNull();
   });
 
   it('should close the overlay and restore focus to the originating image', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
-    fixture.componentInstance.images = makeImages(2);
+    fixture.componentRef.setInput('images', makeImages(2));
     fixture.detectChanges();
     fixture.componentInstance.onGridImageClick(0);
     fixture.detectChanges();
@@ -125,19 +125,19 @@ describe('ImagesViewerComponent', () => {
     singleImg.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isOverlayOpen).toBeTrue();
+    expect(fixture.componentInstance.isOverlayOpen()).toBeTrue();
 
     fixture.componentInstance.closeOverlay();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isOverlayOpen).toBeFalse();
+    expect(fixture.componentInstance.isOverlayOpen()).toBeFalse();
     expect(fixture.nativeElement.querySelector('app-image-overlay')).toBeNull();
     expect(document.activeElement).toBe(singleImg);
   });
 
   it('should emit enlarged state changes as the overlay opens and closes', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
-    fixture.componentInstance.images = makeImages(1);
+    fixture.componentRef.setInput('images', makeImages(1));
 
     const states: boolean[] = [];
     fixture.componentInstance.enlargedChange.subscribe((state: boolean) => states.push(state));
@@ -154,27 +154,27 @@ describe('ImagesViewerComponent', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
     const viewer = fixture.componentInstance;
     const location = TestBed.inject(Location);
-    viewer.images = makeImages(2);
+    fixture.componentRef.setInput('images', makeImages(2));
     fixture.detectChanges();
 
     viewer.onGridImageClick(1);
     viewer.onSingleImageClick();
-    expect(viewer.isOverlayOpen).toBe(true);
+    expect(viewer.isOverlayOpen()).toBe(true);
 
     location.back();
-    expect(viewer.isOverlayOpen).toBe(false);
-    expect(viewer.singleView).toBe(true);
-    expect(viewer.currentIndex).toBe(1);
+    expect(viewer.isOverlayOpen()).toBe(false);
+    expect(viewer.singleView()).toBe(true);
+    expect(viewer.currentIndex()).toBe(1);
 
     location.back();
-    expect(viewer.singleView).toBe(false);
+    expect(viewer.singleView()).toBe(false);
   });
 
   it('should step history back when the overlay is closed from its close button', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
     const viewer = fixture.componentInstance;
     const location = TestBed.inject(Location);
-    viewer.images = makeImages(1);
+    fixture.componentRef.setInput('images', makeImages(1));
     fixture.detectChanges();
 
     viewer.onGridImageClick(0);

@@ -46,6 +46,9 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 
 - Code that runs during prerendering must not touch `window`, `document` or `localStorage` unguarded — check
   `isBrowser` or `typeof window`
+- Zoneless (no `zone.js`): state that changes outside a template event — promises, `Location.subscribe`, timers —
+  must be a signal or the view won't update. `AppComponent` and `ImagesViewerComponent` hold their state in
+  signals and `computed`
 - Constants are `UPPER_SNAKE` exports in `constants.ts`; reuse `ALL`, `FAVORITES` and the `URL_PARAM_*` names
   rather than string literals
 - Templates reference members through `this.` (`this.selectedProject`)

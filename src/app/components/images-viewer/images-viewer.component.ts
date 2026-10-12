@@ -1,6 +1,6 @@
 import { Location, NgOptimizedImage } from '@angular/common';
 import { SubscriptionLike } from 'rxjs';
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, input, signal } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
@@ -15,18 +15,19 @@ import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, 
 ],
     selector: 'app-images-viewer',
     templateUrl: './images-viewer.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     styleUrls: ['./images-viewer.component.scss']
 })
 export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() images: Image[] = [];
+  readonly images = input<Image[]>([]);
   @Output() enlargedChange = new EventEmitter<boolean>();
-  currentIndex: number = 0;
-  isOverlayOpen: boolean = false;
-  singleView = false;
-  singleImage: ImageSize = { ...IMAGE_SIZE_DEFAULT };
-  searchTerm: string = '';
-  filteredImages: Image[] = [];
+  readonly currentIndex = signal(0);
+  readonly isOverlayOpen = signal(false);
+  readonly singleView = signal(false);
+  readonly singleImage = signal<ImageSize>({ ...IMAGE_SIZE_DEFAULT });
+  readonly searchTerm = signal('');
+  readonly filteredImages = computed(() => filterImagesBySearch(this.images(), this.searchTerm()));
+  readonly currentImage = computed<Image | undefined>(() => this.filteredImages()[this.currentIndex()]);
   private popStateSubscription?: SubscriptionLike;
 
   constructor(private route: ActivatedRoute, private location: Location) {
@@ -37,14 +38,12 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.applySearch();
-
     const imageParam = this.route.snapshot.queryParamMap.get(URL_PARAM_IMAGE);
     if (imageParam !== null && imageParam !== '') {
-      const index = this.filteredImages.findIndex(image => image.name === imageParam);
+      const index = this.filteredImages().findIndex(image => image.name === imageParam);
       if (index !== -1) {
-        this.currentIndex = index;
-        this.singleView = true;
+        this.currentIndex.set(index);
+        this.singleView.set(true);
       }
     }
 
@@ -62,44 +61,38 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   private restoreFromHistory(): void {
     const params = new URLSearchParams(this.location.path().split('?')[1] ?? '');
     const imageParam = params.get(URL_PARAM_IMAGE);
-    const index = imageParam ? this.filteredImages.findIndex(image => image.name === imageParam) : -1;
+    const index = imageParam ? this.filteredImages().findIndex(image => image.name === imageParam) : -1;
 
-    this.singleView = index !== -1;
-    if (this.singleView) {
-      this.currentIndex = index;
+    this.singleView.set(index !== -1);
+    if (this.singleView()) {
+      this.currentIndex.set(index);
     }
 
     const state = this.location.getState() as { overlay?: boolean } | null;
-    const isOverlayOpen = this.singleView && state?.overlay === true;
-    if (isOverlayOpen !== this.isOverlayOpen) {
-      this.isOverlayOpen = isOverlayOpen;
+    const isOverlayOpen = this.singleView() && state?.overlay === true;
+    if (isOverlayOpen !== this.isOverlayOpen()) {
+      this.isOverlayOpen.set(isOverlayOpen);
       this.emitEnlargedState();
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.searchTerm = '';
-    this.applySearch();
+    this.searchTerm.set('');
 
     // Jumping to another project (or back to one) swaps the images under an open viewer; show the
     // image the URL names, else the grid. The parent already cleared its enlarged state.
     if (!changes['images']?.firstChange) {
       const imageParam = new URLSearchParams(this.location.path().split('?')[1] ?? '').get(URL_PARAM_IMAGE);
-      const index = imageParam ? this.filteredImages.findIndex(image => image.name === imageParam) : -1;
+      const index = imageParam ? this.filteredImages().findIndex(image => image.name === imageParam) : -1;
 
-      this.currentIndex = Math.max(index, 0);
-      this.singleView = index !== -1;
-      this.isOverlayOpen = false;
+      this.currentIndex.set(Math.max(index, 0));
+      this.singleView.set(index !== -1);
+      this.isOverlayOpen.set(false);
     }
   }
 
   searchChange(term: string): void {
-    this.searchTerm = term;
-    this.applySearch();
-  }
-
-  private applySearch(): void {
-    this.filteredImages = filterImagesBySearch(this.images, this.searchTerm);
+    this.searchTerm.set(term);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -108,7 +101,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private adjustImageSize(width: number, height: number) {
-    this.singleImage = adjustImageToScreenSize(width, height);
+    this.singleImage.set(adjustImageToScreenSize(width, height));
   }
 
   checkForIndex(indexParam: string | null): void {
@@ -128,33 +121,33 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   goToPrevious() {
-    if (this.currentIndex > 0) {
-      this.currentIndex--;
-      this.replaceImageUrlParam(this.currentIndex);
+    if (this.currentIndex() > 0) {
+      this.currentIndex.update(index => index - 1);
+      this.replaceImageUrlParam(this.currentIndex());
     } else {
       // set to end ??
     }
   }
 
   goToNext() {
-    if (this.currentIndex < this.filteredImages.length - 1) {
-      this.currentIndex++;
-      this.replaceImageUrlParam(this.currentIndex);
+    if (this.currentIndex() < this.filteredImages().length - 1) {
+      this.currentIndex.update(index => index + 1);
+      this.replaceImageUrlParam(this.currentIndex());
     } else {
       // reshuffle cards
     }
   }
 
   onGridImageClick(index: number): void {
-    this.currentIndex = index;
-    this.singleView = true;
+    this.currentIndex.set(index);
+    this.singleView.set(true);
     this.emitEnlargedState();
 
-    this.location.go(this.buildImageUrl(this.filteredImages[this.currentIndex]?.name || '', this.currentIndex));
+    this.location.go(this.buildImageUrl(this.currentImage()?.name || '', index));
   }
 
   onSingleImageClick(): void {
-    this.isOverlayOpen = true;
+    this.isOverlayOpen.set(true);
     this.emitEnlargedState();
 
     // Same URL, marked in history state, so browser/mouse back closes the overlay first.
@@ -162,7 +155,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   closeOverlay(): void {
-    this.isOverlayOpen = false;
+    this.isOverlayOpen.set(false);
     this.emitEnlargedState();
 
     const state = this.location.getState() as { overlay?: boolean } | null;
@@ -172,11 +165,11 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   backClick(): void {
-    this.singleView = false;
+    this.singleView.set(false);
     this.emitEnlargedState();
 
     this.location.go(this.buildImageUrl(null));
-    this.checkForIndex(this.currentIndex.toString());
+    this.checkForIndex(this.currentIndex().toString());
   }
 
   getThumbnailImage(url: string): string {
@@ -184,7 +177,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private emitEnlargedState(): void {
-    this.enlargedChange.emit(this.isOverlayOpen);
+    this.enlargedChange.emit(this.isOverlayOpen());
   }
 
   private replaceImageUrlParam(index: number | null): void {
@@ -192,7 +185,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     if (index === null) {
       url = this.buildImageUrl(null);
     } else {
-      const imageName = this.filteredImages[index]?.name || '';
+      const imageName = this.filteredImages()[index]?.name || '';
       url = this.buildImageUrl(imageName, index);
     }
 
