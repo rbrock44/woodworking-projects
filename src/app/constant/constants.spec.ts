@@ -1,4 +1,4 @@
-import { countProjects, filterImagesBySearch, filterProjectsBySearch, splitSearchTerms } from './constants';
+import { countProjects, filterImagesBySearch, filterProjectsBySearch, projectMonthRange, splitSearchTerms } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -79,5 +79,34 @@ describe('filterImagesBySearch', () => {
 describe('splitSearchTerms', () => {
   it('should lowercase and drop empty terms', () => {
     expect(splitSearchTerms('  Walnut   BENCH ')).toEqual(['walnut', 'bench']);
+  });
+});
+
+describe('projectMonthRange', () => {
+  const photos = (...names: string[]): Image[] => names.map(name => ({ name, desc: '', url: '' }));
+
+  it('should show a single month', () => {
+    expect(projectMonthRange(photos('20240305_1200', '20240322_0900'))).toEqual('Mar 2024');
+  });
+
+  it('should show a range within one year, whatever order the photos are in', () => {
+    expect(projectMonthRange(photos('20240512_1200', '20240305_1200', '20240401_1200'))).toEqual('Mar – May 2024');
+  });
+
+  it('should show both years when the range crosses one', () => {
+    expect(projectMonthRange(photos('20230715_1200', '20240203_1200'))).toEqual('Jul 2023 – Feb 2024');
+  });
+
+  it('should leave the year off when the whole range is in the project year', () => {
+    expect(projectMonthRange(photos('20240305_1200'), '2024')).toEqual('Mar');
+    expect(projectMonthRange(photos('20240305_1200', '20240512_1200'), '2024')).toEqual('Mar – May');
+    expect(projectMonthRange(photos('20240305_1200'), '2023')).toEqual('Mar 2024');
+    expect(projectMonthRange(photos('20230715_1200', '20240203_1200'), '2023')).toEqual('Jul 2023 – Feb 2024');
+  });
+
+  it('should skip names that are not a date and return null when none are', () => {
+    expect(projectMonthRange(photos('cover', '20241399_0000', '20240601_1200'))).toEqual('Jun 2024');
+    expect(projectMonthRange(photos('cover'))).toBeNull();
+    expect(projectMonthRange([])).toBeNull();
   });
 });

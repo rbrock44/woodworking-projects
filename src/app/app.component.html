@@ -112,6 +112,9 @@
           <p><strong>Year:</strong> {{ this.selectedYear }}</p>
           @if (this.selectedProject.name != undefined && this.selectedProject.name != '') {
             <p><strong>Project:</strong> {{ this.selectedProject.name }}</p>
+            @if (this.selectedMonthRange) {
+              <p><strong>Built:</strong> {{ this.selectedMonthRange }}</p>
+            }
           }
           @if (this.selectedProject.desc != undefined && this.selectedProject.desc != '') {
             <p><strong>Desc:</strong> {{ this.selectedProject.desc }}</p>

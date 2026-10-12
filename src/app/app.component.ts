@@ -10,7 +10,7 @@ import {CommandPaletteComponent} from "./components/command-palette/command-pale
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, HOME_PAGE, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch } from './constant/constants';
+import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
 import { parseProjectPath, projectPath, projectSlug } from './constant/project-url';
 
 @Component({
@@ -130,6 +130,10 @@ export class AppComponent implements OnInit {
     this.totalProjectCount = countProjects(this.data.projectsByYear.filter(group => group.year !== ALL));
     this.matchingProjectCount = countProjects(this.filteredProjectsByYear);
     this.filteredFavoritesByYear = filterProjectsBySearch(this.favorites.favoritesByYear(this.data.projectsByYear), this.searchTerm);
+  }
+
+  get selectedMonthRange(): string | null {
+    return this.selectedProject ? projectMonthRange(this.selectedProject.images, this.selectedYear) : null;
   }
 
   get favoriteCount(): number {

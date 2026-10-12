@@ -124,6 +124,36 @@ export function addAllProjectsByYear(projectsData: Projects): Projects {
     return updatedProjects;
 }
 
+const MONTHS: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * The months a project's photos span, read from their YYYYMMDD names: 'Mar 2024', 'Mar – May 2024', 'Jul 2023 – Feb 2024'.
+ * The year is left off when the whole range falls in `projectYear`, since the page already shows it: 'Mar', 'Mar – May'.
+ */
+export function projectMonthRange(images: Image[], projectYear?: string): string | null {
+    // yyyymm as a number, so sorting needs no date parsing or timezones
+    const months = images
+        .map(image => /^(\d{4})(\d{2})\d{2}/.exec(image.name))
+        .filter(match => match !== null && Number(match[2]) >= 1 && Number(match[2]) <= 12)
+        .map(match => Number(match![1]) * 100 + Number(match![2]));
+
+    if (months.length === 0) {
+        return null;
+    }
+
+    const first = Math.min(...months);
+    const last = Math.max(...months);
+    const monthName = (yyyymm: number) => MONTHS[(yyyymm % 100) - 1];
+    const year = (yyyymm: number) => Math.floor(yyyymm / 100);
+
+    if (year(first) === year(last)) {
+        const months = first === last ? monthName(first) : `${monthName(first)} – ${monthName(last)}`;
+        return String(year(last)) === projectYear ? months : `${months} ${year(last)}`;
+    }
+
+    return `${monthName(first)} ${year(first)} – ${monthName(last)} ${year(last)}`;
+}
+
 export function splitSearchTerms(search: string): string[] {
     return search.toLowerCase().split(/\s+/).filter(term => term !== '');
 }
