@@ -1,7 +1,10 @@
-import { ALL } from './constants';
+import { ALL, FAVORITES } from './constants';
 
 /** The path segment for the synthetic group holding every image from every year. */
 export const ALL_SEGMENT: string = 'all';
+
+/** The path segment for every image from the projects favorited in this browser. */
+export const FAVORITES_SEGMENT: string = 'favorites';
 
 /** Lowercase, hyphenated, ascii-only form of a project name for its URL. */
 export function projectSlug(name: string): string {
@@ -14,10 +17,14 @@ export function projectSlug(name: string): string {
         .replace(/^-+|-+$/g, '');
 }
 
-/** `/<year>/<slug>` for a project, `/<year>` for all of a year, `/all` for everything. */
+/** `/<year>/<slug>` for a project, `/<year>` for all of a year, `/all` for everything, `/favorites` for favorites. */
 export function projectPath(year: string, name?: string | null): string {
     if (year === ALL) {
         return `/${ALL_SEGMENT}`;
+    }
+
+    if (year === FAVORITES) {
+        return `/${FAVORITES_SEGMENT}`;
     }
 
     const slug = name ? projectSlug(name) : '';
@@ -30,7 +37,7 @@ export function isYearSegment(segment: string | undefined): boolean {
 }
 
 export interface ProjectTarget {
-    /** A year, or ALL for everything. */
+    /** A year, ALL for everything, or FAVORITES for the favorited projects. */
     year: string;
     /** The project's slug, or null for the whole year. */
     slug: string | null;
@@ -42,6 +49,10 @@ export function parseProjectPath(path: string): ProjectTarget | null {
 
     if (segments.length === 1 && segments[0] === ALL_SEGMENT) {
         return { year: ALL, slug: null };
+    }
+
+    if (segments.length === 1 && segments[0] === FAVORITES_SEGMENT) {
+        return { year: FAVORITES, slug: null };
     }
 
     if (!isYearSegment(segments[0]) || segments.length > 2) {

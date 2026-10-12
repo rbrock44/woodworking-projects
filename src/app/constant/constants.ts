@@ -2,6 +2,7 @@ import { ImageSize, Image, Projects, ProjectsByYear, Project } from "../type/pro
 
 export const PROJECT_LIST: string = 'project-list.json';
 export const ALL: string = 'All';
+export const FAVORITES: string = 'Favorites';
 
 export const URL_PARAM_IMAGE: string = 'image';
 export const URL_PARAM_PROJECT: string = 'project';

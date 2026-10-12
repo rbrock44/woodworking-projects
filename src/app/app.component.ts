@@ -9,7 +9,8 @@ import {SearchBarComponent} from "./components/search-bar/search-bar.component";
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, HOME_PAGE, SeoService} from "./services/seo.service";
-import { ALL, countProjects, extractImagesByYear, filterProjectsBySearch } from './constant/constants';
+import {FavoritesService} from "./services/favorites.service";
+import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch } from './constant/constants';
 import { parseProjectPath, projectPath, projectSlug } from './constant/project-url';
 
 @Component({
@@ -33,10 +34,12 @@ export class AppComponent implements OnInit {
   isImageEnlarged: boolean = false;
   searchTerm: string = '';
   filteredProjectsByYear: ProjectsByYear[] = [];
+  filteredFavoritesByYear: ProjectsByYear[] = [];
   totalProjectCount: number = 0;
   matchingProjectCount: number = 0;
   dataLoaded: boolean = false;
   readonly palette = inject(CommandPaletteService);
+  readonly favorites = inject(FavoritesService);
   readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
@@ -89,7 +92,11 @@ export class AppComponent implements OnInit {
     const target = parseProjectPath(path);
     const yearGroup = target && this.data.projectsByYear.find(x => x.year === target.year);
 
-    if (target && yearGroup) {
+    if (target?.year === FAVORITES) {
+      if (this.favoriteCount > 0) {
+        this.selectAllFavorites();
+      }
+    } else if (target && yearGroup) {
       if (target.year === ALL) {
         this.selectedProject = yearGroup.projects[0];
         this.selectedYear = ALL;
@@ -122,6 +129,40 @@ export class AppComponent implements OnInit {
     // The synthetic 'All' group is a shortcut, not a project, so it stays out of the count
     this.totalProjectCount = countProjects(this.data.projectsByYear.filter(group => group.year !== ALL));
     this.matchingProjectCount = countProjects(this.filteredProjectsByYear);
+    this.filteredFavoritesByYear = filterProjectsBySearch(this.favorites.favoritesByYear(this.data.projectsByYear), this.searchTerm);
+  }
+
+  get favoriteCount(): number {
+    return countProjects(this.favorites.favoritesByYear(this.data.projectsByYear));
+  }
+
+  // Hidden while searching unless a favorite matches; otherwise always there so the empty hint can show
+  get showFavorites(): boolean {
+    return this.filteredFavoritesByYear.length > 0 || this.searchTerm.trim() === '';
+  }
+
+  toggleFavorite(event: Event, project: Project, year: string): void {
+    event.stopPropagation(); // the row behind the heart opens the project
+    this.favorites.toggle(year, project);
+    this.applySearch();
+  }
+
+  allFavorites(): void {
+    this.selectAllFavorites();
+    this.location.go(projectPath(FAVORITES));
+    this.updateSeo();
+  }
+
+  private selectAllFavorites(): void {
+    // Search-aware like a year's 'All'; each image keeps its year and project in the description
+    const images = this.filteredFavoritesByYear.flatMap(yearGroup => extractImagesByYear(yearGroup));
+
+    this.selectedProject = {
+      name: '',
+      desc: `All of ${FAVORITES}`,
+      images: images
+    };
+    this.selectedYear = FAVORITES;
   }
 
   projectClick(project: Project, year: string): void {

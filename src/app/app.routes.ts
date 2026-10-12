@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, CanMatchFn, Router, Routes } from '@angular/router';
-import { ALL_SEGMENT, isYearSegment, legacyProjectPath } from './constant/project-url';
+import { ALL_SEGMENT, FAVORITES_SEGMENT, isYearSegment, legacyProjectPath } from './constant/project-url';
 import { URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 /** Sends old `/?year=<year>&project=<name>` links to the project's own page, keeping other params. */
@@ -16,7 +16,7 @@ export const redirectLegacyProject: CanActivateFn = route => {
 };
 
 const matchesYear: CanMatchFn = (_, segments) =>
-  isYearSegment(segments[0]?.path) || segments[0]?.path === ALL_SEGMENT;
+  isYearSegment(segments[0]?.path) || segments[0]?.path === ALL_SEGMENT || segments[0]?.path === FAVORITES_SEGMENT;
 
 const matchesProject: CanMatchFn = (_, segments) => isYearSegment(segments[0]?.path);
 

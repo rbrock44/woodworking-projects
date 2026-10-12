@@ -27,14 +27,14 @@ describe('app routes', () => {
   });
 
   it('should accept home, year, all and project paths', async () => {
-    for (const url of ['/', '/2024', '/all', '/2024/baby-rattles', '/2024/baby-rattles?image=x']) {
+    for (const url of ['/', '/2024', '/all', '/favorites', '/2024/baby-rattles', '/2024/baby-rattles?image=x']) {
       await harness.navigateByUrl(url);
       expect(router.url).toBe(url);
     }
   });
 
   it('should send unknown paths home', async () => {
-    for (const url of ['/benches', '/all/x', '/2024/a/b']) {
+    for (const url of ['/benches', '/all/x', '/favorites/x', '/2024/a/b']) {
       await harness.navigateByUrl(url);
       expect(router.url).toBe('/');
     }

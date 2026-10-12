@@ -1,7 +1,7 @@
 import { DOCUMENT, Injectable, InjectionToken, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
-import { ALL } from '../constant/constants';
+import { ALL, FAVORITES } from '../constant/constants';
 import { parseProjectPath, projectPath, projectSlug } from '../constant/project-url';
 import { ProjectsByYear } from '../type/project.type';
 
@@ -12,6 +12,8 @@ export interface PageMeta {
   path: string;
   title: string;
   description: string;
+  /** Kept out of search results and the sitemap. */
+  noindex?: boolean;
 }
 
 export const HOME_PAGE: PageMeta = {
@@ -35,6 +37,16 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
       path: projectPath(ALL),
       title: `All Projects - ${SITE_TITLE}`,
       description: 'Every photo from every woodworking project, newest year first.',
+    };
+  }
+
+  // Favorites live in each visitor's browser, so the prerendered page has nothing worth indexing.
+  if (target.year === FAVORITES) {
+    return {
+      path: projectPath(FAVORITES),
+      title: `Favorite Projects - ${SITE_TITLE}`,
+      description: 'The woodworking projects you have favorited.',
+      noindex: true,
     };
   }
 
@@ -76,6 +88,7 @@ export class SeoService {
 
     this.title.setTitle(page.title);
     this.meta.updateTag({ name: 'description', content: page.description });
+    this.meta.updateTag({ name: 'robots', content: page.noindex ? 'noindex' : 'index, follow' });
     this.meta.updateTag({ property: 'og:title', content: page.title });
     this.meta.updateTag({ property: 'og:description', content: page.description });
     this.meta.updateTag({ property: 'og:url', content: url });

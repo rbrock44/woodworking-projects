@@ -1,6 +1,6 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 import { readProjectList } from './project-list.server';
-import { ALL_SEGMENT, projectSlug } from './constant/project-url';
+import { ALL_SEGMENT, FAVORITES_SEGMENT, projectSlug } from './constant/project-url';
 
 /** GitHub Pages only serves files, so every year and project page is prerendered at build time. */
 export const serverRoutes: ServerRoute[] = [
@@ -17,7 +17,7 @@ export const serverRoutes: ServerRoute[] = [
     path: ':year',
     renderMode: RenderMode.Prerender,
     async getPrerenderParams() {
-      return [...readProjectList().map(group => ({ year: group.year })), { year: ALL_SEGMENT }];
+      return [...readProjectList().map(group => ({ year: group.year })), { year: ALL_SEGMENT }, { year: FAVORITES_SEGMENT }];
     },
   },
   { path: '**', renderMode: RenderMode.Prerender },

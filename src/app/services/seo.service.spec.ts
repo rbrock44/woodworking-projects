@@ -30,6 +30,12 @@ describe('describePage', () => {
     expect(describePage(projectsByYear, '/all')?.path).toEqual('/all');
   });
 
+  it('should keep the favorites page out of search results', () => {
+    const page = describePage(projectsByYear, '/favorites');
+    expect(page?.path).toEqual('/favorites');
+    expect(page?.noindex).toBeTrue();
+  });
+
   it('should return null for home and for years or projects that do not exist', () => {
     expect(describePage(projectsByYear, '/')).toBeNull();
     expect(describePage(projectsByYear, '/1999')).toBeNull();

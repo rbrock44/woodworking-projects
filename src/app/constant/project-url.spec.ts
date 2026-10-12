@@ -1,4 +1,4 @@
-import { ALL } from './constants';
+import { ALL, FAVORITES } from './constants';
 import { legacyProjectPath, parseProjectPath, projectPath, projectSlug } from './project-url';
 
 describe('project-url', () => {
@@ -14,12 +14,14 @@ describe('project-url', () => {
     expect(projectPath('2024', '')).toEqual('/2024');
     expect(projectPath('2024')).toEqual('/2024');
     expect(projectPath(ALL, 'All')).toEqual('/all');
+    expect(projectPath(FAVORITES)).toEqual('/favorites');
   });
 
   it('should parse paths back, ignoring query, hash and trailing slash', () => {
     expect(parseProjectPath('/2024/baby-rattles?image=x')).toEqual({ year: '2024', slug: 'baby-rattles' });
     expect(parseProjectPath('/2024/')).toEqual({ year: '2024', slug: null });
     expect(parseProjectPath('/all#top')).toEqual({ year: ALL, slug: null });
+    expect(parseProjectPath('/favorites/')).toEqual({ year: FAVORITES, slug: null });
   });
 
   it('should not parse home or paths that are not a year', () => {
@@ -28,6 +30,7 @@ describe('project-url', () => {
     expect(parseProjectPath('/benches')).toBeNull();
     expect(parseProjectPath('/2024/a/b')).toBeNull();
     expect(parseProjectPath('/all/x')).toBeNull();
+    expect(parseProjectPath('/favorites/x')).toBeNull();
   });
 
   it('should map old year and project params to paths', () => {
