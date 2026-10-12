@@ -1,0 +1,189 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: var(--color-overlay);
+}
+
+.palette {
+  position: fixed;
+  z-index: 1101;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(640px, 94vw);
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.query-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.query {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-4) var(--space-5);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  outline: none;
+}
+
+.query::placeholder {
+  color: var(--color-text-muted);
+}
+
+.list {
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.section {
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--color-accent);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.item.active {
+  background: var(--color-surface-hover);
+  border-left-color: var(--color-accent);
+}
+
+.name {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.desc {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty {
+  margin: var(--space-4);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+kbd {
+  margin-right: 0.2rem;
+  padding: 0 0.3rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+
+.cancel,
+.fab {
+  display: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cancel {
+  padding: 0 var(--space-4);
+  align-self: stretch;
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.fab {
+  position: fixed;
+  z-index: 999;
+  right: calc(1rem + env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition), visibility var(--transition);
+}
+
+.fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+// Tucked below the screen edge and out of the tab order.
+.fab.tucked {
+  transform: translateY(calc(100% + 2rem + env(safe-area-inset-bottom)));
+  visibility: hidden;
+}
+
+// Phones and other touch screens: no Ctrl K, so a thumb-reach button opens the palette.
+@media (max-width: 600px), (hover: none) and (pointer: coarse) {
+  .fab {
+    display: flex;
+  }
+
+  .item {
+    min-height: 48px;
+  }
+}
+
+// Small screens get a full-screen sheet with a Cancel button, since there's no Esc key.
+@media (max-width: 600px) {
+  .palette {
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  .cancel {
+    display: block;
+  }
+
+  .hints {
+    display: none;
+  }
+}

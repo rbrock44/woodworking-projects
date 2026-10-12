@@ -1,10 +1,12 @@
-import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, inject} from '@angular/core';
 import {RouterOutlet, ActivatedRoute} from '@angular/router';
 import {Project, Projects, ProjectsByYear} from "./type/project.type";
 import {getProjects} from "./services/project.service";
 import { Location } from "@angular/common";
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
 import {SearchBarComponent} from "./components/search-bar/search-bar.component";
+import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
+import {CommandPaletteService} from "./services/command-palette.service";
 import { ALL, countProjects, extractImagesByYear, filterProjectsBySearch, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 @Component({
@@ -12,7 +14,8 @@ import { ALL, countProjects, extractImagesByYear, filterProjectsBySearch, URL_PA
     imports: [
     RouterOutlet,
     ImagesViewerComponent,
-    SearchBarComponent
+    SearchBarComponent,
+    CommandPaletteComponent
 ],
     providers: [],
     templateUrl: './app.component.html',
@@ -30,6 +33,7 @@ export class AppComponent implements OnInit {
   totalProjectCount: number = 0;
   matchingProjectCount: number = 0;
   dataLoaded: boolean = false;
+  readonly palette = inject(CommandPaletteService);
 
   constructor(
     private route: ActivatedRoute,
@@ -105,6 +109,15 @@ export class AppComponent implements OnInit {
 
     const newUrl = this.buildUrl(year, project.name);
     this.location.go(newUrl);
+  }
+
+  jumpToProject(project: Project, year: string): void {
+    if (project === this.selectedProject) {
+      return;
+    }
+
+    this.isImageEnlarged = false;
+    this.projectClick(project, year);
   }
 
   homeClick(): void {

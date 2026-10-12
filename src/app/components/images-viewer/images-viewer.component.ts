@@ -1,6 +1,6 @@
 import { Location, NgOptimizedImage } from '@angular/common';
 import { SubscriptionLike } from 'rxjs';
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
@@ -74,9 +74,16 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.searchTerm = '';
     this.applySearch();
+
+    // Jumping to another project swaps the images under an open viewer; start it over on the grid.
+    if (!changes['images']?.firstChange) {
+      this.currentIndex = 0;
+      this.singleView = false;
+      this.isOverlayOpen = false;
+    }
   }
 
   searchChange(term: string): void {

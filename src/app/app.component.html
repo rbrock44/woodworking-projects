@@ -10,6 +10,10 @@
         <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
           Directory
         </a>
+        <button type="button" class="directory-link jump-button" aria-haspopup="dialog" title="Jump to a project (Ctrl K)"
+          (click)="this.palette.open()">
+          Jump
+        </button>
       }
     </div>
 
@@ -80,5 +84,10 @@
     }
   </section>
 </main>
+
+<app-command-palette
+  [projectsByYear]="this.data.projectsByYear"
+  (projectSelect)="this.jumpToProject($event.project, $event.year)">
+</app-command-palette>
 
 <router-outlet/>

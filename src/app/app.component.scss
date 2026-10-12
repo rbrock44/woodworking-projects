@@ -61,12 +61,24 @@
   border-radius: var(--radius-sm);
   text-decoration: none;
   transition: all var(--transition);
+  cursor: pointer;
 }
 
 .directory-link:hover {
   color: var(--color-bg);
   background-color: var(--color-accent);
   border-color: var(--color-accent);
+}
+
+.jump-button {
+  margin-left: 0;
+}
+
+// Touch screens get the floating jump button instead.
+@media (max-width: 600px), (hover: none) and (pointer: coarse) {
+  .jump-button {
+    display: none;
+  }
 }
 
 .title {
