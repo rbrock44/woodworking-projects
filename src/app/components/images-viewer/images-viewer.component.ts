@@ -78,10 +78,14 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     this.searchTerm = '';
     this.applySearch();
 
-    // Jumping to another project swaps the images under an open viewer; start it over on the grid.
+    // Jumping to another project (or back to one) swaps the images under an open viewer; show the
+    // image the URL names, else the grid. The parent already cleared its enlarged state.
     if (!changes['images']?.firstChange) {
-      this.currentIndex = 0;
-      this.singleView = false;
+      const imageParam = new URLSearchParams(this.location.path().split('?')[1] ?? '').get(URL_PARAM_IMAGE);
+      const index = imageParam ? this.filteredImages.findIndex(image => image.name === imageParam) : -1;
+
+      this.currentIndex = Math.max(index, 0);
+      this.singleView = index !== -1;
       this.isOverlayOpen = false;
     }
   }

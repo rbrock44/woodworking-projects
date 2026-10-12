@@ -1,13 +1,16 @@
-import {Component, OnInit, ChangeDetectionStrategy, inject} from '@angular/core';
-import {RouterOutlet, ActivatedRoute} from '@angular/router';
+import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, inject} from '@angular/core';
+import {RouterOutlet, Router, NavigationEnd} from '@angular/router';
 import {Project, Projects, ProjectsByYear} from "./type/project.type";
 import {getProjects} from "./services/project.service";
-import { Location } from "@angular/common";
+import { isPlatformBrowser, Location } from "@angular/common";
+import { filter, firstValueFrom } from 'rxjs';
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
 import {SearchBarComponent} from "./components/search-bar/search-bar.component";
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
 import {CommandPaletteService} from "./services/command-palette.service";
-import { ALL, countProjects, extractImagesByYear, filterProjectsBySearch, URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
+import {describePage, HOME_PAGE, SeoService} from "./services/seo.service";
+import { ALL, countProjects, extractImagesByYear, filterProjectsBySearch } from './constant/constants';
+import { parseProjectPath, projectPath, projectSlug } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -34,61 +37,79 @@ export class AppComponent implements OnInit {
   matchingProjectCount: number = 0;
   dataLoaded: boolean = false;
   readonly palette = inject(CommandPaletteService);
+  readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly router = inject(Router);
+  private readonly seo = inject(SeoService);
 
-  constructor(
-    private route: ActivatedRoute,
-    private location: Location
-    ) {}
+  constructor(private location: Location) {}
 
   ngOnInit(): void {
-    getProjects().then((response) => {
+    // Prerendering only bakes in each page's meta tags; projects load and render in the browser.
+    if (!this.isBrowser) {
+      return;
+    }
+
+    // Wait for the router too, so an old ?year= link has already been redirected to its path.
+    Promise.all([getProjects(), this.initialNavigation()]).then(([response]) => {
       this.data = response;
       this.dataLoaded = true;
       this.applySearch();
-
-      const yearParam = this.route.snapshot.queryParamMap.get(URL_PARAM_YEAR);
-      const projectParam = this.route.snapshot.queryParamMap.get(URL_PARAM_PROJECT);
-      this.selectFromParams(yearParam, projectParam);
+      this.selectFromPath(this.location.path());
 
       // Slot a home entry in underneath a deep link so browser/mouse back lands on home.
       if (this.selectedProject) {
         const deepLink = this.location.path();
-        this.location.replaceState(this.buildUrl(null, null));
+        this.location.replaceState('/');
         this.location.go(deepLink);
       }
     });
 
     // Browser/mouse back and forward land here; show whichever project the URL now names.
     this.location.subscribe(() => {
-      const params = new URLSearchParams(this.location.path().split('?')[1] ?? '');
-      const yearParam = params.get(URL_PARAM_YEAR);
-      const projectParam = params.get(URL_PARAM_PROJECT);
+      const path = this.location.path();
 
-      if (this.selectedProject && yearParam === this.selectedYear && projectParam === this.selectedProject.name) {
+      if (this.selectedProject && this.pathOnly(path) === this.selectedPath()) {
         return; // same project; the images viewer handles image-level history
       }
 
       this.selectedProject = undefined;
       this.selectedYear = '';
       this.isImageEnlarged = false;
-      this.selectFromParams(yearParam, projectParam);
+      this.selectFromPath(path);
     });
   }
 
-  private selectFromParams(yearParam: string | null, projectParam: string | null): void {
-    if (yearParam && projectParam !== null) {
-      this.selectedYear = yearParam;
+  private initialNavigation(): Promise<unknown> {
+    return this.router.navigated
+      ? Promise.resolve()
+      : firstValueFrom(this.router.events.pipe(filter(event => event instanceof NavigationEnd)));
+  }
 
-      if (projectParam === '') {
-        this.selectAllProjectsByYear(yearParam);
+  private selectFromPath(path: string): void {
+    const target = parseProjectPath(path);
+    const yearGroup = target && this.data.projectsByYear.find(x => x.year === target.year);
+
+    if (target && yearGroup) {
+      if (target.year === ALL) {
+        this.selectedProject = yearGroup.projects[0];
+        this.selectedYear = ALL;
+      } else if (target.slug === null) {
+        this.selectAllProjectsByYear(target.year);
       } else {
-        const yearGroup = this.data.projectsByYear.find(x => x.year === yearParam);
-        const foundProject = yearGroup?.projects.find(p => p.name === projectParam);
+        const foundProject = yearGroup.projects.find(p => projectSlug(p.name) === target.slug);
         if (foundProject) {
           this.selectedProject = foundProject;
+          this.selectedYear = target.year;
         }
       }
     }
+
+    // A year or project that doesn't exist (or no longer does) falls back to home.
+    if (!this.selectedProject && this.pathOnly(path) !== '') {
+      this.location.replaceState('/');
+    }
+
+    this.updateSeo();
   }
 
   searchChange(term: string): void {
@@ -107,8 +128,8 @@ export class AppComponent implements OnInit {
     this.selectedProject = project;
     this.selectedYear = year;
 
-    const newUrl = this.buildUrl(year, project.name);
-    this.location.go(newUrl);
+    this.location.go(projectPath(year, project.name));
+    this.updateSeo();
   }
 
   jumpToProject(project: Project, year: string): void {
@@ -125,17 +146,21 @@ export class AppComponent implements OnInit {
     this.selectedYear = '';
     this.isImageEnlarged = false;
 
-    this.location.go(this.buildUrl(null, null));
+    this.location.go('/');
+    this.updateSeo();
   }
 
   allProjectsByYear(year: string): void {
     this.selectAllProjectsByYear(year);
-    this.location.go(this.buildUrl(year, ''));
+    this.location.go(projectPath(year));
+    this.updateSeo();
   }
 
   private selectAllProjectsByYear(year: string): void {
     // Search-aware: 'All' covers the projects currently visible for that year
-    const images = extractImagesByYear(this.filteredProjectsByYear.filter(x => x.year === year)[0]);
+    const yearGroup = this.filteredProjectsByYear.find(x => x.year === year)
+      ?? this.data.projectsByYear.find(x => x.year === year)!;
+    const images = extractImagesByYear(yearGroup);
     const yearProject: Project = {
       name: '',
       desc: `All of ${year}`,
@@ -146,21 +171,15 @@ export class AppComponent implements OnInit {
     this.selectedYear = year;
   }
 
-  private buildUrl(year: string | null, project: string | null): string {
-    const queryParams = new URLSearchParams();
+  private selectedPath(): string {
+    return this.selectedProject ? projectPath(this.selectedYear, this.selectedProject.name) : '/';
+  }
 
-    if (year !== null && year !== '') {
-      queryParams.set(URL_PARAM_YEAR, year);
-    }
+  private pathOnly(path: string): string {
+    return path.split(/[?#]/)[0].replace(/\/+$/, '');
+  }
 
-    if (project !== null) {
-      queryParams.set(URL_PARAM_PROJECT, project);
-    }
-    const end = queryParams.toString();
-    if (end !== '') {
-      return `${location.pathname}?${queryParams.toString()}`;
-    } else {
-      return location.pathname;
-    }
+  private updateSeo(): void {
+    this.seo.update(describePage(this.data.projectsByYear, this.selectedPath()) ?? HOME_PAGE);
   }
 }

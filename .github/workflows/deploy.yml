@@ -33,10 +33,10 @@ jobs:
 
     - name: Add CNAME
       run: |
-        cp CNAME ./dist/woodworking-projects/browser/CNAME
+        cp CNAME ./dist/woodworking-projects/CNAME
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist/woodworking-projects/browser
+        publish_dir: ./dist/woodworking-projects
