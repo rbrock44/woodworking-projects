@@ -7,22 +7,17 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "gh-pages": "gh-pages -d dist/woodworking-projects",
-    "deploy": "ng build && node scripts/finish-static-build.mjs",
-    "prod": "npm run deploy && npm run gh-pages"
+    "deploy": "ng build && node scripts/finish-static-build.mjs"
   },
   "private": true,
   "dependencies": {
     "@angular/common": "^22.0.7",
     "@angular/compiler": "^22.0.7",
     "@angular/core": "^22.0.7",
-    "@angular/forms": "^22.0.7",
     "@angular/platform-browser": "^22.0.7",
-    "@angular/platform-browser-dynamic": "^22.0.7",
     "@angular/platform-server": "^22.0.7",
     "@angular/router": "^22.0.7",
     "@angular/ssr": "^22.0.7",
-    "angular-cli-ghpages": "^2.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.1"
@@ -32,7 +27,7 @@
     "@angular/cli": "^22.0.7",
     "@angular/compiler-cli": "^22.0.7",
     "@types/jasmine": "~5.1.0",
-    "@types/node": "^18.18.0",
+    "@types/node": "^24.19.2",
     "istanbul-lib-instrument": "^6.0.3",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",

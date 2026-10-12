@@ -108,7 +108,7 @@ Run `npm run deploy` to build the project, prerender every page and write `sitem
 
 ### Deploy
 
-Run `npm run prod` to build and deploy the project. Make sure to be on `master` and that it is up to date before running the command. It's really meant to be a CI/CD action
+Push to `master` and the GitHub Action builds and deploys to GitHub Pages. There is no local deploy command
 
 ---
 
