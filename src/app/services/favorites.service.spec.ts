@@ -23,11 +23,11 @@ describe('FavoritesService', () => {
     const favorites = TestBed.inject(FavoritesService);
 
     favorites.toggle('2024', bench);
-    expect(favorites.isFavorite('2024', bench)).toBeTrue();
-    expect(favorites.isFavorite('2024', rattles)).toBeFalse();
+    expect(favorites.isFavorite('2024', bench)).toBe(true);
+    expect(favorites.isFavorite('2024', rattles)).toBe(false);
 
     favorites.toggle('2024', bench);
-    expect(favorites.isFavorite('2024', bench)).toBeFalse();
+    expect(favorites.isFavorite('2024', bench)).toBe(false);
   });
 
   it('should group favorites by year, leaving out years with none and the All group', () => {
@@ -41,7 +41,7 @@ describe('FavoritesService', () => {
     TestBed.inject(FavoritesService).toggle('2023', box);
 
     TestBed.resetTestingModule();
-    expect(TestBed.inject(FavoritesService).isFavorite('2023', box)).toBeTrue();
+    expect(TestBed.inject(FavoritesService).isFavorite('2023', box)).toBe(true);
   });
 
   it('should start empty when storage holds something unreadable', () => {

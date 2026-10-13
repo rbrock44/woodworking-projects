@@ -47,7 +47,7 @@ This is an angular frontend, prerendered to static pages at build time (one per 
 ## 🛠 Technologies
 
 - Framework: `Angular 22` (static prerendering via `@angular/ssr`)
-- Testing: `Karma`
+- Testing: `Vitest`
 - Deployment: `GitHub Pages`
 
 ---

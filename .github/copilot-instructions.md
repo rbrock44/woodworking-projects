@@ -8,7 +8,7 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 
 - Install: `npm ci` (Node version in `.nvmrc`)
 - Dev server: `npm start` (port 4201)
-- Test all: `npm test` (Karma + Jasmine), or `npx ng test --watch=false --browsers=ChromeHeadless` as CI runs it
+- Test all: `npm test` (Vitest in jsdom, no browser), or `npx ng test --watch=false` as CI runs it
 - Build: `npm run deploy` — `ng build` (prerenders every route) then `scripts/finish-static-build.mjs`, which
   writes `sitemap.xml` and copies `index.csr.html` to `404.html`. Output in `dist/woodworking-projects/`
 - Deploy: CI only, `.github/workflows/deploy.yml` on push to `master` (tests, build, `peaceiris/actions-gh-pages`)

@@ -94,7 +94,7 @@ describe('AppComponent', () => {
     it('should show the project list at home, newest year first after All', async () => {
       const { app, fixture } = await openAt('/');
 
-      expect(app.dataLoaded()).toBeTrue();
+      expect(app.dataLoaded()).toBe(true);
       expect(app.selectedProject()).toBeUndefined();
       expect(app.data().projectsByYear.map(group => group.year)).toEqual([ALL, '2024', '2023']);
       expect(app.totalProjectCount()).toEqual(3);
@@ -132,21 +132,21 @@ describe('AppComponent', () => {
       const { app, location } = await openAt('/2023/missing');
 
       expect(app.selectedProject()).toBeUndefined();
-      expect(location.isCurrentPathEqualTo('/')).toBeTrue();
+      expect(location.isCurrentPathEqualTo('/')).toBe(true);
     });
 
     it('should fall back to home for a year that does not exist', async () => {
       const { app, location } = await openAt('/1999');
 
       expect(app.selectedProject()).toBeUndefined();
-      expect(location.isCurrentPathEqualTo('/')).toBeTrue();
+      expect(location.isCurrentPathEqualTo('/')).toBe(true);
     });
 
     it('should fall back to home for /favorites with no favorites', async () => {
       const { app, location } = await openAt('/favorites');
 
       expect(app.selectedProject()).toBeUndefined();
-      expect(location.isCurrentPathEqualTo('/')).toBeTrue();
+      expect(location.isCurrentPathEqualTo('/')).toBe(true);
     });
 
     it('should show the favorited images for /favorites', async () => {
@@ -230,8 +230,8 @@ describe('AppComponent', () => {
 
       expect(app.selectedProject()).toBeUndefined();
       expect(app.selectedYear()).toEqual('');
-      expect(app.isImageEnlarged()).toBeFalse();
-      expect(location.isCurrentPathEqualTo('/')).toBeTrue();
+      expect(app.isImageEnlarged()).toBe(false);
+      expect(location.isCurrentPathEqualTo('/')).toBe(true);
     });
 
     it('should go home from a Home button', async () => {
@@ -247,7 +247,7 @@ describe('AppComponent', () => {
 
     it('should ignore a jump to the project already shown', async () => {
       const { app, location } = await openAt('/2023/oak-bench');
-      const goSpy = spyOn(location, 'go').and.callThrough();
+      const goSpy = vi.spyOn(location, 'go');
 
       app.jumpToProject(app.selectedProject()!, '2023');
 
@@ -260,7 +260,7 @@ describe('AppComponent', () => {
 
       app.jumpToProject(PROJECTS[1].projects[0], '2024');
 
-      expect(app.isImageEnlarged()).toBeFalse();
+      expect(app.isImageEnlarged()).toBe(false);
       expect(app.selectedProject()?.name).toEqual('Baby Rattles');
     });
   });

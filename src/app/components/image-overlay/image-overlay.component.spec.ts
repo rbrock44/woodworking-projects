@@ -65,7 +65,7 @@ describe('ImageOverlayComponent', () => {
     const closeBtn = fixture.nativeElement.querySelector('.close-btn') as HTMLButtonElement;
     closeBtn.click();
 
-    expect(closed).toBeTrue();
+    expect(closed).toBe(true);
   });
 
   it('should close on Escape', () => {
@@ -77,7 +77,7 @@ describe('ImageOverlayComponent', () => {
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
-    expect(closed).toBeTrue();
+    expect(closed).toBe(true);
   });
 
   it('should emit previous/next on ArrowLeft/ArrowRight', () => {
@@ -126,7 +126,7 @@ describe('ImageOverlayComponent', () => {
     const dialog = fixture.nativeElement.querySelector('.image-overlay') as HTMLElement;
     dialog.click();
 
-    expect(closed).toBeFalse();
+    expect(closed).toBe(false);
   });
 
   it('should close when clicking the backdrop', () => {
@@ -139,7 +139,7 @@ describe('ImageOverlayComponent', () => {
     const backdrop = fixture.nativeElement.querySelector('.overlay') as HTMLElement;
     backdrop.click();
 
-    expect(closed).toBeTrue();
+    expect(closed).toBe(true);
   });
 
   it('should trap Tab forward from the last focusable element back to the first', () => {

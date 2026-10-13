@@ -33,7 +33,7 @@ describe('describePage', () => {
   it('should keep the favorites page out of search results', () => {
     const page = describePage(projectsByYear, '/favorites');
     expect(page?.path).toEqual('/favorites');
-    expect(page?.noindex).toBeTrue();
+    expect(page?.noindex).toBe(true);
   });
 
   it('should return null for home and for years or projects that do not exist', () => {

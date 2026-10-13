@@ -49,7 +49,7 @@ describe('ImagesViewerComponent', () => {
     thumbs[1].click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.singleView()).toBeTrue();
+    expect(fixture.componentInstance.singleView()).toBe(true);
     expect(fixture.componentInstance.currentIndex()).toEqual(1);
 
     const singleImg = fixture.nativeElement.querySelector('.image-plus-desc img') as HTMLImageElement;
@@ -76,7 +76,7 @@ describe('ImagesViewerComponent', () => {
     thumbs[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.singleView()).toBeTrue();
+    expect(fixture.componentInstance.singleView()).toBe(true);
     expect(fixture.componentInstance.currentIndex()).toEqual(2);
   });
 
@@ -93,7 +93,7 @@ describe('ImagesViewerComponent', () => {
     back.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.singleView()).toBeFalse();
+    expect(fixture.componentInstance.singleView()).toBe(false);
   });
 
   it('should navigate between images with the arrow buttons', () => {
@@ -106,17 +106,17 @@ describe('ImagesViewerComponent', () => {
     const left = fixture.nativeElement.querySelector('.left-arrow') as HTMLButtonElement;
     const right = fixture.nativeElement.querySelector('.right-arrow') as HTMLButtonElement;
 
-    expect(left.disabled).toBeTrue();
+    expect(left.disabled).toBe(true);
 
     right.click();
     fixture.detectChanges();
     expect(fixture.componentInstance.currentIndex()).toEqual(1);
-    expect(left.disabled).toBeFalse();
+    expect(left.disabled).toBe(false);
 
     right.click();
     fixture.detectChanges();
     expect(fixture.componentInstance.currentIndex()).toEqual(2);
-    expect(right.disabled).toBeTrue();
+    expect(right.disabled).toBe(true);
 
     left.click();
     fixture.detectChanges();
@@ -136,7 +136,7 @@ describe('ImagesViewerComponent', () => {
     singleImg.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isOverlayOpen()).toBeTrue();
+    expect(fixture.componentInstance.isOverlayOpen()).toBe(true);
     expect(fixture.nativeElement.querySelector('app-image-overlay')).not.toBeNull();
   });
 
@@ -152,12 +152,12 @@ describe('ImagesViewerComponent', () => {
     singleImg.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isOverlayOpen()).toBeTrue();
+    expect(fixture.componentInstance.isOverlayOpen()).toBe(true);
 
     fixture.componentInstance.closeOverlay();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isOverlayOpen()).toBeFalse();
+    expect(fixture.componentInstance.isOverlayOpen()).toBe(false);
     expect(fixture.nativeElement.querySelector('app-image-overlay')).toBeNull();
     expect(document.activeElement).toBe(singleImg);
   });

@@ -61,8 +61,8 @@ describe('ProjectListComponent', () => {
 
     (fixture.nativeElement.querySelector('.list-group-item:not(.favorites-group) .heart-button') as HTMLElement).click();
 
-    expect(opened).toBeFalse();
-    expect(TestBed.inject(FavoritesService).isFavorite('2024', bench)).toBeTrue();
+    expect(opened).toBe(false);
+    expect(TestBed.inject(FavoritesService).isFavorite('2024', bench)).toBe(true);
   });
 
   it('should show the no results message only while searching', () => {
