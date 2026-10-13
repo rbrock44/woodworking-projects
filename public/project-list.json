@@ -592,6 +592,7 @@
         {
           "name": "Urn",
           "desc": "This was my first ever lathe project",
+          "cover": "20230221_0308_00",
           "images": [
             {
               "name": "20230221_0308_00",
@@ -613,6 +614,7 @@
         {
           "name": "Electric Guitar",
           "desc": "This was made from a spalted Maple tree cut down at the SEMO River Campus. I lived nearby at was able to save a few pieces before it hauled off. This took over a 1 year to dry after the guitar shape was cut from the log (chainsaw + bandsaw)",
+          "cover": "20230406_2253",
           "images": [
             {
               "name": "20230331_2107",
@@ -643,6 +645,7 @@
         },
         {
           "name": "Storage",
+          "cover": "20230411_2052",
           "images": [
             {
               "name": "20230403_0027",
@@ -690,6 +693,7 @@
         {
           "name": "Mallet",
           "desc": "This was made from a fallen tree (at my gf's aunt's in Kansas City) and a broken cedar cane bought for $1 at an estate sale",
+          "cover": "20230623_0134",
           "images": [
             {
               "name": "20230623_0132",
@@ -747,6 +751,7 @@
         {
           "name": "End Table",
           "desc": "This was made from a $5 cypress cookie (estate sale find), ($20) metals legs from amazon and leftover cedar",
+          "cover": "20230811_1843",
           "images": [
             {
               "name": "20230811_1843",
@@ -762,6 +767,7 @@
         },
         {
           "name": "Cookie Slice (Tree)",
+          "cover": "20230918_0214",
           "images": [
             {
               "name": "20230910_0016",
@@ -981,6 +987,7 @@
         {
           "name": "Hammer",
           "desc": "This hammer (head) was $1 at a yard sale. The handle was made on the lathe from hickory",
+          "cover": "20240228_2350",
           "images": [
             {
               "name": "20240228_2350",
@@ -1090,6 +1097,7 @@
         },
         {
           "name": "Christmas",
+          "cover": "20241223_0359",
           "images": [
             {
               "name": "20241215_0321",
