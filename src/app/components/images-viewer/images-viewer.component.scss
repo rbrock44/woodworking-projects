@@ -180,6 +180,8 @@ img {
   display: table;
   min-width: 0;
   max-width: 100%;
+  // Sideways drags are swipes between photos; the browser keeps vertical scrolling and pinch zoom.
+  touch-action: pan-y pinch-zoom;
 }
 
 .image-plus-desc img {

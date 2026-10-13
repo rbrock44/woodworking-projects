@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListener } from '@angular/core';
 import {CommonModule} from '@angular/common';
+import { SwipeTracker } from '../../constant/constants';
 
 @Component({
     imports: [
@@ -21,6 +22,7 @@ export class ImageOverlayComponent implements AfterViewInit, OnDestroy {
   @ViewChild('dialog') dialog?: ElementRef<HTMLElement>;
 
   private previouslyFocusedElement: HTMLElement | null = null;
+  private readonly swipe = new SwipeTracker();
 
   ngAfterViewInit(): void {
     this.previouslyFocusedElement = document.activeElement as HTMLElement;
@@ -87,6 +89,19 @@ export class ImageOverlayComponent implements AfterViewInit, OnDestroy {
       // Focus escaped the dialog (or hasn't entered it yet) - pull it back in.
       event.preventDefault();
       first.focus();
+    }
+  }
+
+  onSwipeStart(event: TouchEvent): void {
+    this.swipe.begin(event);
+  }
+
+  onSwipeEnd(event: TouchEvent): void {
+    const direction = this.swipe.end(event);
+    if (direction === 'previous') {
+      this.previous.emit();
+    } else if (direction === 'next') {
+      this.next.emit();
     }
   }
 

@@ -1,4 +1,4 @@
-import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, projectMonthRange, splitSearchTerms } from './constants';
+import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, projectMonthRange, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -145,5 +145,46 @@ describe('createMidsizeImageUrl', () => {
 
   it('should leave any other url alone', () => {
     expect(createMidsizeImageUrl('https://example.com/a.png')).toEqual('https://example.com/a.png');
+  });
+});
+
+describe('swipeDirection', () => {
+  it('should read a swipe to the left as next and to the right as previous', () => {
+    expect(swipeDirection(-80, 5)).toEqual('next');
+    expect(swipeDirection(80, -5)).toEqual('previous');
+  });
+
+  it('should ignore taps and short drags', () => {
+    expect(swipeDirection(0, 0)).toBeNull();
+    expect(swipeDirection(-49, 0)).toBeNull();
+  });
+
+  it('should ignore mostly vertical drags so scrolling never flips a photo', () => {
+    expect(swipeDirection(-80, 60)).toBeNull();
+    expect(swipeDirection(80, -200)).toBeNull();
+  });
+});
+
+describe('SwipeTracker', () => {
+  const touch = (x: number, y: number, fingers = 1) =>
+    ({ touches: Array(fingers).fill({}), changedTouches: [{ clientX: x, clientY: y }] }) as unknown as TouchEvent;
+
+  it('should measure from where the touch began', () => {
+    const tracker = new SwipeTracker();
+    tracker.begin(touch(200, 100));
+
+    expect(tracker.end(touch(100, 110, 0))).toEqual('next');
+  });
+
+  it('should ignore an end with no start', () => {
+    expect(new SwipeTracker().end(touch(100, 100, 0))).toBeNull();
+  });
+
+  it('should cancel when a second finger lands, as in pinch zoom', () => {
+    const tracker = new SwipeTracker();
+    tracker.begin(touch(200, 100));
+    tracker.begin(touch(250, 100, 2));
+
+    expect(tracker.end(touch(50, 100, 1))).toBeNull();
   });
 });

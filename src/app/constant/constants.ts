@@ -240,3 +240,38 @@ export function filterImagesBySearch(images: Image[], search: string): Image[] {
 
     return images.filter(image => matchesAllTerms(terms, image.name, image.desc));
 }
+
+export type SwipeDirection = 'previous' | 'next';
+
+/** How far, in px, a finger has to travel sideways before a touch counts as a swipe. */
+export const SWIPE_MIN_DISTANCE: number = 50;
+
+/**
+ * 'next' for a swipe to the left, 'previous' for one to the right, null for a tap, a short drag or anything more
+ * vertical than sideways, so scrolling the page never flips a photo.
+ */
+export function swipeDirection(deltaX: number, deltaY: number): SwipeDirection | null {
+    if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE || Math.abs(deltaX) <= Math.abs(deltaY) * 1.5) {
+        return null;
+    }
+
+    return deltaX < 0 ? 'next' : 'previous';
+}
+
+/** Remembers where a touch started so its end can be read as a swipe. A second finger (pinch zoom) cancels it. */
+export class SwipeTracker {
+    private start: { x: number; y: number } | null = null;
+
+    begin(event: TouchEvent): void {
+        const touch = event.touches.length === 1 ? event.changedTouches[0] : undefined;
+        this.start = touch ? { x: touch.clientX, y: touch.clientY } : null;
+    }
+
+    end(event: TouchEvent): SwipeDirection | null {
+        const touch = event.changedTouches[0];
+        const start = this.start;
+        this.start = null;
+
+        return start && touch ? swipeDirection(touch.clientX - start.x, touch.clientY - start.y) : null;
+    }
+}

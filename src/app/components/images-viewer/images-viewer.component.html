@@ -48,7 +48,7 @@
           <button (click)="this.goToPrevious()" class="arrow-button left-arrow" [disabled]="this.currentIndex() === 0">
             &#8592;
           </button>
-          <div class="image-plus-desc">
+          <div class="image-plus-desc" (touchstart)="this.onSwipeStart($event)" (touchend)="this.onSwipeEnd($event)">
             <img ngSrc="{{this.getMidsizeImage(image.url)}}" height="{{this.singleImage().height}}"
               width="{{this.singleImage().width}}" [alt]="this.altText(image)"
               role="button" tabindex="0" [attr.aria-label]="'Enlarge photo: ' + this.altText(image)"

@@ -5,7 +5,7 @@ import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
-import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
+import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, SwipeTracker, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
     imports: [
@@ -31,6 +31,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   readonly filteredImages = computed(() => filterImagesBySearch(this.images(), this.searchTerm()));
   readonly currentImage = computed<Image | undefined>(() => this.filteredImages()[this.currentIndex()]);
   private popStateSubscription?: SubscriptionLike;
+  private readonly swipe = new SwipeTracker();
 
   constructor(private route: ActivatedRoute, private location: Location) {
     // Prerendering has no window, so those pages keep the default size until the browser takes over
@@ -137,6 +138,19 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
       this.replaceImageUrlParam(this.currentIndex());
     } else {
       // reshuffle cards
+    }
+  }
+
+  onSwipeStart(event: TouchEvent): void {
+    this.swipe.begin(event);
+  }
+
+  onSwipeEnd(event: TouchEvent): void {
+    const direction = this.swipe.end(event);
+    if (direction === 'previous') {
+      this.goToPrevious();
+    } else if (direction === 'next') {
+      this.goToNext();
     }
   }
 

@@ -170,4 +170,22 @@ describe('ImageOverlayComponent', () => {
 
     expect(document.activeElement).toBe(closeBtn);
   });
+
+  it('should emit previous and next when swiped', () => {
+    const fixture = TestBed.createComponent(ImageOverlayComponent);
+    fixture.detectChanges();
+    const events: string[] = [];
+    fixture.componentInstance.previous.subscribe(() => events.push('previous'));
+    fixture.componentInstance.next.subscribe(() => events.push('next'));
+
+    const dialog = fixture.nativeElement.querySelector('.image-overlay') as HTMLElement;
+    const touch = (type: string, x: number, fingers: number) =>
+      Object.assign(new Event(type), { touches: Array(fingers).fill({}), changedTouches: [{ clientX: x, clientY: 0 }] });
+    dialog.dispatchEvent(touch('touchstart', 300, 1));
+    dialog.dispatchEvent(touch('touchend', 100, 0));
+    dialog.dispatchEvent(touch('touchstart', 100, 1));
+    dialog.dispatchEvent(touch('touchend', 300, 0));
+
+    expect(events).toEqual(['next', 'previous']);
+  });
 });

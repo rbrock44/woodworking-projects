@@ -13,6 +13,17 @@ function makeImages(count: number): Image[] {
   return images;
 }
 
+function touch(type: string, x: number, fingers: number): Event {
+  const event = new Event(type, { bubbles: true });
+  Object.assign(event, { touches: Array(fingers).fill({}), changedTouches: [{ clientX: x, clientY: 0 }] });
+  return event;
+}
+
+function swipe(element: HTMLElement, fromX: number, toX: number): void {
+  element.dispatchEvent(touch('touchstart', fromX, 1));
+  element.dispatchEvent(touch('touchend', toX, 0));
+}
+
 describe('ImagesViewerComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -227,5 +238,21 @@ describe('ImagesViewerComponent', () => {
 
     expect(location.getState()).not.toEqual({ overlay: true });
     expect(location.path()).toContain('image=img-0');
+  });
+
+  it('should step through photos when the single view is swiped', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    fixture.componentRef.setInput('images', makeImages(3));
+    fixture.detectChanges();
+    fixture.componentInstance.onGridImageClick(1);
+    fixture.detectChanges();
+
+    const area = fixture.nativeElement.querySelector('.image-plus-desc') as HTMLElement;
+    swipe(area, 300, 100);
+    expect(fixture.componentInstance.currentIndex()).toEqual(2);
+
+    swipe(area, 100, 300);
+    swipe(area, 100, 300);
+    expect(fixture.componentInstance.currentIndex()).toEqual(0);
   });
 });

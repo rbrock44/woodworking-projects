@@ -22,6 +22,7 @@
   overflow: hidden;
   max-width: 95vw;
   max-height: 95vh;
+  touch-action: pan-y pinch-zoom;
 }
 
 .image-overlay img {
