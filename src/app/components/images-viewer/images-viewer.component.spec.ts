@@ -255,4 +255,34 @@ describe('ImagesViewerComponent', () => {
     swipe(area, 100, 300);
     expect(fixture.componentInstance.currentIndex()).toEqual(0);
   });
+
+  it('should preload the photos either side once a photo is opened', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    fixture.componentRef.setInput('images', makeImages(4));
+    fixture.detectChanges();
+    const preloaded = () => [...fixture.componentInstance['preloaded'].keys()];
+
+    expect(preloaded()).toEqual([]);
+
+    fixture.componentInstance.onGridImageClick(1);
+    fixture.detectChanges();
+    expect(preloaded()).toEqual(['https://example.com/2-900x1200.webp', 'https://example.com/0-900x1200.webp']);
+
+    fixture.componentInstance.goToNext();
+    fixture.detectChanges();
+    expect(preloaded()).toContain('https://example.com/3-900x1200.webp');
+  });
+
+  it('should preload the full size neighbors while the overlay is open', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    fixture.componentRef.setInput('images', makeImages(3));
+    fixture.detectChanges();
+    fixture.componentInstance.onGridImageClick(1);
+    fixture.componentInstance.onSingleImageClick();
+    fixture.detectChanges();
+
+    const preloaded = [...fixture.componentInstance['preloaded'].keys()];
+    expect(preloaded).toContain('https://example.com/2.jpg');
+    expect(preloaded).toContain('https://example.com/0.jpg');
+  });
 });

@@ -275,3 +275,13 @@ export class SwipeTracker {
         return start && touch ? swipeDirection(touch.clientX - start.x, touch.clientY - start.y) : null;
     }
 }
+
+/**
+ * The photos either side of the one shown, so the next arrow or swipe is instant: midsize copies in the single
+ * view, originals in the full screen overlay since that is what it loads.
+ */
+export function neighborImageUrls(images: Image[], index: number, fullSize: boolean): string[] {
+    return [images[index + 1], images[index - 1]]
+        .filter((image): image is Image => image !== undefined)
+        .map(image => fullSize ? image.url : createMidsizeImageUrl(image.url));
+}

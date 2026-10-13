@@ -1,4 +1,4 @@
-import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, projectMonthRange, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
+import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectMonthRange, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -186,5 +186,26 @@ describe('SwipeTracker', () => {
     tracker.begin(touch(250, 100, 2));
 
     expect(tracker.end(touch(50, 100, 1))).toBeNull();
+  });
+});
+
+describe('neighborImageUrls', () => {
+  const images: Image[] = ['a', 'b', 'c'].map(name => ({ name, desc: '', url: `https://example.com/${name}.jpg` }));
+
+  it('should give the midsize copies of the next and previous photos', () => {
+    expect(neighborImageUrls(images, 1, false)).toEqual([
+      'https://example.com/c-900x1200.webp',
+      'https://example.com/a-900x1200.webp',
+    ]);
+  });
+
+  it('should give the originals for the full screen overlay', () => {
+    expect(neighborImageUrls(images, 1, true)).toEqual(['https://example.com/c.jpg', 'https://example.com/a.jpg']);
+  });
+
+  it('should leave out a side past either end', () => {
+    expect(neighborImageUrls(images, 0, false)).toEqual(['https://example.com/b-900x1200.webp']);
+    expect(neighborImageUrls(images, 2, false)).toEqual(['https://example.com/b-900x1200.webp']);
+    expect(neighborImageUrls(images.slice(0, 1), 0, false)).toEqual([]);
   });
 });

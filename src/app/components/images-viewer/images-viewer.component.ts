@@ -1,11 +1,11 @@
 import { Location, NgOptimizedImage } from '@angular/common';
 import { SubscriptionLike } from 'rxjs';
-import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, input, signal } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, effect, input, signal } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
-import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, SwipeTracker, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
+import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, neighborImageUrls, SwipeTracker, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
     imports: [
@@ -32,12 +32,30 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   readonly currentImage = computed<Image | undefined>(() => this.filteredImages()[this.currentIndex()]);
   private popStateSubscription?: SubscriptionLike;
   private readonly swipe = new SwipeTracker();
+  /** Held so the requests aren't dropped; the browser cache serves them when the photo is shown. */
+  private readonly preloaded = new Map<string, HTMLImageElement>();
 
   constructor(private route: ActivatedRoute, private location: Location) {
     // Prerendering has no window, so those pages keep the default size until the browser takes over
     if (typeof window !== 'undefined') {
       this.adjustImageSize(window.innerWidth, window.innerHeight);
+      effect(() => this.preloadNeighbors());
     }
+  }
+
+  private preloadNeighbors(): void {
+    if (!this.singleView()) {
+      return;
+    }
+
+    neighborImageUrls(this.filteredImages(), this.currentIndex(), this.isOverlayOpen())
+      .filter(url => !this.preloaded.has(url))
+      .forEach(url => {
+        // window.Image, since Image here is the project's photo type
+        const img = new window.Image();
+        img.src = url;
+        this.preloaded.set(url, img);
+      });
   }
 
   ngOnInit(): void {
