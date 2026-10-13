@@ -80,6 +80,23 @@ describe('ImagesViewerComponent', () => {
     expect(fixture.componentInstance.currentIndex()).toEqual(2);
   });
 
+  it('should show the mid-size copy in the single view and the original full screen', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    fixture.componentRef.setInput('images', makeImages(3));
+    fixture.detectChanges();
+    fixture.componentInstance.onGridImageClick(1);
+    fixture.detectChanges();
+
+    const singleImg = fixture.nativeElement.querySelector('.image-plus-desc img') as HTMLImageElement;
+    expect(singleImg.getAttribute('src')).toEqual('https://example.com/1-900x1200.webp');
+
+    singleImg.click();
+    fixture.detectChanges();
+
+    const overlayImg = fixture.nativeElement.querySelector('app-image-overlay img') as HTMLImageElement;
+    expect(overlayImg.getAttribute('src')).toEqual('https://example.com/1.jpg');
+  });
+
   it('should return to the grid from a Back button', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
     fixture.componentRef.setInput('images', makeImages(3));

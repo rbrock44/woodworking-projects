@@ -49,7 +49,7 @@
             &#8592;
           </button>
           <div class="image-plus-desc">
-            <img ngSrc="{{image.url}}" height="{{this.singleImage().height}}"
+            <img ngSrc="{{this.getMidsizeImage(image.url)}}" height="{{this.singleImage().height}}"
               width="{{this.singleImage().width}}" [alt]="this.altText(image)"
               role="button" tabindex="0" [attr.aria-label]="'Enlarge photo: ' + this.altText(image)"
               (click)="this.onSingleImageClick()"

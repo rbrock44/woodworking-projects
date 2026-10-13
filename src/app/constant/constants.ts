@@ -58,6 +58,15 @@ export function createThumbnailImageUrl(url: string): string {
     }
 }
 
+/** The 900x1200 .webp copy of a photo made by the images repo's create-midsize-images.ps1, ~200KB instead of ~1MB. */
+export function createMidsizeImageUrl(url: string): string {
+    if (url.endsWith('.jpg')) {
+        return url.slice(0, -4) + '-900x1200.webp';
+    } else {
+        return url;
+    }
+}
+
 export function createImageForAll(year: string, projectName: string, image: Image): Image {
     return {
         name: image.name,

@@ -1,4 +1,4 @@
-import { countProjects, filterImagesBySearch, filterProjectsBySearch, imageAltText, projectMonthRange, splitSearchTerms } from './constants';
+import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, projectMonthRange, splitSearchTerms } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -134,5 +134,16 @@ describe('imageAltText', () => {
   it('should leave the date off when the name is not one', () => {
     expect(imageAltText(image('cover'), 'Baby Rattles')).toEqual('Baby Rattles, photo');
     expect(imageAltText(image('20241399_0000'), ' ')).toEqual('Woodworking project photo');
+  });
+});
+
+describe('createMidsizeImageUrl', () => {
+  it('should point a .jpg at its 900x1200 .webp copy', () => {
+    expect(createMidsizeImageUrl('https://example.com/2024/rattles/20241013_1750.jpg'))
+      .toEqual('https://example.com/2024/rattles/20241013_1750-900x1200.webp');
+  });
+
+  it('should leave any other url alone', () => {
+    expect(createMidsizeImageUrl('https://example.com/a.png')).toEqual('https://example.com/a.png');
   });
 });

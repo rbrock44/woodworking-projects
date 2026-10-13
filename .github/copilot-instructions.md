@@ -20,7 +20,9 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   [woodworking-projects-images](https://github.com/rbrock44/woodworking-projects-images) repo, which also hosts the
   photos (served from `raw.githubusercontent.com`)
 - Image names are `YYYYMMDD_HHMM`; `projectMonthRange` reads the date from them. Thumbnails are the same URL with a
-  `-150x200.jpg` suffix (`createThumbnailImageUrl`), made by the images repo's `create-thumbnails.ps1`
+  `-150x200.jpg` suffix (`createThumbnailImageUrl`), made by the images repo's `create-thumbnails.ps1`. The single
+  view shows a `-900x1200.webp` copy (`createMidsizeImageUrl`, from `create-midsize-images.ps1`); only the full
+  screen overlay loads the original
 - A project's URL is `/<year>/<slug>` where the slug comes from `projectSlug(name)`, so renaming a project changes its URL
 
 ## Architecture

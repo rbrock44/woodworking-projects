@@ -5,7 +5,7 @@ import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
-import { adjustImageToScreenSize, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
+import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
     imports: [
@@ -180,6 +180,10 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
 
   getThumbnailImage(url: string): string {
     return createThumbnailImageUrl(url);
+  }
+
+  getMidsizeImage(url: string): string {
+    return createMidsizeImageUrl(url);
   }
 
   private emitEnlargedState(): void {
