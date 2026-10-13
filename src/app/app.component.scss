@@ -136,7 +136,7 @@ p {
   transition: all var(--transition);
 }
 
-.project-nav-link.newer {
+.project-nav-link.next {
   margin-left: auto;
   text-align: right;
 }
@@ -150,6 +150,12 @@ p {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+}
+
+.project-nav-year {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--color-accent-hover);
 }
 
 .project-nav-name {

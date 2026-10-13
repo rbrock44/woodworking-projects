@@ -62,7 +62,7 @@ describe('adjacentProjects', () => {
   ];
   const names = (year: string, name: string) => {
     const adjacent = adjacentProjects(projectsByYear, year, name);
-    return adjacent && [adjacent.older?.project.name ?? null, adjacent.newer?.project.name ?? null];
+    return adjacent && [adjacent.previous?.project.name ?? null, adjacent.next?.project.name ?? null];
   };
 
   it('should step within a year in listed order', () => {
@@ -75,7 +75,7 @@ describe('adjacentProjects', () => {
   });
 
   it('should carry the year of the neighbor', () => {
-    expect(adjacentProjects(projectsByYear, '2023', 'Walnut Box')?.newer?.year).toEqual('2024');
+    expect(adjacentProjects(projectsByYear, '2023', 'Walnut Box')?.next?.year).toEqual('2024');
   });
 
   it('should be null for the synthetic All group or an unknown project', () => {

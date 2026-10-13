@@ -61,17 +61,17 @@
           (enlargedChange)="this.isImageEnlarged.set($event)">
         </app-images-viewer>
         @if (this.adjacent(); as adjacent) {
-          <nav class="project-nav" aria-label="Older and newer projects">
-            @if (adjacent.older; as older) {
-              <a class="project-nav-link older" [href]="this.linkPath(older)" (click)="this.adjacentClick($event, older)">
-                <span class="project-nav-label">&#8592; Older</span>
-                <span class="project-nav-name">{{ older.project.name }}</span>
+          <nav class="project-nav" aria-label="Previous and next projects">
+            @if (adjacent.previous; as previous) {
+              <a class="project-nav-link previous" [href]="this.linkPath(previous)" (click)="this.adjacentClick($event, previous)">
+                <span class="project-nav-label">&#8592; Previous</span>
+                <span class="project-nav-name"><span class="project-nav-year">{{ previous.year }}</span>&ngsp;{{ previous.project.name }}</span>
               </a>
             }
-            @if (adjacent.newer; as newer) {
-              <a class="project-nav-link newer" [href]="this.linkPath(newer)" (click)="this.adjacentClick($event, newer)">
-                <span class="project-nav-label">Newer &#8594;</span>
-                <span class="project-nav-name">{{ newer.project.name }}</span>
+            @if (adjacent.next; as next) {
+              <a class="project-nav-link next" [href]="this.linkPath(next)" (click)="this.adjacentClick($event, next)">
+                <span class="project-nav-label">Next &#8594;</span>
+                <span class="project-nav-name"><span class="project-nav-year">{{ next.year }}</span>&ngsp;{{ next.project.name }}</span>
               </a>
             }
           </nav>

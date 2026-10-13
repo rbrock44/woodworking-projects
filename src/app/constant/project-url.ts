@@ -91,8 +91,8 @@ export interface ProjectLink {
 }
 
 export interface AdjacentProjects {
-    older: ProjectLink | null;
-    newer: ProjectLink | null;
+    previous: ProjectLink | null;
+    next: ProjectLink | null;
 }
 
 /**
@@ -110,5 +110,5 @@ export function adjacentProjects(projectsByYear: ProjectsByYear[], year: string,
         return null;
     }
 
-    return { older: ordered[index - 1] ?? null, newer: ordered[index + 1] ?? null };
+    return { previous: ordered[index - 1] ?? null, next: ordered[index + 1] ?? null };
 }

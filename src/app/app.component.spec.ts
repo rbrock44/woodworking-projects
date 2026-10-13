@@ -273,19 +273,20 @@ describe('AppComponent', () => {
       expect(app.selectedProject()?.name).toEqual('Baby Rattles');
     });
 
-    it('should link to the older and newer projects', async () => {
+    it('should link to the previous and next projects', async () => {
       const { fixture } = await openAt('/2023/walnut-box');
 
       const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('.project-nav-link'));
       expect(links.map(link => link.getAttribute('href'))).toEqual(['/2023/oak-bench', '/2024/baby-rattles']);
-      expect(links[1].textContent).toContain('Baby Rattles');
+      expect(links.map(link => link.querySelector('.project-nav-name')!.textContent)).toEqual(['2023 Oak Bench', '2024 Baby Rattles']);
+      expect(links.map(link => link.querySelector('.project-nav-label')!.textContent)).toEqual(['← Previous', 'Next →']);
     });
 
     it('should leave out the side with no project', async () => {
       const { fixture } = await openAt('/2023/oak-bench');
 
       const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('.project-nav-link'));
-      expect(links.map(link => link.classList.contains('newer'))).toEqual([true]);
+      expect(links.map(link => link.classList.contains('next'))).toEqual([true]);
     });
 
     it('should show no project links for a whole year', async () => {
@@ -294,12 +295,12 @@ describe('AppComponent', () => {
       expect(fixture.nativeElement.querySelector('.project-nav')).toBeNull();
     });
 
-    it('should swap to the newer project in place on a plain click', async () => {
+    it('should swap to the next project in place on a plain click', async () => {
       const { app, fixture, location } = await openAt('/2023/walnut-box');
 
-      const newer = fixture.nativeElement.querySelector('.project-nav-link.newer') as HTMLAnchorElement;
+      const next = fixture.nativeElement.querySelector('.project-nav-link.next') as HTMLAnchorElement;
       const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
-      newer.dispatchEvent(click);
+      next.dispatchEvent(click);
 
       expect(click.defaultPrevented).toBe(true);
       expect(app.selectedProject()?.name).toEqual('Baby Rattles');
@@ -338,10 +339,10 @@ describe('AppComponent', () => {
     it('should leave a ctrl click to the browser so it opens a new tab', async () => {
       const { app, fixture } = await openAt('/2023/walnut-box');
 
-      const newer = fixture.nativeElement.querySelector('.project-nav-link.newer') as HTMLAnchorElement;
-      newer.addEventListener('click', event => event.preventDefault()); // keep jsdom from navigating
+      const next = fixture.nativeElement.querySelector('.project-nav-link.next') as HTMLAnchorElement;
+      next.addEventListener('click', event => event.preventDefault()); // keep jsdom from navigating
       const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true });
-      newer.dispatchEvent(click);
+      next.dispatchEvent(click);
 
       expect(app.selectedProject()?.name).toEqual('Walnut Box');
     });

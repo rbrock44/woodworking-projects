@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
     return project ? projectMonthRange(project.images, this.selectedYear()) : null;
   });
 
-  // Older and newer neighbors of a real project; year, All and Favorites views have none
+  // Previous and next projects around a real one; year, All and Favorites views have none
   readonly adjacent = computed(() => {
     const project = this.selectedProject();
     return project?.name ? adjacentProjects(this.data().projectsByYear, this.selectedYear(), project.name) : null;
