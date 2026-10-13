@@ -58,6 +58,14 @@ export function createThumbnailImageUrl(url: string): string {
     }
 }
 
+/**
+ * The photo that stands for a project: the one its `cover` names, else the last one, which is usually the
+ * finished piece since photos are in date order. Undefined only for a project with no photos.
+ */
+export function projectCover(project: Project): Image | undefined {
+    return project.images.find(image => image.name === project.cover) ?? project.images.at(-1);
+}
+
 /** The 900x1200 .webp copy of a photo made by the images repo's create-midsize-images.ps1, ~200KB instead of ~1MB. */
 export function createMidsizeImageUrl(url: string): string {
     if (url.endsWith('.jpg')) {

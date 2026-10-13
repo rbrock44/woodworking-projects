@@ -1,4 +1,4 @@
-import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectMonthRange, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
+import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -207,5 +207,27 @@ describe('neighborImageUrls', () => {
     expect(neighborImageUrls(images, 0, false)).toEqual(['https://example.com/b-900x1200.webp']);
     expect(neighborImageUrls(images, 2, false)).toEqual(['https://example.com/b-900x1200.webp']);
     expect(neighborImageUrls(images.slice(0, 1), 0, false)).toEqual([]);
+  });
+});
+
+describe('projectCover', () => {
+  const images: Image[] = ['20240101_1200', '20240102_1200', '20240103_1200']
+    .map(name => ({ name, desc: '', url: `https://example.com/${name}.jpg` }));
+
+  it('should use the photo the cover names', () => {
+    expect(projectCover({ name: 'Bench', cover: '20240102_1200', images })?.name).toEqual('20240102_1200');
+  });
+
+  it('should fall back to the last photo with no cover', () => {
+    expect(projectCover({ name: 'Bench', images })?.name).toEqual('20240103_1200');
+    expect(projectCover({ name: 'Bench', cover: '', images })?.name).toEqual('20240103_1200');
+  });
+
+  it('should fall back to the last photo when the cover names no photo', () => {
+    expect(projectCover({ name: 'Bench', cover: '20991231_0000', images })?.name).toEqual('20240103_1200');
+  });
+
+  it('should be undefined for a project with no photos', () => {
+    expect(projectCover({ name: 'Bench', images: [] })).toBeUndefined();
   });
 });

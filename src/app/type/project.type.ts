@@ -12,6 +12,8 @@ export interface Image {
 export interface Project {
   name: string;
   desc?: string | undefined;
+  /** Name of the image that represents the project; projectCover falls back to the last photo. */
+  cover?: string | undefined;
   images: Image[];
 }
 

@@ -27,6 +27,7 @@
         {
           "name": "Walnut Jewelry Box",
           "desc": "In my high school woodworking class, this was built for my grandma",
+          "cover": "20120307_0046",
           "images": [
             {
               "name": "20120307_0045",
@@ -53,6 +54,7 @@
         {
           "name": "Desk Refinish",
           "desc": "Needed to refinish the desk I built (2015/2016), it was 1 piece of walnut my cousin gave me for a cabinet install job",
+          "cover": "20171228_1608",
           "images": [
             {
               "name": "20171228_1608",
@@ -100,6 +102,7 @@
         {
           "name": "Desk Refinish",
           "desc": "Refinished my desk again",
+          "cover": "20190524_2036",
           "images": [
             {
               "name": "20190524_2036",
@@ -121,6 +124,7 @@
         {
           "name": "Closets",
           "desc": "A needed to build out 3 closets at my first house",
+          "cover": "20201023_2213",
           "images": [
             {
               "name": "20201023_2211",
@@ -177,6 +181,7 @@
       "projects": [
         {
           "name": "Bed Frame",
+          "cover": "20210206_1656",
           "images": [
             {
               "name": "20210205_2227",
@@ -212,6 +217,7 @@
         },
         {
           "name": "Cedar Tray",
+          "cover": "20210609_1519",
           "images": [
             {
               "name": "20210607_2312",
@@ -238,6 +244,7 @@
         {
           "name": "Cedar Desktop",
           "desc": "These cedar board were given to me by a childhood friend and with epoxy turned into a desktop",
+          "cover": "20210609_0003",
           "images": [
             {
               "name": "20210609_0003",
@@ -316,6 +323,7 @@
         {
           "name": "Storage/Tool Stuff",
           "desc": "",
+          "cover": "20210104_1844",
           "images": [
             {
               "name": "20210104_1844",
@@ -511,6 +519,7 @@
         {
           "name": "Cedar Outdoor Furniture",
           "desc": "Outdoor furniture (given to us by neighbors), painted and redone with cedar boards",
+          "cover": "20211210_2024",
           "images": [
             {
               "name": "20211209_1831",
@@ -2092,6 +2101,7 @@
         {
           "name": "Storage",
           "desc": "",
+          "cover": "20260412_1900",
           "images": [
             {
               "name": "20260412_1900",
@@ -2186,6 +2196,7 @@
         {
           "name": "Workshop Improvements",
           "desc": "",
+          "cover": "20260923_0147",
           "images": [
             {
               "name": "20260819_0015",
