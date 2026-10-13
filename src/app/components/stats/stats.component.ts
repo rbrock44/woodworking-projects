@@ -22,6 +22,34 @@ export class StatsComponent {
     return years.length > 0 ? `${years[0].year} – ${years.at(-1)!.year}` : '';
   });
 
+  /** Years from the first project to the latest, 2010 to 2026 being 16; a single year still counts as 1. */
+  readonly yearCount = computed(() => {
+    const years = this.stats().years;
+    return years.length > 0 ? Math.max(1, Number(years.at(-1)!.year) - Number(years[0].year)) : 0;
+  });
+
+  /** Years with at least one project; the data leaves out the quiet ones. */
+  readonly activeYearCount = computed(() => this.stats().years.length);
+
+  /** Every calendar year from the first project to the latest, quiet years included, for the years tile strip. */
+  readonly yearStrip = computed<YearStat[]>(() => {
+    const years = this.stats().years;
+    if (years.length === 0) {
+      return [];
+    }
+
+    const byYear = new Map(years.map(year => [year.year, year]));
+    const first = Number(years[0].year);
+    return Array.from({ length: Number(years.at(-1)!.year) - first + 1 }, (_, i) => {
+      const year = String(first + i);
+      return byYear.get(year) ?? { year, projects: 0, photos: 0 };
+    });
+  });
+
+  stripLabel(year: YearStat): string {
+    return year.projects > 0 ? `${year.year}: ${this.plural(year.projects, 'project')}` : `${year.year}: no projects`;
+  }
+
   barWidth(year: YearStat): number {
     return (year.projects / this.maxProjects()) * 100;
   }

@@ -11,16 +11,37 @@
       <dt>Photos</dt>
       <dd>{{ stats.photoCount }}</dd>
     </div>
-    <div class="tile">
-      <dt>Years</dt>
-      <dd>{{ this.yearSpan() }}</dd>
-    </div>
     @if (stats.busiestMonth) {
       <div class="tile">
         <dt>Busiest month</dt>
         <dd>{{ stats.busiestMonth }}</dd>
       </div>
     }
+    <!-- Full width so the range never squeezes and the strip reads as a timeline -->
+    <div class="tile years-tile">
+      <dt>Years</dt>
+      <dd>
+        <span class="years-summary">
+          {{ this.yearCount() }}&ngsp;<span class="tile-unit">{{ this.yearCount() === 1 ? 'year' : 'years' }}</span>&ngsp;
+          <span class="tile-note">
+            <span class="tile-range">{{ this.yearSpan() }}</span>&ngsp;
+            <span class="tile-sep" aria-hidden="true">·</span>&ngsp;
+            <span class="tile-active">{{ this.activeYearCount() }} with projects</span>
+          </span>
+        </span>
+        <span class="year-timeline" aria-hidden="true">
+          <span class="year-strip">
+            @for (year of this.yearStrip(); track year.year) {
+              <span class="year-dot" [class.active]="year.projects > 0" [title]="this.stripLabel(year)"></span>
+            }
+          </span>
+          <span class="year-ends">
+            <span>{{ this.yearStrip()[0]?.year }}</span>
+            <span>{{ this.yearStrip().at(-1)?.year }}</span>
+          </span>
+        </span>
+      </dd>
+    </div>
   </dl>
 
   <section class="panel">
