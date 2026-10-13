@@ -27,6 +27,7 @@
         {
           "name": "Walnut Jewelry Box",
           "desc": "In my high school woodworking class, this was built for my grandma",
+          "cover": "20120307_0046",
           "images": [
             {
               "name": "20120307_0045",
@@ -53,6 +54,7 @@
         {
           "name": "Desk Refinish",
           "desc": "Needed to refinish the desk I built (2015/2016), it was 1 piece of walnut my cousin gave me for a cabinet install job",
+          "cover": "20171228_1608",
           "images": [
             {
               "name": "20171228_1608",
@@ -100,6 +102,7 @@
         {
           "name": "Desk Refinish",
           "desc": "Refinished my desk again",
+          "cover": "20190524_2036",
           "images": [
             {
               "name": "20190524_2036",
@@ -121,6 +124,7 @@
         {
           "name": "Closets",
           "desc": "A needed to build out 3 closets at my first house",
+          "cover": "20201023_2213",
           "images": [
             {
               "name": "20201023_2211",
@@ -177,6 +181,7 @@
       "projects": [
         {
           "name": "Bed Frame",
+          "cover": "20210206_1656",
           "images": [
             {
               "name": "20210205_2227",
@@ -212,6 +217,7 @@
         },
         {
           "name": "Cedar Tray",
+          "cover": "20210609_1519",
           "images": [
             {
               "name": "20210607_2312",
@@ -238,6 +244,7 @@
         {
           "name": "Cedar Desktop",
           "desc": "These cedar board were given to me by a childhood friend and with epoxy turned into a desktop",
+          "cover": "20210609_0003",
           "images": [
             {
               "name": "20210609_0003",
@@ -316,6 +323,7 @@
         {
           "name": "Storage/Tool Stuff",
           "desc": "",
+          "cover": "20210104_1844",
           "images": [
             {
               "name": "20210104_1844",
@@ -511,6 +519,7 @@
         {
           "name": "Cedar Outdoor Furniture",
           "desc": "Outdoor furniture (given to us by neighbors), painted and redone with cedar boards",
+          "cover": "20211210_2024",
           "images": [
             {
               "name": "20211209_1831",
@@ -583,6 +592,7 @@
         {
           "name": "Urn",
           "desc": "This was my first ever lathe project",
+          "cover": "20230221_0308_00",
           "images": [
             {
               "name": "20230221_0308_00",
@@ -604,6 +614,7 @@
         {
           "name": "Electric Guitar",
           "desc": "This was made from a spalted Maple tree cut down at the SEMO River Campus. I lived nearby at was able to save a few pieces before it hauled off. This took over a 1 year to dry after the guitar shape was cut from the log (chainsaw + bandsaw)",
+          "cover": "20230406_2253",
           "images": [
             {
               "name": "20230331_2107",
@@ -634,6 +645,7 @@
         },
         {
           "name": "Storage",
+          "cover": "20230411_2052",
           "images": [
             {
               "name": "20230403_0027",
@@ -681,6 +693,7 @@
         {
           "name": "Mallet",
           "desc": "This was made from a fallen tree (at my gf's aunt's in Kansas City) and a broken cedar cane bought for $1 at an estate sale",
+          "cover": "20230623_0134",
           "images": [
             {
               "name": "20230623_0132",
@@ -738,6 +751,7 @@
         {
           "name": "End Table",
           "desc": "This was made from a $5 cypress cookie (estate sale find), ($20) metals legs from amazon and leftover cedar",
+          "cover": "20230811_1843",
           "images": [
             {
               "name": "20230811_1843",
@@ -753,6 +767,7 @@
         },
         {
           "name": "Cookie Slice (Tree)",
+          "cover": "20230918_0214",
           "images": [
             {
               "name": "20230910_0016",
@@ -972,6 +987,7 @@
         {
           "name": "Hammer",
           "desc": "This hammer (head) was $1 at a yard sale. The handle was made on the lathe from hickory",
+          "cover": "20240228_2350",
           "images": [
             {
               "name": "20240228_2350",
@@ -1081,6 +1097,7 @@
         },
         {
           "name": "Christmas",
+          "cover": "20241223_0359",
           "images": [
             {
               "name": "20241215_0321",
@@ -1182,6 +1199,7 @@
         {
           "name": "Baby Rattles",
           "desc": "Needed a baby shower gift for my gf's cousin, ended up with these rattles (and food safe finish on them)",
+          "cover": "20250228_0222",
           "images": [
             {
               "name": "20250224_1932",
@@ -1223,6 +1241,7 @@
         {
           "name": "Walking Stick",
           "desc": "My grandpa bought this walking stick at an auction. He really liked it but it was missing a top and side piece",
+          "cover": "20250404_2228",
           "images": [
             {
               "name": "20250327_0224",
@@ -1270,6 +1289,7 @@
         {
           "name": "Urn",
           "desc": "I was honored to build 2 urns for somebody special. The larger one was buried and the small one remains a keepsake for the recipient",
+          "cover": "20250505_1630",
           "images": [
             {
               "name": "20250430_1716",
@@ -1371,6 +1391,7 @@
         {
           "name": "Lathe",
           "desc": "Here are some lathe creations",
+          "cover": "20250702_2342",
           "images": [
             {
               "name": "20250614_1424",
@@ -1507,6 +1528,7 @@
         {
           "name": "Birthday Gift",
           "desc": "This was a birthday gift that came from a pine tree from the recipient's parent's house, finished with linseed oil",
+          "cover": "20250724_2157",
           "images": [
             {
               "name": "20250724_2157",
@@ -1538,6 +1560,7 @@
         {
           "name": "Hammer",
           "desc": "This hammer head cost 50 cents at an estate sale",
+          "cover": "20250811_2227",
           "images": [
             {
               "name": "20250724_2202",
@@ -1569,6 +1592,7 @@
         {
           "name": "Wedding Gifts",
           "desc": "I have 3 childhood friends getting married this summer/fall. All 3 bowls/platters came from a single boxelder maple board (that was $2 at an auction)",
+          "cover": "20250725_0411",
           "images": [
             {
               "name": "20250725_0411",
@@ -1615,6 +1639,7 @@
         {
           "name": "Lathe - Estate Sale",
           "desc": "All this wood came from the same estate sale (for free) and there are a few leftover pieces still",
+          "cover": "20250804_0239",
           "images": [
             {
               "name": "20250804_0239",
@@ -1636,6 +1661,7 @@
         {
           "name": "Drinking Cup",
           "desc": "A small walnut drinking cup",
+          "cover": "20250807_0353",
           "images": [
             {
               "name": "20250807_0353",
@@ -1662,6 +1688,7 @@
         {
           "name": "Ring Bowls",
           "desc": "3 boxelder maple and 1 spalted maple ring bowl",
+          "cover": "20250811_1847",
           "images": [
             {
               "name": "20250811_1847",
@@ -1703,6 +1730,7 @@
         {
           "name": "Box With Niece",
           "desc": "My niece was over for the day and we created this box! She got to use a miter saw, table saw, router, planer, drill press, lathe and sander",
+          "cover": "20250813_0035",
           "images": [
             {
               "name": "20250813_0035",
@@ -1724,6 +1752,7 @@
         {
           "name": "Hammer Hatchets",
           "desc": "I found the True Temper head at my grandpa's house and the Goldblatt Tool Co head I snagged at a yard sale for $1",
+          "cover": "20251010_1450",
           "images": [
             {
               "name": "20251010_1450",
@@ -1775,6 +1804,7 @@
         {
           "name": "Cookie Slices",
           "desc": "These slices were purchases cheap at an auction, I think I'll get pictures laser engraved on them",
+          "cover": "20251023_1402",
           "images": [
             {
               "name": "20251023_1402",
@@ -1816,6 +1846,7 @@
         {
           "name": "Lathe Minis",
           "desc": "My attempt at a few mini lathe creations",
+          "cover": "20251029_1363",
           "images": [
             {
               "name": "20251029_1363",
@@ -1837,6 +1868,7 @@
         {
           "name": "Cypress Knee Bowls",
           "desc": "I found an old broken cypress knee (cookie slice) clock of my grandpa's and 'turned' it into these bowls",
+          "cover": "20251029_1310",
           "images": [
             {
               "name": "20251029_1310",
@@ -1863,6 +1895,7 @@
         {
           "name": "Tree Branch Container",
           "desc": "A had this leftover lid and decided to hollow out this tree branch for a nice little container",
+          "cover": "20251029_1354",
           "images": [
             {
               "name": "20251029_1354",
@@ -1889,6 +1922,7 @@
         {
           "name": "Winged Bowl",
           "desc": "My first attempt at a winged bowl (hickory)",
+          "cover": "20251029_1358",
           "images": [
             {
               "name": "20251029_1357",
@@ -1915,6 +1949,7 @@
         {
           "name": "Pine Bowls",
           "desc": "These pine bowls are from a branch off a tree from my girlfriend's grandma and will be given to family members (probably for Christmas)",
+          "cover": "20251029_1356",
           "images": [
             {
               "name": "20251029_1356",
@@ -1956,6 +1991,7 @@
         {
           "name": "Copper Laced Bowl",
           "desc": "My first copper wire lace attempt, to cover up a huge crack",
+          "cover": "20251029_1301",
           "images": [
             {
               "name": "20251029_1301",
@@ -1977,6 +2013,7 @@
         {
           "name": "Douglas Fir Bowls",
           "desc": "These came from cutoffs off of old douglas fir 2x6's used on another project. One looks particularly cool with the bug/beetle bore hole",
+          "cover": "20251029_1352",
           "images": [
             {
               "name": "20251029_1352",
@@ -1998,6 +2035,7 @@
         {
           "name": "Singer Desk",
           "desc": "Bought the bottom (singer) part for $1.50 at an estate sale. I used old douglas fir 2x6s for the top",
+          "cover": "20251113_2003",
           "images": [
             {
               "name": "20251110_1751",
@@ -2092,6 +2130,7 @@
         {
           "name": "Storage",
           "desc": "",
+          "cover": "20260412_1900",
           "images": [
             {
               "name": "20260412_1900",
@@ -2186,6 +2225,7 @@
         {
           "name": "Workshop Improvements",
           "desc": "",
+          "cover": "20260923_0147",
           "images": [
             {
               "name": "20260819_0015",
