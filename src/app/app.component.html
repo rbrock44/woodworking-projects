@@ -4,7 +4,7 @@
     [style.--group-count]="this.filteredProjectsByYear().length + (this.showFavorites() ? 1 : 0)">
     <div class="top-bar">
       @if (this.selectedProject()) {
-        <p (click)="this.homeClick()" class="home-button">Home</p>
+        <button type="button" (click)="this.homeClick()" class="home-button">Home</button>
       }
       @if (!this.isImageEnlarged()) {
         <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">

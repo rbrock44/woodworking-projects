@@ -234,6 +234,17 @@ describe('AppComponent', () => {
       expect(location.isCurrentPathEqualTo('/')).toBeTrue();
     });
 
+    it('should go home from a Home button', async () => {
+      const { app, fixture } = await openAt('/2023/oak-bench');
+
+      const home = fixture.nativeElement.querySelector('.home-button') as HTMLElement;
+      expect(home.tagName).toEqual('BUTTON');
+
+      home.click();
+
+      expect(app.selectedProject()).toBeUndefined();
+    });
+
     it('should ignore a jump to the project already shown', async () => {
       const { app, location } = await openAt('/2023/oak-bench');
       const goSpy = spyOn(location, 'go').and.callThrough();

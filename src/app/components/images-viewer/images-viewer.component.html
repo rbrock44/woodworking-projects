@@ -38,7 +38,7 @@
       @let image = this.currentImage()!;
       <div class="single-view">
         <div class="sticky-header">
-          <p (click)="this.backClick()" class="back-button">Back</p>
+          <button type="button" (click)="this.backClick()" class="back-button">Back</button>
         </div>
         <div class="index">
           <span class="progress-info">{{ this.currentIndex() + 1 }}/{{ this.filteredImages().length }}</span>

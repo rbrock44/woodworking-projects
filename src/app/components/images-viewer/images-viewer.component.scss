@@ -140,6 +140,7 @@ img {
   border-radius: var(--radius-sm);
   transition: all var(--transition);
   margin: var(--space-1) var(--space-2);
+  cursor: pointer;
 }
 
 .back-button:hover {

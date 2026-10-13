@@ -80,6 +80,22 @@ describe('ImagesViewerComponent', () => {
     expect(fixture.componentInstance.currentIndex()).toEqual(2);
   });
 
+  it('should return to the grid from a Back button', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    fixture.componentRef.setInput('images', makeImages(3));
+    fixture.detectChanges();
+    fixture.componentInstance.onGridImageClick(1);
+    fixture.detectChanges();
+
+    const back = fixture.nativeElement.querySelector('.back-button') as HTMLElement;
+    expect(back.tagName).toEqual('BUTTON');
+
+    back.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.singleView()).toBeFalse();
+  });
+
   it('should navigate between images with the arrow buttons', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
     fixture.componentRef.setInput('images', makeImages(3));
