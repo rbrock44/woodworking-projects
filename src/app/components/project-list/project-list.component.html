@@ -33,6 +33,9 @@
           <ul class="sub-list">
             @for (project of favoritesByYear.projects; track project) {
               <li (click)="this.projectSelect.emit({ project, year: favoritesByYear.year })" class="sub-list-item">
+                @if (this.thumbnail(project); as thumbnail) {
+                  <img class="project-thumb" [src]="thumbnail" alt="" width="36" height="48" loading="lazy" decoding="async">
+                }
                 <p class="project-name">{{ project.name }}</p>
                 <button type="button" class="heart-button favorited" aria-pressed="true"
                   [attr.aria-label]="'Remove ' + project.name + ' from favorites'"
@@ -62,6 +65,11 @@
             @for (project of projectsByYear.projects; track project) {
               <li
                 (click)="this.projectSelect.emit({ project, year: projectsByYear.year })" class="sub-list-item">
+                @if (projectsByYear.year !== 'All') {
+                  @if (this.thumbnail(project); as thumbnail) {
+                    <img class="project-thumb" [src]="thumbnail" alt="" width="36" height="48" loading="lazy" decoding="async">
+                  }
+                }
                 <p class="project-name">{{ project.name }}</p>
                 @if (projectsByYear.year !== 'All') {
                   @let isFavorite = this.favorites.isFavorite(projectsByYear.year, project);

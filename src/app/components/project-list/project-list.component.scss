@@ -180,7 +180,17 @@ p {
   border-left-color: var(--color-accent);
 }
 
+.project-thumb {
+  flex: none;
+  width: 36px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised);
+}
+
 .project-name {
+  flex: 1;
   text-align: left;
   margin: 0;
   color: var(--color-text);
