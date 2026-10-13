@@ -9,7 +9,7 @@ import {ProjectListComponent} from "./components/project-list/project-list.compo
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
 import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService} from "./services/command-palette.service";
-import {describePage, HOME_PAGE, PROJECT_LIST, SeoService} from "./services/seo.service";
+import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
 import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
 import { adjacentProjects, isPlainLeftClick, isStatsPath, parseProjectPath, ProjectLink, projectPath, projectSlug, STATS_SEGMENT } from './constant/project-url';
@@ -262,6 +262,6 @@ export class AppComponent implements OnInit {
   }
 
   private updateSeo(): void {
-    this.seo.update(describePage(this.data().projectsByYear, this.selectedPath()) ?? HOME_PAGE);
+    this.seo.update(describePage(this.data().projectsByYear, this.selectedPath()) ?? homePage(this.data().projectsByYear));
   }
 }
