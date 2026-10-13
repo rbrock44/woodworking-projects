@@ -52,10 +52,15 @@
               (mousemove)="activeIndex.set(item.index)"
               (click)="go(item)"
             >
-              <span class="name">{{ item.project.name }}</span>
-              @if (item.project.desc) {
-                <span class="desc">{{ item.project.desc }}</span>
+              @if (thumbnail(item.project); as thumbnail) {
+                <img class="thumb" [src]="thumbnail" alt="" width="36" height="48" loading="lazy" decoding="async">
               }
+              <span class="text">
+                <span class="name">{{ item.project.name }}</span>
+                @if (item.project.desc) {
+                  <span class="desc">{{ item.project.desc }}</span>
+                }
+              </span>
             </div>
           }
         </div>

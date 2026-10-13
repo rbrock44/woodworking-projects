@@ -234,4 +234,20 @@ describe('CommandPaletteComponent', () => {
     expect(input.getAttribute('enterkeyhint')).toBe('go');
     expect(input.getAttribute('inputmode')).toBe('search');
   });
+
+  it("should show each result's cover thumbnail, else its last photo's, and none without photos", () => {
+    const photo = (name: string) => ({ name, desc: '', url: `https://example.com/${name}.jpg` });
+    component.projectsByYear = [
+      { year: '2025', projects: [
+        { name: 'Urn', cover: 'a', images: [photo('a'), photo('b')] },
+        { name: 'Lathe', images: [photo('c'), photo('d')] },
+        { name: 'Sketch', images: [] },
+      ] },
+    ];
+    open();
+
+    const thumbs = Array.from(element().querySelectorAll('.item'), item => item.querySelector('.thumb')?.getAttribute('src') ?? null);
+    expect(thumbs).toEqual(['https://example.com/a-150x200.jpg', 'https://example.com/d-150x200.jpg', null]);
+    expect(element().querySelector('.thumb')?.getAttribute('alt')).toBe('');
+  });
 });

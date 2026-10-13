@@ -16,7 +16,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Project, ProjectsByYear } from '../../type/project.type';
-import { ALL, filterProjectsBySearch } from '../../constant/constants';
+import { ALL, filterProjectsBySearch, projectThumbnailUrl } from '../../constant/constants';
 import { CommandPaletteService } from '../../services/command-palette.service';
 
 export interface PaletteSelection {
@@ -174,6 +174,10 @@ export class CommandPaletteComponent {
           this.close();
         }
     }
+  }
+
+  thumbnail(project: Project): string | null {
+    return projectThumbnailUrl(project);
   }
 
   go(item: PaletteSelection): void {

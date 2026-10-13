@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { Project, ProjectsByYear } from '../../type/project.type';
 import { FavoritesService } from '../../services/favorites.service';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
-import { createThumbnailImageUrl, projectCover } from '../../constant/constants';
+import { projectThumbnailUrl } from '../../constant/constants';
 
 /** The home page: title, project search, and every year's projects with the favorites group on top. */
 @Component({
@@ -30,10 +30,8 @@ export class ProjectListComponent {
 
   readonly favorites = inject(FavoritesService);
 
-  /** The 150x200 thumbnail of a project's cover photo, or null for a project with no photos. */
   thumbnail(project: Project): string | null {
-    const cover = projectCover(project);
-    return cover ? createThumbnailImageUrl(cover.url) : null;
+    return projectThumbnailUrl(project);
   }
 
   toggleFavorite(event: Event, project: Project, year: string): void {

@@ -1,4 +1,4 @@
-import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
+import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, projectThumbnailUrl, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -229,5 +229,15 @@ describe('projectCover', () => {
 
   it('should be undefined for a project with no photos', () => {
     expect(projectCover({ name: 'Bench', images: [] })).toBeUndefined();
+  });
+});
+
+describe('projectThumbnailUrl', () => {
+  it("should give the thumbnail of the project's cover", () => {
+    const images: Image[] = ['a', 'b'].map(name => ({ name, desc: '', url: `https://example.com/${name}.jpg` }));
+
+    expect(projectThumbnailUrl({ name: 'Bench', cover: 'a', images })).toEqual('https://example.com/a-150x200.jpg');
+    expect(projectThumbnailUrl({ name: 'Bench', images })).toEqual('https://example.com/b-150x200.jpg');
+    expect(projectThumbnailUrl({ name: 'Bench', images: [] })).toBeNull();
   });
 });
