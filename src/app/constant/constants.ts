@@ -133,7 +133,7 @@ export function addAllProjectsByYear(projectsData: Projects): Projects {
     return updatedProjects;
 }
 
-const MONTHS: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+export const MONTHS: string[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 /**
  * The months a project's photos were taken in, read from their YYYYMMDD names. Back-to-back months join into a

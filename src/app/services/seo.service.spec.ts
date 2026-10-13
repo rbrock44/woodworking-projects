@@ -41,4 +41,12 @@ describe('describePage', () => {
     expect(describePage(projectsByYear, '/1999')).toBeNull();
     expect(describePage(projectsByYear, '/2024/nope')).toBeNull();
   });
+
+  it('should describe the stats page with the totals', () => {
+    expect(describePage(projectsByYear, '/stats')).toEqual({
+      path: '/stats',
+      title: 'Shop Stats - Woodworking Projects',
+      description: '2 woodworking projects and 0 photos, 2024: projects per year, the most photographed and the longest builds.',
+    });
+  });
 });

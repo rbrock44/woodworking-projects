@@ -1,0 +1,66 @@
+@let stats = this.stats();
+<h1 class="title">Shop Stats</h1>
+
+<div class="stats-body">
+  <dl class="tiles">
+    <div class="tile">
+      <dt>Projects</dt>
+      <dd>{{ stats.projectCount }}</dd>
+    </div>
+    <div class="tile">
+      <dt>Photos</dt>
+      <dd>{{ stats.photoCount }}</dd>
+    </div>
+    <div class="tile">
+      <dt>Years</dt>
+      <dd>{{ this.yearSpan() }}</dd>
+    </div>
+    @if (stats.busiestMonth) {
+      <div class="tile">
+        <dt>Busiest month</dt>
+        <dd>{{ stats.busiestMonth }}</dd>
+      </div>
+    }
+  </dl>
+
+  <section class="panel">
+    <h2>Projects per year</h2>
+    <ul class="bars">
+      @for (year of stats.years; track year.year) {
+        <li class="bar-row" [title]="this.barLabel(year)" [attr.aria-label]="this.barLabel(year)">
+          <span class="bar-year">{{ year.year }}</span>
+          <span class="bar-track" aria-hidden="true">
+            <span class="bar" [style.width.%]="this.barWidth(year)"></span>
+          </span>
+          <span class="bar-value" aria-hidden="true">{{ year.projects }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <div class="rankings">
+    <section class="panel">
+      <h2>Most photographed</h2>
+      <ol class="ranking">
+        @for (stat of stats.mostPhotographed; track stat) {
+          <li>
+            <a [href]="this.linkPath(stat)" (click)="this.linkClick($event, stat)">{{ stat.project.name }}</a>
+            <span class="ranking-detail">{{ stat.year }} · {{ this.plural(stat.value, 'photo') }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="panel">
+      <h2>Longest builds</h2>
+      <ol class="ranking">
+        @for (stat of stats.longestBuilds; track stat) {
+          <li>
+            <a [href]="this.linkPath(stat)" (click)="this.linkClick($event, stat)">{{ stat.project.name }}</a>
+            <span class="ranking-detail">{{ stat.year }} · {{ this.days(stat.value) }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+  </div>
+</div>

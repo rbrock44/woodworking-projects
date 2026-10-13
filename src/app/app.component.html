@@ -1,9 +1,9 @@
 <main class="main">
   <section class="container"
-    [class.full-width]="!!this.selectedProject() || !this.dataLoaded()"
+    [class.full-width]="!!this.selectedProject() || this.showStats() || !this.dataLoaded()"
     [style.--group-count]="this.filteredProjectsByYear().length + (this.showFavorites() ? 1 : 0)">
     <div class="top-bar">
-      @if (this.selectedProject()) {
+      @if (this.selectedProject() || this.showStats()) {
         <button type="button" (click)="this.homeClick()" class="home-button">Home</button>
       }
       @if (!this.isImageEnlarged()) {
@@ -14,10 +14,18 @@
           (click)="this.palette.open()">
           Jump
         </button>
+        @if (!this.showStats()) {
+          <a class="directory-link stats-link" href="/stats" (click)="this.statsClick($event)">Stats</a>
+        }
       }
     </div>
 
-    @if (!this.selectedProject()) {
+    @if (this.showStats()) {
+      <app-stats
+        [projectsByYear]="this.data().projectsByYear"
+        (projectSelect)="this.jumpToProject($event.project, $event.year)">
+      </app-stats>
+    } @else if (!this.selectedProject()) {
       <app-project-list
         [projectsByYear]="this.filteredProjectsByYear()"
         [favoritesByYear]="this.filteredFavoritesByYear()"

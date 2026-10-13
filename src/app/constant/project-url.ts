@@ -7,6 +7,19 @@ export const ALL_SEGMENT: string = 'all';
 /** The path segment for every image from the projects favorited in this browser. */
 export const FAVORITES_SEGMENT: string = 'favorites';
 
+/** The path segment for the shop stats page. */
+export const STATS_SEGMENT: string = 'stats';
+
+/** True for the stats page's path, ignoring query, hash and trailing slash. */
+export function isStatsPath(path: string): boolean {
+    return path.split(/[?#]/)[0].replace(/^\/+|\/+$/g, '') === STATS_SEGMENT;
+}
+
+/** A plain left click; anything with a modifier is left to the browser so links open in new tabs. */
+export function isPlainLeftClick(event: MouseEvent): boolean {
+    return event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
+}
+
 /** Lowercase, hyphenated, ascii-only form of a project name for its URL. */
 export function projectSlug(name: string): string {
     return name

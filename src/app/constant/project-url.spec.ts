@@ -1,5 +1,5 @@
 import { ALL, FAVORITES } from './constants';
-import { adjacentProjects, legacyProjectPath, parseProjectPath, projectPath, projectSlug } from './project-url';
+import { adjacentProjects, isStatsPath, legacyProjectPath, parseProjectPath, projectPath, projectSlug } from './project-url';
 import { ProjectsByYear } from '../type/project.type';
 
 describe('project-url', () => {
@@ -40,6 +40,15 @@ describe('project-url', () => {
     expect(legacyProjectPath('2012', null)).toEqual('/2012');
     expect(legacyProjectPath('All', 'All')).toEqual('/all');
     expect(legacyProjectPath('All', '')).toEqual('/all');
+  });
+
+  it('should recognize the stats path and nothing else', () => {
+    expect(isStatsPath('/stats')).toBe(true);
+    expect(isStatsPath('/stats/?x=1')).toBe(true);
+    expect(isStatsPath('stats')).toBe(true);
+    expect(isStatsPath('/')).toBe(false);
+    expect(isStatsPath('/stats/x')).toBe(false);
+    expect(parseProjectPath('/stats')).toBeNull();
   });
 });
 

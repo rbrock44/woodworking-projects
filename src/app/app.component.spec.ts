@@ -158,6 +158,15 @@ describe('AppComponent', () => {
       expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['20241013_1750']);
     });
 
+    it('should show the stats page for /stats', async () => {
+      const { app, fixture, location } = await openAt('/stats');
+
+      expect(app.showStats()).toBe(true);
+      expect(app.selectedProject()).toBeUndefined();
+      expect(location.path()).toEqual('/stats');
+      expect(fixture.nativeElement.querySelector('.home-button')).toBeTruthy();
+    });
+
     it('should redirect an old ?year=&project= link to the project path', async () => {
       const { app, location } = await openAt('/?year=2023&project=Walnut%20Box');
 
@@ -294,6 +303,35 @@ describe('AppComponent', () => {
 
       expect(click.defaultPrevented).toBe(true);
       expect(app.selectedProject()?.name).toEqual('Baby Rattles');
+      expect(location.path()).toEqual('/2024/baby-rattles');
+    });
+
+    it('should open the stats page from its link and come back home', async () => {
+      const { app, fixture, location } = await openAt('/');
+
+      const stats = fixture.nativeElement.querySelector('.stats-link') as HTMLAnchorElement;
+      stats.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
+      fixture.detectChanges();
+
+      expect(app.showStats()).toBe(true);
+      expect(location.path()).toEqual('/stats');
+      expect(TestBed.inject(Title).getTitle()).toEqual('Shop Stats - Woodworking Projects');
+      expect(fixture.nativeElement.querySelector('app-stats')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('app-project-list')).toBeNull();
+
+      app.homeClick();
+      fixture.detectChanges();
+
+      expect(app.showStats()).toBe(false);
+      expect(fixture.nativeElement.querySelector('app-project-list')).toBeTruthy();
+    });
+
+    it('should leave the stats page for a project picked from it', async () => {
+      const { app, location } = await openAt('/stats');
+
+      app.jumpToProject(PROJECTS[1].projects[0], '2024');
+
+      expect(app.showStats()).toBe(false);
       expect(location.path()).toEqual('/2024/baby-rattles');
     });
 

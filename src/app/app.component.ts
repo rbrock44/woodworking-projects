@@ -7,11 +7,12 @@ import { filter, firstValueFrom } from 'rxjs';
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
 import {ProjectListComponent} from "./components/project-list/project-list.component";
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
+import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, HOME_PAGE, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
 import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
-import { adjacentProjects, parseProjectPath, ProjectLink, projectPath, projectSlug } from './constant/project-url';
+import { adjacentProjects, isPlainLeftClick, isStatsPath, parseProjectPath, ProjectLink, projectPath, projectSlug, STATS_SEGMENT } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -19,7 +20,8 @@ import { adjacentProjects, parseProjectPath, ProjectLink, projectPath, projectSl
     RouterOutlet,
     ImagesViewerComponent,
     ProjectListComponent,
-    CommandPaletteComponent
+    CommandPaletteComponent,
+    StatsComponent
 ],
     providers: [],
     templateUrl: './app.component.html',
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit {
   readonly isImageEnlarged = signal(false);
   readonly searchTerm = signal('');
   readonly dataLoaded = signal(false);
+  readonly showStats = signal(false);
   readonly palette = inject(CommandPaletteService);
   private readonly favorites = inject(FavoritesService);
   readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -88,7 +91,7 @@ export class AppComponent implements OnInit {
       this.selectFromPath(this.location.path());
 
       // Slot a home entry in underneath a deep link so browser/mouse back lands on home.
-      if (this.selectedProject()) {
+      if (this.selectedProject() || this.showStats()) {
         const deepLink = this.location.path();
         this.location.replaceState('/');
         this.location.go(deepLink);
@@ -105,6 +108,7 @@ export class AppComponent implements OnInit {
 
       this.selectedProject.set(undefined);
       this.selectedYear.set('');
+      this.showStats.set(false);
       this.isImageEnlarged.set(false);
       this.selectFromPath(path);
     });
@@ -120,7 +124,9 @@ export class AppComponent implements OnInit {
     const target = parseProjectPath(path);
     const yearGroup = target && this.data().projectsByYear.find(x => x.year === target.year);
 
-    if (target?.year === FAVORITES) {
+    if (isStatsPath(path)) {
+      this.showStats.set(true);
+    } else if (target?.year === FAVORITES) {
       if (this.favoriteCount() > 0) {
         this.selectAllFavorites();
       }
@@ -138,7 +144,7 @@ export class AppComponent implements OnInit {
     }
 
     // A year or project that doesn't exist (or no longer does) falls back to home.
-    if (this.isBrowser && !this.selectedProject() && this.pathOnly(path) !== '') {
+    if (this.isBrowser && !this.selectedProject() && !this.showStats() && this.pathOnly(path) !== '') {
       this.location.replaceState('/');
     }
 
@@ -184,12 +190,24 @@ export class AppComponent implements OnInit {
 
   /** Real links so they prerender and open in new tabs; a plain click swaps the project in place. */
   adjacentClick(event: MouseEvent, link: ProjectLink): void {
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+    if (isPlainLeftClick(event)) {
+      event.preventDefault();
+      this.jumpToProject(link.project, link.year);
+    }
+  }
+
+  statsClick(event: MouseEvent): void {
+    if (!isPlainLeftClick(event)) {
       return;
     }
 
     event.preventDefault();
-    this.jumpToProject(link.project, link.year);
+    this.selectedProject.set(undefined);
+    this.selectedYear.set('');
+    this.showStats.set(true);
+
+    this.location.go(`/${STATS_SEGMENT}`);
+    this.updateSeo();
   }
 
   linkPath(link: ProjectLink): string {
@@ -199,6 +217,7 @@ export class AppComponent implements OnInit {
   homeClick(): void {
     this.selectedProject.set(undefined);
     this.selectedYear.set('');
+    this.showStats.set(false);
     this.isImageEnlarged.set(false);
 
     this.location.go('/');
@@ -225,12 +244,16 @@ export class AppComponent implements OnInit {
   }
 
   private select(project: Project, year: string): void {
+    this.showStats.set(false);
     this.selectedProject.set(project);
     this.selectedYear.set(year);
   }
 
   private selectedPath(): string {
     const project = this.selectedProject();
+    if (this.showStats()) {
+      return `/${STATS_SEGMENT}`;
+    }
     return project ? projectPath(this.selectedYear(), project.name) : '/';
   }
 

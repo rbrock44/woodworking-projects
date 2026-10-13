@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, CanMatchFn, Router, Routes } from '@angular/router';
-import { ALL_SEGMENT, FAVORITES_SEGMENT, isYearSegment, legacyProjectPath } from './constant/project-url';
+import { ALL_SEGMENT, FAVORITES_SEGMENT, isYearSegment, legacyProjectPath, STATS_SEGMENT } from './constant/project-url';
 import { URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 /** Sends old `/?year=<year>&project=<name>` links to the project's own page, keeping other params. */
@@ -23,6 +23,7 @@ const matchesProject: CanMatchFn = (_, segments) => isYearSegment(segments[0]?.p
 // AppComponent picks the view from the URL, so these routes only decide which URLs are valid.
 export const routes: Routes = [
   { path: '', pathMatch: 'full', canActivate: [redirectLegacyProject], children: [] },
+  { path: STATS_SEGMENT, children: [] },
   { path: ':year', canMatch: [matchesYear], children: [] },
   { path: ':year/:project', canMatch: [matchesProject], children: [] },
   { path: '**', redirectTo: '' },

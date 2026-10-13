@@ -2,7 +2,8 @@ import { DOCUMENT, Injectable, InjectionToken, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 import { ALL, FAVORITES } from '../constant/constants';
-import { parseProjectPath, projectPath, projectSlug } from '../constant/project-url';
+import { isStatsPath, parseProjectPath, projectPath, projectSlug, STATS_SEGMENT } from '../constant/project-url';
+import { shopStats } from '../constant/stats';
 import { ProjectsByYear } from '../type/project.type';
 
 export const SITE_URL = 'https://woodworking-projects.ryan-brock.com';
@@ -27,6 +28,17 @@ export const PROJECT_LIST = new InjectionToken<ProjectsByYear[]>('PROJECT_LIST')
 
 /** The title and description for a path, or null when it names no year or project that exists. */
 export function describePage(projectsByYear: ProjectsByYear[], path: string): PageMeta | null {
+  if (isStatsPath(path)) {
+    const stats = shopStats(projectsByYear);
+    const [first, last] = [stats.years[0]?.year, stats.years.at(-1)?.year];
+    const span = !first ? '' : first === last ? `, ${first}` : `, ${first} to ${last}`;
+    return {
+      path: `/${STATS_SEGMENT}`,
+      title: `Shop Stats - ${SITE_TITLE}`,
+      description: `${stats.projectCount} woodworking projects and ${stats.photoCount} photos${span}: projects per year, the most photographed and the longest builds.`,
+    };
+  }
+
   const target = parseProjectPath(path);
   if (!target) {
     return null;
