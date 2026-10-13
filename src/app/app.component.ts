@@ -11,7 +11,7 @@ import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, HOME_PAGE, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
 import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
-import { parseProjectPath, projectPath, projectSlug } from './constant/project-url';
+import { adjacentProjects, parseProjectPath, ProjectLink, projectPath, projectSlug } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -53,6 +53,12 @@ export class AppComponent implements OnInit {
   readonly selectedMonthRange = computed(() => {
     const project = this.selectedProject();
     return project ? projectMonthRange(project.images, this.selectedYear()) : null;
+  });
+
+  // Older and newer neighbors of a real project; year, All and Favorites views have none
+  readonly adjacent = computed(() => {
+    const project = this.selectedProject();
+    return project?.name ? adjacentProjects(this.data().projectsByYear, this.selectedYear(), project.name) : null;
   });
 
   // Hidden while searching unless a favorite matches; otherwise always there so the empty hint can show
@@ -174,6 +180,20 @@ export class AppComponent implements OnInit {
 
     this.isImageEnlarged.set(false);
     this.projectClick(project, year);
+  }
+
+  /** Real links so they prerender and open in new tabs; a plain click swaps the project in place. */
+  adjacentClick(event: MouseEvent, link: ProjectLink): void {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    event.preventDefault();
+    this.jumpToProject(link.project, link.year);
+  }
+
+  linkPath(link: ProjectLink): string {
+    return projectPath(link.year, link.project.name);
   }
 
   homeClick(): void {

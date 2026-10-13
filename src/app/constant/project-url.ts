@@ -1,4 +1,5 @@
 import { ALL, FAVORITES } from './constants';
+import { Project, ProjectsByYear } from '../type/project.type';
 
 /** The path segment for the synthetic group holding every image from every year. */
 export const ALL_SEGMENT: string = 'all';
@@ -69,4 +70,32 @@ export function legacyProjectPath(year: string, project: string | null): string 
     }
 
     return projectPath(year, project);
+}
+
+export interface ProjectLink {
+    project: Project;
+    year: string;
+}
+
+export interface AdjacentProjects {
+    older: ProjectLink | null;
+    newer: ProjectLink | null;
+}
+
+/**
+ * The projects built just before and after one: oldest year first, each year's projects in the order listed.
+ * Null when the project isn't found, as for the synthetic All and Favorites groups.
+ */
+export function adjacentProjects(projectsByYear: ProjectsByYear[], year: string, name: string): AdjacentProjects | null {
+    const ordered: ProjectLink[] = projectsByYear
+        .filter(group => isYearSegment(group.year))
+        .sort((a, b) => Number(a.year) - Number(b.year))
+        .flatMap(group => group.projects.map(project => ({ project, year: group.year })));
+    const index = ordered.findIndex(link => link.year === year && link.project.name === name);
+
+    if (index === -1) {
+        return null;
+    }
+
+    return { older: ordered[index - 1] ?? null, newer: ordered[index + 1] ?? null };
 }

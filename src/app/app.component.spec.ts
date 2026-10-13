@@ -263,5 +263,49 @@ describe('AppComponent', () => {
       expect(app.isImageEnlarged()).toBe(false);
       expect(app.selectedProject()?.name).toEqual('Baby Rattles');
     });
+
+    it('should link to the older and newer projects', async () => {
+      const { fixture } = await openAt('/2023/walnut-box');
+
+      const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('.project-nav-link'));
+      expect(links.map(link => link.getAttribute('href'))).toEqual(['/2023/oak-bench', '/2024/baby-rattles']);
+      expect(links[1].textContent).toContain('Baby Rattles');
+    });
+
+    it('should leave out the side with no project', async () => {
+      const { fixture } = await openAt('/2023/oak-bench');
+
+      const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('.project-nav-link'));
+      expect(links.map(link => link.classList.contains('newer'))).toEqual([true]);
+    });
+
+    it('should show no project links for a whole year', async () => {
+      const { fixture } = await openAt('/2023');
+
+      expect(fixture.nativeElement.querySelector('.project-nav')).toBeNull();
+    });
+
+    it('should swap to the newer project in place on a plain click', async () => {
+      const { app, fixture, location } = await openAt('/2023/walnut-box');
+
+      const newer = fixture.nativeElement.querySelector('.project-nav-link.newer') as HTMLAnchorElement;
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+      newer.dispatchEvent(click);
+
+      expect(click.defaultPrevented).toBe(true);
+      expect(app.selectedProject()?.name).toEqual('Baby Rattles');
+      expect(location.path()).toEqual('/2024/baby-rattles');
+    });
+
+    it('should leave a ctrl click to the browser so it opens a new tab', async () => {
+      const { app, fixture } = await openAt('/2023/walnut-box');
+
+      const newer = fixture.nativeElement.querySelector('.project-nav-link.newer') as HTMLAnchorElement;
+      newer.addEventListener('click', event => event.preventDefault()); // keep jsdom from navigating
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true });
+      newer.dispatchEvent(click);
+
+      expect(app.selectedProject()?.name).toEqual('Walnut Box');
+    });
   });
 });
