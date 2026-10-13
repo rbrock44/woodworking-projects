@@ -38,7 +38,8 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 - `SeoService` sets title, description, Open Graph, Twitter and canonical tags; `describePage` maps a path to them.
   `SeoTitleStrategy` applies them during prerendering, `AppComponent.updateSeo` in the browser
 - Old `?year=&project=` links are redirected to the path form by `redirectLegacyProject` in `app.routes.ts`
-- Components in `src/app/components/`: `images-viewer` (grid, single view, `?image=`/`?index=` params),
+- Components in `src/app/components/`: `project-list` (home page title, search and year list; inputs in, events
+  out), `images-viewer` (grid, single view, `?image=`/`?index=` params),
   `image-overlay` (full screen), `search-bar`, `command-palette` (Ctrl K jump)
 - Pure helpers (search, slugs, month ranges, image sizing) live in `src/app/constant/` and are where most unit tests are
 

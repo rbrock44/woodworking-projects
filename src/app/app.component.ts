@@ -5,7 +5,7 @@ import {getProjects, prepareProjects, PROJECTS_STATE_KEY} from "./services/proje
 import { isPlatformBrowser, Location } from "@angular/common";
 import { filter, firstValueFrom } from 'rxjs';
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
-import {SearchBarComponent} from "./components/search-bar/search-bar.component";
+import {ProjectListComponent} from "./components/project-list/project-list.component";
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, HOME_PAGE, PROJECT_LIST, SeoService} from "./services/seo.service";
@@ -18,7 +18,7 @@ import { parseProjectPath, projectPath, projectSlug } from './constant/project-u
     imports: [
     RouterOutlet,
     ImagesViewerComponent,
-    SearchBarComponent,
+    ProjectListComponent,
     CommandPaletteComponent
 ],
     providers: [],
@@ -35,7 +35,7 @@ export class AppComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly dataLoaded = signal(false);
   readonly palette = inject(CommandPaletteService);
-  readonly favorites = inject(FavoritesService);
+  private readonly favorites = inject(FavoritesService);
   readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
   private readonly seo = inject(SeoService);
@@ -141,11 +141,6 @@ export class AppComponent implements OnInit {
 
   searchChange(term: string): void {
     this.searchTerm.set(term);
-  }
-
-  toggleFavorite(event: Event, project: Project, year: string): void {
-    event.stopPropagation(); // the row behind the heart opens the project
-    this.favorites.toggle(year, project);
   }
 
   allFavorites(): void {

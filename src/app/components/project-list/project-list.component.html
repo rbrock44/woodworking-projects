@@ -1,0 +1,82 @@
+<h1 class="title">Woodworking Projects</h1>
+<div class="search-section">
+  <app-search-bar
+    [value]="this.searchTerm()"
+    placeholder="Search by project, year or description"
+    label="Search projects"
+    resultNoun="project"
+    [resultCount]="this.matchingCount()"
+    [totalCount]="this.totalCount()"
+    (valueChange)="this.searchChange.emit($event)">
+  </app-search-bar>
+</div>
+<div class="links-section">
+  @if (this.projectsByYear().length === 0 && this.searchTerm().trim() !== '') {
+    <p class="no-results">No projects match "{{ this.searchTerm() }}"</p>
+  }
+  <ul class="list-group">
+    @if (this.showFavorites()) {
+      <li class="list-group-item favorites-group">
+        <div class="project-row">
+          <p class="year-text">Favorites</p>
+          @if (this.favoriteCount() > 1) {
+            <button class="all-button" (click)="this.favoritesSelect.emit()">
+              All
+            </button>
+          }
+        </div>
+        @if (this.favoriteCount() === 0) {
+          <p class="favorites-empty">Tap a heart to save a project here</p>
+        }
+        @for (favoritesByYear of this.favoritesByYear(); track favoritesByYear.year) {
+          <p class="favorites-year">{{ favoritesByYear.year }}</p>
+          <ul class="sub-list">
+            @for (project of favoritesByYear.projects; track project) {
+              <li (click)="this.projectSelect.emit({ project, year: favoritesByYear.year })" class="sub-list-item">
+                <p class="project-name">{{ project.name }}</p>
+                <button type="button" class="heart-button favorited" aria-pressed="true"
+                  [attr.aria-label]="'Remove ' + project.name + ' from favorites'"
+                  (click)="this.toggleFavorite($event, project, favoritesByYear.year)">
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </li>
+    }
+    @for (projectsByYear of this.projectsByYear(); track projectsByYear; let i = $index) {
+      <li class="list-group-item">
+        <div class="project-row">
+          <p class="year-text">{{ projectsByYear.year }}</p>
+          @if (projectsByYear.year != 'All' && projectsByYear.projects.length != 1) {
+            <button class="all-button"
+              (click)="this.yearSelect.emit(projectsByYear.year);"
+              >
+              All
+            </button>
+          }
+        </div>
+        <div class="sub-list-container">
+          <ul class="sub-list">
+            @for (project of projectsByYear.projects; track project) {
+              <li
+                (click)="this.projectSelect.emit({ project, year: projectsByYear.year })" class="sub-list-item">
+                <p class="project-name">{{ project.name }}</p>
+                @if (projectsByYear.year !== 'All') {
+                  @let isFavorite = this.favorites.isFavorite(projectsByYear.year, project);
+                  <button type="button" class="heart-button" [class.favorited]="isFavorite"
+                    [attr.aria-pressed]="isFavorite"
+                    [attr.aria-label]="(isFavorite ? 'Remove ' : 'Add ') + project.name + (isFavorite ? ' from favorites' : ' to favorites')"
+                    (click)="this.toggleFavorite($event, project, projectsByYear.year)">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      </li>
+    }
+  </ul>
+</div>
