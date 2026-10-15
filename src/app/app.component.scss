@@ -189,3 +189,68 @@ p {
     --card-max: 95vw;
   }
 }
+
+// Sits over the shared favorites rather than blocking them, so they can be looked at before choosing.
+.shared-prompt {
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(440px, calc(100vw - 2 * var(--space-4)));
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.shared-prompt-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.shared-prompt-text {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.shared-prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.shared-prompt-button {
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.shared-prompt-button:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+.shared-prompt-button.primary {
+  color: var(--color-ink);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.shared-prompt-button.primary:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}

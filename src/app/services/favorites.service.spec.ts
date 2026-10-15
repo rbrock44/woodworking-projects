@@ -44,6 +44,28 @@ describe('FavoritesService', () => {
     expect(TestBed.inject(FavoritesService).isFavorite('2023', box)).toBe(true);
   });
 
+  it('should add shared paths alongside the ones already there', () => {
+    const favorites = TestBed.inject(FavoritesService);
+    favorites.toggle('2024', bench);
+
+    favorites.addAll(['/2023/lidded-box', '/2024/walnut-bench']);
+
+    expect(favorites.favoritesByYear(projectsByYear)).toEqual([
+      { year: '2024', projects: [bench] },
+      { year: '2023', projects: [box] },
+    ]);
+    TestBed.resetTestingModule();
+    expect(TestBed.inject(FavoritesService).isFavorite('2023', box)).toBe(true);
+  });
+
+  it('should build a share link from the favorites that still exist', () => {
+    const favorites = TestBed.inject(FavoritesService);
+    favorites.addAll(['/2023/lidded-box', '/2024/baby-rattles', '/2022/renamed']);
+
+    expect(favorites.shareUrl('https://example.com', projectsByYear))
+      .toEqual('https://example.com/favorites?shared=2024/baby-rattles,2023/lidded-box');
+  });
+
   it('should start empty when storage holds something unreadable', () => {
     localStorage.setItem('favorite-projects', '{not json');
 

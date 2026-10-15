@@ -1,8 +1,32 @@
 import { ALL, FAVORITES } from './constants';
-import { adjacentProjects, isStatsPath, legacyProjectPath, parseProjectPath, projectPath, projectSlug } from './project-url';
+import { adjacentProjects, isStatsPath, legacyProjectPath, parseProjectPath, parseSharedFavorites, projectPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
 import { ProjectsByYear } from '../type/project.type';
 
 describe('project-url', () => {
+  it('should write shared favorites as comma joined paths and read them back', () => {
+    const param = sharedFavoritesParam(['/2024/walnut-bench', '/2023/lidded-box']);
+
+    expect(param).toEqual('2024/walnut-bench,2023/lidded-box');
+    expect(parseSharedFavorites(param)).toEqual(['/2024/walnut-bench', '/2023/lidded-box']);
+  });
+
+  it('should drop shared favorites that are not project paths, and repeats', () => {
+    expect(parseSharedFavorites('2024/bench,2024,all,stats,abc/def,2024/bench, 2023/box ,')).toEqual(['/2024/bench', '/2023/box']);
+    expect(parseSharedFavorites(null)).toEqual([]);
+  });
+
+  it('should group the projects at a set of paths by year', () => {
+    const bench = { name: 'Walnut Bench', images: [] };
+    const box = { name: 'Lidded Box', images: [] };
+    const groups: ProjectsByYear[] = [
+      { year: ALL, projects: [{ name: ALL, images: [] }] },
+      { year: '2024', projects: [bench] },
+      { year: '2023', projects: [box] },
+    ];
+
+    expect(projectsAtPaths(groups, new Set(['/2023/lidded-box', '/2022/gone']))).toEqual([{ year: '2023', projects: [box] }]);
+  });
+
   it('should slug names to lowercase ascii with hyphens', () => {
     expect(projectSlug('Cookie Slice (Tree)')).toEqual('cookie-slice-tree');
     expect(projectSlug('Box from Log')).toEqual('box-from-log');

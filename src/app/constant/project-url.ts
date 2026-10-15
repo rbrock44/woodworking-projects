@@ -112,3 +112,29 @@ export function adjacentProjects(projectsByYear: ProjectsByYear[], year: string,
 
     return { previous: ordered[index - 1] ?? null, next: ordered[index + 1] ?? null };
 }
+
+/**
+ * The `?shared=` value for a favorites share link: each `/<year>/<slug>` path without its leading slash, joined
+ * by commas, so the link stays readable: `2024/walnut-bench,2023/lidded-box`.
+ */
+export function sharedFavoritesParam(paths: Iterable<string>): string {
+    return [...paths].map(path => path.replace(/^\/+/, '')).join(',');
+}
+
+/** The `/<year>/<slug>` paths in a `?shared=` value. Anything that isn't a project path is dropped. */
+export function parseSharedFavorites(param: string | null): string[] {
+    const paths = (param ?? '').split(',')
+        .map(part => parseProjectPath(part.trim()))
+        .filter((target): target is ProjectTarget => target !== null && isYearSegment(target.year) && target.slug !== null)
+        .map(target => `/${target.year}/${target.slug}`);
+
+    return [...new Set(paths)];
+}
+
+/** The projects whose `/<year>/<slug>` paths are in `paths`, grouped by year in list order. Years with none are left out. */
+export function projectsAtPaths(projectsByYear: ProjectsByYear[], paths: ReadonlySet<string>): ProjectsByYear[] {
+    return projectsByYear
+        .filter(group => isYearSegment(group.year))
+        .map(group => ({ year: group.year, projects: group.projects.filter(project => paths.has(projectPath(group.year, project.name))) }))
+        .filter(group => group.projects.length > 0);
+}

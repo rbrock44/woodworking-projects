@@ -148,6 +148,24 @@ p {
   border-color: var(--color-accent);
 }
 
+.group-actions {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: var(--space-2);
+
+  .all-button {
+    position: static;
+    transform: none;
+  }
+}
+
+.favorites-group .project-row {
+  padding-right: 150px;
+}
+
 .sub-list-container {
   overflow-y: auto;
 }

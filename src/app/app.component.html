@@ -34,10 +34,12 @@
         [searchTerm]="this.searchTerm()"
         [matchingCount]="this.matchingProjectCount()"
         [totalCount]="this.totalProjectCount()"
+        [shareCopied]="this.shareCopied()"
         (searchChange)="this.searchChange($event)"
         (projectSelect)="this.projectClick($event.project, $event.year)"
         (yearSelect)="this.allProjectsByYear($event)"
-        (favoritesSelect)="this.allFavorites()">
+        (favoritesSelect)="this.allFavorites()"
+        (favoritesShare)="this.shareFavorites()">
       </app-project-list>
     }
 
@@ -80,6 +82,21 @@
     }
   </section>
 </main>
+
+@if (this.sharedPaths().length > 0 && !this.isImageEnlarged()) {
+  <div class="shared-prompt" role="dialog" aria-labelledby="shared-prompt-title">
+    <p id="shared-prompt-title" class="shared-prompt-title">
+      Someone shared {{ this.sharedPaths().length }} favorite{{ this.sharedPaths().length === 1 ? '' : 's' }} with you
+    </p>
+    <p class="shared-prompt-text">
+      {{ this.sharedNewCount() }} {{ this.sharedNewCount() === 1 ? "isn't" : "aren't" }} in your favorites yet.
+    </p>
+    <div class="shared-prompt-actions">
+      <button type="button" class="shared-prompt-button" (click)="this.dismissSharedPrompt()">Just view</button>
+      <button type="button" class="shared-prompt-button primary" (click)="this.addSharedFavorites()">Add to my favorites</button>
+    </div>
+  </div>
+}
 
 <app-command-palette
   [projectsByYear]="this.data().projectsByYear"

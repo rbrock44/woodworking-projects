@@ -8,6 +8,7 @@ export const URL_PARAM_IMAGE: string = 'image';
 export const URL_PARAM_PROJECT: string = 'project';
 export const URL_PARAM_YEAR: string = 'year';
 export const URL_PARAM_INDEX: string = 'index';
+export const URL_PARAM_SHARED: string = 'shared';
 
 export const CSS_SELECTOR_IMAGES: string = '.image-item img'
 

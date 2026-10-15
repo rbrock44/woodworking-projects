@@ -22,11 +22,13 @@ export class ProjectListComponent {
   readonly searchTerm = input('');
   readonly matchingCount = input(0);
   readonly totalCount = input(0);
+  readonly shareCopied = input(false);
 
   readonly searchChange = output<string>();
   readonly projectSelect = output<{ project: Project; year: string }>();
   readonly yearSelect = output<string>();
   readonly favoritesSelect = output<void>();
+  readonly favoritesShare = output<void>();
 
   readonly favorites = inject(FavoritesService);
 

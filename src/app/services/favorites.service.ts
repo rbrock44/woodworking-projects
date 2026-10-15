@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { ALL } from '../constant/constants';
-import { projectPath } from '../constant/project-url';
+import { FAVORITES, URL_PARAM_SHARED } from '../constant/constants';
+import { projectPath, projectsAtPaths, sharedFavoritesParam } from '../constant/project-url';
 import { Project, ProjectsByYear } from '../type/project.type';
 
 const STORAGE_KEY = 'favorite-projects';
@@ -14,6 +14,11 @@ export class FavoritesService {
 
   isFavorite(year: string, project: Project): boolean {
     return this.paths().has(projectPath(year, project.name));
+  }
+
+  /** True for a `/<year>/<slug>` path already favorited. */
+  hasPath(path: string): boolean {
+    return this.paths().has(path);
   }
 
   toggle(year: string, project: Project): void {
@@ -30,12 +35,26 @@ export class FavoritesService {
     writeStoredPaths(paths);
   }
 
+  /** Adds `/<year>/<slug>` paths, as from a share link, keeping the ones already there. */
+  addAll(added: Iterable<string>): void {
+    const paths = new Set([...this.paths(), ...added]);
+
+    this.paths.set(paths);
+    writeStoredPaths(paths);
+  }
+
   /** The favorited projects grouped by year, in the same order as the full list. Years with none are left out. */
   favoritesByYear(projectsByYear: ProjectsByYear[]): ProjectsByYear[] {
-    return projectsByYear
-      .filter(group => group.year !== ALL)
-      .map(group => ({ year: group.year, projects: group.projects.filter(project => this.isFavorite(group.year, project)) }))
-      .filter(group => group.projects.length > 0);
+    return projectsAtPaths(projectsByYear, this.paths());
+  }
+
+  /** A link that hands these favorites to someone else: `<origin>/favorites?shared=2024/walnut-bench,...`. */
+  shareUrl(origin: string, projectsByYear: ProjectsByYear[]): string {
+    // Only projects that still exist, so a renamed one's stale path isn't passed on
+    const paths = this.favoritesByYear(projectsByYear)
+      .flatMap(group => group.projects.map(project => projectPath(group.year, project.name)));
+
+    return `${origin}${projectPath(FAVORITES)}?${URL_PARAM_SHARED}=${sharedFavoritesParam(paths)}`;
   }
 }
 

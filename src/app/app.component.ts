@@ -11,8 +11,8 @@ import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
-import { adjacentProjects, isPlainLeftClick, isStatsPath, parseProjectPath, ProjectLink, projectPath, projectSlug, STATS_SEGMENT } from './constant/project-url';
+import { ALL, FAVORITES, URL_PARAM_SHARED, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
+import { adjacentProjects, isPlainLeftClick, isStatsPath, parseProjectPath, parseSharedFavorites, ProjectLink, projectPath, projectsAtPaths, projectSlug, STATS_SEGMENT } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -52,6 +52,11 @@ export class AppComponent implements OnInit {
   private readonly favoritesByYear = computed(() => this.favorites.favoritesByYear(this.data().projectsByYear));
   readonly filteredFavoritesByYear = computed(() => filterProjectsBySearch(this.favoritesByYear(), this.searchTerm()));
   readonly favoriteCount = computed(() => countProjects(this.favoritesByYear()));
+  // Paths from a share link being viewed; the prompt to add them shows while there are any
+  readonly sharedPaths = signal<string[]>([]);
+  readonly sharedNewCount = computed(() => this.sharedPaths().filter(path => !this.favorites.hasPath(path)).length);
+  readonly shareCopied = signal(false);
+  private shareCopiedTimer?: ReturnType<typeof setTimeout>;
 
   readonly selectedMonthRange = computed(() => {
     const project = this.selectedProject();
@@ -110,6 +115,7 @@ export class AppComponent implements OnInit {
       this.selectedYear.set('');
       this.showStats.set(false);
       this.isImageEnlarged.set(false);
+      this.sharedPaths.set([]);
       this.selectFromPath(path);
     });
   }
@@ -127,7 +133,10 @@ export class AppComponent implements OnInit {
     if (isStatsPath(path)) {
       this.showStats.set(true);
     } else if (target?.year === FAVORITES) {
-      if (this.favoriteCount() > 0) {
+      const shared = this.isBrowser ? this.sharedFromPath(path) : [];
+      if (shared.length > 0) {
+        this.openShared(shared);
+      } else if (this.favoriteCount() > 0) {
         this.selectAllFavorites();
       }
     } else if (target && yearGroup) {
@@ -159,6 +168,74 @@ export class AppComponent implements OnInit {
     this.selectAllFavorites();
     this.location.go(projectPath(FAVORITES));
     this.updateSeo();
+  }
+
+  /** The `?shared=` paths of a share link that name projects which exist. */
+  private sharedFromPath(path: string): string[] {
+    const query = path.split('#')[0].split('?')[1] ?? '';
+    const paths = new Set(parseSharedFavorites(new URLSearchParams(query).get(URL_PARAM_SHARED)));
+
+    return projectsAtPaths(this.data().projectsByYear, paths)
+      .flatMap(group => group.projects.map(project => projectPath(group.year, project.name)));
+  }
+
+  /** No favorites yet, or nothing new: take the shared ones. Otherwise show them and ask before merging. */
+  private openShared(paths: string[]): void {
+    if (this.favoriteCount() === 0 || paths.every(path => this.favorites.hasPath(path))) {
+      this.favorites.addAll(paths);
+      this.location.replaceState(projectPath(FAVORITES));
+      this.selectAllFavorites();
+      return;
+    }
+
+    const images = projectsAtPaths(this.data().projectsByYear, new Set(paths))
+      .flatMap(yearGroup => extractImagesByYear(yearGroup));
+
+    this.select({
+      name: '',
+      desc: 'Shared favorites',
+      images: images
+    }, FAVORITES);
+    this.sharedPaths.set(paths);
+  }
+
+  addSharedFavorites(): void {
+    this.favorites.addAll(this.sharedPaths());
+    this.isImageEnlarged.set(false);
+    this.selectAllFavorites();
+    this.location.replaceState(projectPath(FAVORITES));
+    this.updateSeo();
+  }
+
+  /** Keeps viewing the shared favorites without touching this browser's own. */
+  dismissSharedPrompt(): void {
+    this.sharedPaths.set([]);
+  }
+
+  /** The phone share sheet where there is one, otherwise the link goes to the clipboard. */
+  async shareFavorites(): Promise<void> {
+    const url = this.favorites.shareUrl(window.location.origin, this.data().projectsByYear);
+    const title = 'Woodworking Projects favorites';
+
+    if (navigator.share && window.matchMedia?.('(pointer: coarse)').matches) {
+      try {
+        await navigator.share({ title, url });
+      } catch {
+        // closed without sharing
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      window.prompt('Copy this link to share your favorites', url);
+      return;
+    }
+
+    this.shareCopied.set(true);
+    clearTimeout(this.shareCopiedTimer);
+    this.shareCopiedTimer = setTimeout(() => this.shareCopied.set(false), 2000);
   }
 
   private selectAllFavorites(): void {
@@ -202,6 +279,7 @@ export class AppComponent implements OnInit {
     }
 
     event.preventDefault();
+    this.sharedPaths.set([]);
     this.selectedProject.set(undefined);
     this.selectedYear.set('');
     this.showStats.set(true);
@@ -215,6 +293,7 @@ export class AppComponent implements OnInit {
   }
 
   homeClick(): void {
+    this.sharedPaths.set([]);
     this.selectedProject.set(undefined);
     this.selectedYear.set('');
     this.showStats.set(false);
@@ -244,6 +323,7 @@ export class AppComponent implements OnInit {
   }
 
   private select(project: Project, year: string): void {
+    this.sharedPaths.set([]);
     this.showStats.set(false);
     this.selectedProject.set(project);
     this.selectedYear.set(year);

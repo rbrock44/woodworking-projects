@@ -34,6 +34,23 @@ describe('ProjectListComponent', () => {
     expect(element.querySelectorAll('.list-group-item:not(.favorites-group) .all-button').length).toEqual(1);
   });
 
+  it('should offer sharing only once there is a favorite', () => {
+    const fixture = create();
+    expect(fixture.nativeElement.querySelector('.share-button')).toBeNull();
+
+    let shared = false;
+    fixture.componentInstance.favoritesShare.subscribe(() => (shared = true));
+    fixture.componentRef.setInput('favoriteCount', 1);
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.share-button') as HTMLElement).click();
+
+    expect(shared).toBe(true);
+
+    fixture.componentRef.setInput('shareCopied', true);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.share-button').textContent.trim()).toEqual('Copied');
+  });
+
   it('should emit the project and its year when a row is clicked', () => {
     const fixture = create();
     let selected: { project: Project; year: string } | undefined;

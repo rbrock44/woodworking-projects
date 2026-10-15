@@ -39,7 +39,9 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 - No hydration — the browser re-renders over the prerendered markup. Router initial navigation is blocking so that
   first render already has the URL
 - `prepareProjects` sorts years newest first and prepends the synthetic `All` group (`ALL`/`/all`). `Favorites`
-  (`/favorites`) is another synthetic group, built from paths stored in `localStorage` by `FavoritesService`
+  (`/favorites`) is another synthetic group, built from paths stored in `localStorage` by `FavoritesService`. Share links are
+  `/favorites?shared=2024/slug,2023/slug`: with no favorites yet they're added outright, otherwise they're shown
+  with a prompt to add them (`AppComponent.openShared`)
 - `SeoService` sets title, description, Open Graph, Twitter and canonical tags; `describePage` maps a path to them.
   `SeoTitleStrategy` applies them during prerendering, `AppComponent.updateSeo` in the browser
 - Old `?year=&project=` links are redirected to the path form by `redirectLegacyProject` in `app.routes.ts`

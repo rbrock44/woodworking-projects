@@ -19,11 +19,19 @@
       <li class="list-group-item favorites-group">
         <div class="project-row">
           <p class="year-text">Favorites</p>
-          @if (this.favoriteCount() > 1) {
-            <button class="all-button" (click)="this.favoritesSelect.emit()">
-              All
-            </button>
-          }
+          <div class="group-actions">
+            @if (this.favoriteCount() > 0) {
+              <button type="button" class="all-button share-button" (click)="this.favoritesShare.emit()"
+                [attr.aria-label]="this.shareCopied() ? 'Share link copied' : 'Share favorites'">
+                {{ this.shareCopied() ? 'Copied' : 'Share' }}
+              </button>
+            }
+            @if (this.favoriteCount() > 1) {
+              <button class="all-button" (click)="this.favoritesSelect.emit()">
+                All
+              </button>
+            }
+          </div>
         </div>
         @if (this.favoriteCount() === 0) {
           <p class="favorites-empty">Tap a heart to save a project here</p>

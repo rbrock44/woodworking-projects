@@ -149,6 +149,62 @@ describe('AppComponent', () => {
       expect(location.isCurrentPathEqualTo('/')).toBe(true);
     });
 
+    it('should take a shared link straight into favorites when there are none yet', async () => {
+      const { app, location } = await openAt('/favorites?shared=2024/baby-rattles,2023/walnut-box,2023/missing');
+
+      const favorites = TestBed.inject(FavoritesService);
+      expect(favorites.isFavorite('2024', PROJECTS[1].projects[0])).toBe(true);
+      expect(favorites.isFavorite('2023', PROJECTS[0].projects[1])).toBe(true);
+      expect(app.sharedPaths()).toEqual([]);
+      expect(app.selectedYear()).toEqual(FAVORITES);
+      expect(app.selectedProject()?.images.length).toEqual(2);
+      expect(location.isCurrentPathEqualTo('/favorites')).toBe(true);
+    });
+
+    it('should open favorites without asking when a shared link adds nothing new', async () => {
+      TestBed.inject(FavoritesService).toggle('2024', PROJECTS[1].projects[0]);
+
+      const { app, location } = await openAt('/favorites?shared=2024/baby-rattles');
+
+      expect(app.sharedPaths()).toEqual([]);
+      expect(location.isCurrentPathEqualTo('/favorites')).toBe(true);
+    });
+
+    it('should show a shared link and ask before merging into existing favorites', async () => {
+      const favorites = TestBed.inject(FavoritesService);
+      favorites.toggle('2024', PROJECTS[1].projects[0]);
+
+      const { app, fixture, location } = await openAt('/favorites?shared=2023/oak-bench');
+
+      expect(app.selectedProject()?.desc).toEqual('Shared favorites');
+      expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['20230301_1200', '20230415_1200']);
+      expect(favorites.isFavorite('2023', PROJECTS[0].projects[0])).toBe(false);
+      expect(fixture.nativeElement.querySelector('.shared-prompt')).not.toBeNull();
+
+      (fixture.nativeElement.querySelector('.shared-prompt-button.primary') as HTMLElement).click();
+      fixture.detectChanges();
+
+      expect(favorites.isFavorite('2023', PROJECTS[0].projects[0])).toBe(true);
+      expect(favorites.isFavorite('2024', PROJECTS[1].projects[0])).toBe(true);
+      expect(app.selectedProject()?.images.length).toEqual(3);
+      expect(fixture.nativeElement.querySelector('.shared-prompt')).toBeNull();
+      expect(location.isCurrentPathEqualTo('/favorites')).toBe(true);
+    });
+
+    it('should keep viewing a shared link without merging it', async () => {
+      const favorites = TestBed.inject(FavoritesService);
+      favorites.toggle('2024', PROJECTS[1].projects[0]);
+
+      const { app, fixture } = await openAt('/favorites?shared=2023/oak-bench');
+
+      (fixture.nativeElement.querySelector('.shared-prompt-button:not(.primary)') as HTMLElement).click();
+      fixture.detectChanges();
+
+      expect(favorites.isFavorite('2023', PROJECTS[0].projects[0])).toBe(false);
+      expect(app.selectedProject()?.desc).toEqual('Shared favorites');
+      expect(fixture.nativeElement.querySelector('.shared-prompt')).toBeNull();
+    });
+
     it('should show the favorited images for /favorites', async () => {
       TestBed.inject(FavoritesService).toggle('2024', PROJECTS[1].projects[0]);
 
