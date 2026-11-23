@@ -13,9 +13,6 @@
         </button>
       }
       @if (!this.isImageEnlarged()) {
-        <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
-          Directory
-        </a>
         <button type="button" class="jump-button" aria-haspopup="dialog" aria-label="Jump to a project"
           title="Jump to a project (Ctrl K)" (click)="this.palette.open()">
           <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -35,6 +32,9 @@
             </svg>
           </a>
         }
+        <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
+          Directory
+        </a>
       }
     </div>
 
