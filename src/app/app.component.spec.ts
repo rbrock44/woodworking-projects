@@ -302,8 +302,11 @@ describe('AppComponent', () => {
     it('should go home from a Home button', async () => {
       const { app, fixture } = await openAt('/2023/oak-bench');
 
-      const home = fixture.nativeElement.querySelector('.home-button') as HTMLElement;
+      const home = fixture.nativeElement.querySelector('button[aria-label="Home"]') as HTMLElement;
       expect(home.tagName).toEqual('BUTTON');
+      expect(home.getAttribute('aria-label')).toEqual('Home');
+      expect(home.getAttribute('title')).toEqual('Home');
+      expect(home.querySelector('svg')?.getAttribute('aria-hidden')).toEqual('true');
 
       home.click();
 

@@ -83,8 +83,12 @@
 }
 
 .home-button {
-  display: inline-block;
-  padding: var(--space-1) var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: var(--space-1) var(--space-2);
   font-family: var(--font-body);
   font-size: var(--text-base);
   font-weight: 500;
