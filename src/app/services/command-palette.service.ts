@@ -1,6 +1,9 @@
 import { Injectable, signal } from '@angular/core';
 
-/** Open state for the Ctrl/⌘ K project palette, shared so the top bar button can open it. */
+/** The palette lists projects and loose photos, so its button and dialog name both. */
+export const PALETTE_LABEL: string = 'Jump to a project or photo';
+
+/** Open state for the Ctrl/⌘ K jump palette, shared so the top bar button can open it. */
 @Injectable({
   providedIn: 'root'
 })

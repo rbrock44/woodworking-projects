@@ -8,7 +8,7 @@ import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.co
 import {ProjectListComponent} from "./components/project-list/project-list.component";
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
 import {StatsComponent} from "./components/stats/stats.component";
-import {CommandPaletteService} from "./services/command-palette.service";
+import {CommandPaletteService, PALETTE_LABEL} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
 import { ALL, FAVORITES, URL_PARAM_IMAGE, URL_PARAM_SHARED, countEntries, countProjects, extractImagesByYear, looseImages, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
@@ -38,6 +38,7 @@ export class AppComponent implements OnInit {
   readonly dataLoaded = signal(false);
   readonly showStats = signal(false);
   readonly palette = inject(CommandPaletteService);
+  readonly paletteLabel = PALETTE_LABEL;
   private readonly favorites = inject(FavoritesService);
   readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
@@ -318,6 +319,17 @@ export class AppComponent implements OnInit {
     this.selectAllProjectsByYear(year);
     this.location.go(projectPath(year));
     this.updateSeo();
+  }
+
+  /** From the jump palette: open the photo the same way its home page thumbnail does. */
+  jumpToPhoto(year: string, imageName: string): void {
+    this.isImageEnlarged.set(false);
+    // The year view only holds photos matching the home search; drop a search that would hide this one
+    const visible = this.filteredProjectsByYear().find(x => x.year === year);
+    if (!visible || !looseImages(visible).some(image => image.name === imageName)) {
+      this.searchTerm.set('');
+    }
+    this.photoClick(year, imageName);
   }
 
   /** A photo in no project opens in its year, shown on its own. */

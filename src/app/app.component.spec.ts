@@ -1,13 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { TransferState } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { Location } from '@angular/common';
 import { provideLocationMocks } from '@angular/common/testing';
 import { Title } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
+import { CommandPaletteComponent } from './components/command-palette/command-palette.component';
 import { routes } from './app.routes';
 import { PROJECTS_STATE_KEY } from './services/project.service';
 import { FavoritesService } from './services/favorites.service';
+import { PALETTE_LABEL } from './services/command-palette.service';
 import { ALL, FAVORITES } from './constant/constants';
 import { ProjectsByYear } from './type/project.type';
 
@@ -394,6 +397,49 @@ describe('AppComponent', () => {
       expect(app.selectedProject()?.name).toEqual('Baby Rattles');
     });
 
+    describe('jumping to a photo in no project', () => {
+      beforeEach(() => TestBed.inject(TransferState).set(PROJECTS_STATE_KEY, [
+        PROJECTS[0],
+        { ...PROJECTS[1], images: [{ ...image('loose'), desc: 'Barn Owl' }, image('other')] },
+      ]));
+
+      const choose = (fixture: ComponentFixture<AppComponent>, query: string) => {
+        const palette = fixture.debugElement.query(By.directive(CommandPaletteComponent)).componentInstance as CommandPaletteComponent;
+        palette.palette.open();
+        fixture.detectChanges();
+        palette.onQuery(query);
+        palette.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
+        fixture.detectChanges();
+      };
+
+      it('should open it in its year through the same handler as its home page thumbnail', async () => {
+        const { app, fixture, location } = await openAt('/2023/oak-bench');
+        app.isImageEnlarged.set(true);
+        const photoClick = vi.spyOn(app, 'photoClick');
+        const goSpy = vi.spyOn(location, 'go');
+
+        choose(fixture, 'barn owl');
+
+        expect(photoClick).toHaveBeenCalledWith('2024', 'loose');
+        expect(app.isImageEnlarged()).toBe(false);
+        expect(app.selectedYear()).toEqual('2024');
+        expect(goSpy).toHaveBeenCalledWith('/2024', 'image=loose');
+      });
+
+      it('should drop a home search that would hide the photo, and keep one that shows it', async () => {
+        const { app, fixture } = await openAt('/');
+
+        app.searchChange('rattles');
+        choose(fixture, 'barn owl');
+        expect(app.searchTerm()).toEqual('');
+        expect(app.selectedProject()?.images.map(image => image.name)).toContain('loose');
+
+        app.searchChange('owl');
+        app.jumpToPhoto('2024', 'loose');
+        expect(app.searchTerm()).toEqual('owl');
+      });
+    });
+
     it('should link to the previous and next projects', async () => {
       const { fixture } = await openAt('/2023/walnut-box');
 
@@ -431,8 +477,9 @@ describe('AppComponent', () => {
     it('should show jump and stats as labelled icon buttons', async () => {
       const { fixture } = await openAt('/');
 
-      const jump = fixture.nativeElement.querySelector('button[aria-label="Jump to a project"]') as HTMLButtonElement;
-      expect(jump.title).toEqual('Jump to a project (Ctrl K)');
+      const jump = fixture.nativeElement.querySelector(`button[aria-label="${PALETTE_LABEL}"]`) as HTMLButtonElement;
+      expect(PALETTE_LABEL).toEqual('Jump to a project or photo');
+      expect(jump.title).toEqual(`${PALETTE_LABEL} (Ctrl K)`);
       expect(jump.getAttribute('aria-haspopup')).toEqual('dialog');
       expect(jump.textContent?.trim()).toEqual('');
       expect(jump.querySelector('svg')?.getAttribute('aria-hidden')).toEqual('true');
@@ -447,7 +494,7 @@ describe('AppComponent', () => {
     it('should open the command palette from the jump button', async () => {
       const { app, fixture } = await openAt('/');
 
-      (fixture.nativeElement.querySelector('button[aria-label="Jump to a project"]') as HTMLButtonElement).click();
+      (fixture.nativeElement.querySelector(`button[aria-label="${PALETTE_LABEL}"]`) as HTMLButtonElement).click();
 
       expect(app.palette.isOpen()).toBe(true);
     });

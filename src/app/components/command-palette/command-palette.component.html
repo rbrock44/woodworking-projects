@@ -2,7 +2,7 @@
   type="button"
   class="fab"
   [class.tucked]="fabTucked() || palette.isOpen()"
-  aria-label="Jump to a project"
+  [attr.aria-label]="label"
   aria-haspopup="dialog"
   (click)="palette.open()"
 >
@@ -14,7 +14,7 @@
 
 @if (palette.isOpen()) {
   <div class="backdrop" (click)="close()"></div>
-  <div class="palette" role="dialog" aria-modal="true" aria-label="Jump to a project">
+  <div class="palette" role="dialog" aria-modal="true" [attr.aria-label]="label">
     <div class="query-row">
       <input
         #input
@@ -23,12 +23,12 @@
         inputmode="search"
         enterkeyhint="go"
         role="combobox"
-        aria-label="Search projects"
+        [attr.aria-label]="searchLabel"
         aria-autocomplete="list"
         aria-expanded="true"
         aria-controls="palette-list"
         [attr.aria-activedescendant]="activeId()"
-        placeholder="Jump to a project…"
+        [placeholder]="label + '…'"
         autocomplete="off"
         spellcheck="false"
         [value]="query()"
@@ -38,7 +38,7 @@
       <button type="button" class="cancel" (click)="close()">Cancel</button>
     </div>
 
-    <div id="palette-list" class="list" role="listbox" aria-label="Projects">
+    <div id="palette-list" class="list" role="listbox" [attr.aria-label]="listLabel">
       @for (section of sections(); track section.label) {
         <div role="group" [attr.aria-label]="section.label">
           <div class="section" aria-hidden="true">{{ section.label }}</div>
@@ -52,20 +52,27 @@
               (mousemove)="activeIndex.set(item.index)"
               (click)="go(item)"
             >
-              @if (thumbnail(item.project); as thumbnail) {
-                <img class="thumb" [src]="thumbnail" alt="" width="36" height="48" loading="lazy" decoding="async">
-              }
-              <span class="text">
-                <span class="name">{{ item.project.name }}</span>
-                @if (item.project.desc) {
-                  <span class="desc">{{ item.project.desc }}</span>
+              @if (item.kind === 'project') {
+                @if (thumbnail(item.project); as thumbnail) {
+                  <img class="thumb" [src]="thumbnail" alt="" width="36" height="48" loading="lazy" decoding="async">
                 }
-              </span>
+                <span class="text">
+                  <span class="name">{{ item.project.name }}</span>
+                  @if (item.project.desc) {
+                    <span class="desc">{{ item.project.desc }}</span>
+                  }
+                </span>
+              } @else {
+                <img class="thumb" [src]="photoThumbnail(item.photo)" alt="" width="36" height="48" loading="lazy" decoding="async">
+                <span class="text">
+                  <span class="name">{{ photoLabel(item.photo, item.year) }}</span>
+                </span>
+              }
             </div>
           }
         </div>
       } @empty {
-        <p class="empty">No projects match “{{ query() }}”</p>
+        <p class="empty">Nothing matches “{{ query() }}”</p>
       }
     </div>
 

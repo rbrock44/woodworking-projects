@@ -54,7 +54,7 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 - Old `?year=&project=` links are redirected to the path form by `redirectLegacyProject` in `app.routes.ts`
 - Components in `src/app/components/`: `project-list` (home page title, search and year list; inputs in, events
   out), `images-viewer` (grid, single view, `?image=`/`?index=` params),
-  `image-overlay` (full screen), `search-bar`, `command-palette` (Ctrl K jump), `stats` (`/stats`, totals and
+  `image-overlay` (full screen), `search-bar`, `command-palette` (Ctrl K jump to a project or loose photo, labelled `PALETTE_LABEL`; a loose photo shows its thumbnail and `photoLabel`, follows its year's projects, and opens through `AppComponent.jumpToPhoto`, which reuses the home page's `photoClick`), `stats` (`/stats`, totals and
   rankings from `shopStats` in `constant/stats.ts`)
 - Pure helpers (search, slugs, month ranges, image sizing) live in `src/app/constant/` and are where most unit tests are
 

@@ -15,18 +15,24 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { Project, ProjectsByYear } from '../../type/project.type';
-import { ALL, filterProjectsBySearch, projectThumbnailUrl } from '../../constant/constants';
-import { CommandPaletteService } from '../../services/command-palette.service';
+import { Image, Project, ProjectsByYear } from '../../type/project.type';
+import { ALL, createThumbnailImageUrl, filterProjectsBySearch, looseImages, projectThumbnailUrl } from '../../constant/constants';
+import { CommandPaletteService, PALETTE_LABEL } from '../../services/command-palette.service';
 
 export interface PaletteSelection {
   project: Project;
   year: string;
 }
 
-interface PaletteItem extends PaletteSelection {
-  index: number;
+/** Same shape the home page's `photoSelect` emits, so both open a loose photo through one handler. */
+export interface PalettePhotoSelection {
+  year: string;
+  image: string;
 }
+
+type PaletteItem =
+  | { kind: 'project'; project: Project; year: string; index: number }
+  | { kind: 'photo'; photo: Image; year: string; index: number };
 
 interface PaletteSection {
   label: string;
@@ -47,6 +53,11 @@ export class CommandPaletteComponent {
     this.groups.set(value.filter(group => group.year !== ALL));
   }
   @Output() projectSelect = new EventEmitter<PaletteSelection>();
+  @Output() photoSelect = new EventEmitter<PalettePhotoSelection>();
+
+  readonly label = PALETTE_LABEL;
+  readonly searchLabel = 'Search projects and photos';
+  readonly listLabel = 'Projects and photos';
 
   readonly query = signal('');
   readonly activeIndex = signal(0);
@@ -56,12 +67,15 @@ export class CommandPaletteComponent {
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
   private returnFocusTo: HTMLElement | null = null;
 
-  /** One section per year, newest first, narrowed by the same search as the home page. */
+  /** One section per year, newest first, narrowed by the same search as the home page; loose photos follow the year's projects. */
   readonly sections = computed<PaletteSection[]>(() => {
     let index = 0;
     return filterProjectsBySearch(this.groups(), this.query()).map(group => ({
       label: group.year,
-      items: group.projects.map(project => ({ project, year: group.year, index: index++ })),
+      items: [
+        ...group.projects.map(project => ({ kind: 'project' as const, project, year: group.year, index: index++ })),
+        ...looseImages(group).map(photo => ({ kind: 'photo' as const, photo, year: group.year, index: index++ })),
+      ],
     }));
   });
 
@@ -180,10 +194,23 @@ export class CommandPaletteComponent {
     return projectThumbnailUrl(project);
   }
 
-  go(item: PaletteSelection): void {
+  photoThumbnail(photo: Image): string {
+    return createThumbnailImageUrl(photo.url);
+  }
+
+  /** Same wording as the home page's photo rows: description, else 'Photo from <year>'. */
+  photoLabel(photo: Image, year: string): string {
+    return photo.desc.trim() !== '' ? photo.desc : `Photo from ${year}`;
+  }
+
+  go(item: PaletteItem): void {
     this.palette.close();
     this.returnFocusTo = null;
-    this.projectSelect.emit({ project: item.project, year: item.year });
+    if (item.kind === 'project') {
+      this.projectSelect.emit({ project: item.project, year: item.year });
+    } else {
+      this.photoSelect.emit({ year: item.year, image: item.photo.name });
+    }
   }
 
   private setActive(index: number): void {

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CommandPaletteComponent, PaletteSelection } from './command-palette.component';
-import { CommandPaletteService } from '../../services/command-palette.service';
+import { CommandPaletteComponent, PalettePhotoSelection, PaletteSelection } from './command-palette.component';
+import { CommandPaletteService, PALETTE_LABEL } from '../../services/command-palette.service';
 import { ProjectsByYear } from '../../type/project.type';
 
 describe('CommandPaletteComponent', () => {
@@ -265,5 +265,97 @@ describe('CommandPaletteComponent', () => {
     const thumbs = Array.from(element().querySelectorAll('.item'), item => item.querySelector('.thumb')?.getAttribute('src') ?? null);
     expect(thumbs).toEqual(['https://example.com/a-150x200.jpg', 'https://example.com/d-150x200.jpg', null]);
     expect(element().querySelector('.thumb')?.getAttribute('alt')).toBe('');
+  });
+
+  it('should name projects and photos in its labels, placeholder and empty message', () => {
+    open();
+
+    expect(element().querySelector('.fab')?.getAttribute('aria-label')).toBe(PALETTE_LABEL);
+    expect(element().querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(PALETTE_LABEL);
+    const input = element().querySelector('.query') as HTMLInputElement;
+    expect(input.placeholder).toBe(`${PALETTE_LABEL}…`);
+    expect(input.getAttribute('aria-label')).toBe('Search projects and photos');
+    expect(element().querySelector('[role="listbox"]')?.getAttribute('aria-label')).toBe('Projects and photos');
+
+    search('zzqx');
+    expect(element().querySelector('.empty')?.textContent).toBe('Nothing matches “zzqx”');
+  });
+
+  describe('photos in no project', () => {
+    const photo = (name: string, desc = '') => ({ name, desc, url: `https://example.com/${name}.jpg` });
+
+    beforeEach(() => {
+      component.projectsByYear = [
+        { year: 'All', projects: [{ name: 'All', images: [] }] },
+        { year: '2024', projects: [{ name: 'Walnut Bench', desc: 'Live edge seat', images: [] }],
+          images: [photo('owl', 'Carved basswood owl'), photo('loon', 'A loon')] },
+        { year: '2023', projects: [{ name: 'Oak Bench', images: [] }], images: [photo('plain')] },
+        { year: '2022', projects: [], images: [photo('lonely', 'Heron')] },
+      ];
+    });
+
+    const items = () => Array.from(element().querySelectorAll('.item'));
+
+    it("should list them after their year's projects with thumbnail and label", () => {
+      open();
+
+      expect(sectionLabels()).toEqual(['2024', '2023', '2022']);
+      expect(names()).toEqual(['Walnut Bench', 'Carved basswood owl', 'A loon', 'Oak Bench', 'Photo from 2023', 'Heron']);
+      const owl = items()[1];
+      expect(owl.querySelector('.thumb')?.getAttribute('src')).toBe('https://example.com/owl-150x200.jpg');
+      expect(owl.querySelector('.thumb')?.getAttribute('alt')).toBe('');
+      expect(owl.querySelector('.desc')).toBeNull();
+      expect(items().map(item => item.getAttribute('role'))).toEqual(Array(6).fill('option'));
+      expect(items().map(item => item.id)).toEqual([0, 1, 2, 3, 4, 5].map(i => `palette-option-${i}`));
+    });
+
+    it('should fall back to the year for a photo with no description', () => {
+      open();
+
+      const plain = items()[4];
+      expect(plain.querySelector('.name')?.textContent).toBe('Photo from 2023');
+      expect(plain.querySelector('.thumb')?.getAttribute('src')).toBe('https://example.com/plain-150x200.jpg');
+    });
+
+    it('should filter them by description and year', () => {
+      open();
+
+      search('owl');
+      expect(names()).toEqual(['Carved basswood owl']);
+
+      search('basswood');
+      expect(names()).toEqual(['Carved basswood owl']);
+
+      search('2022');
+      expect(names()).toEqual(['Heron']);
+
+      search('bench');
+      expect(names()).toEqual(['Walnut Bench', 'Oak Bench']);
+    });
+
+    it('should emit the chosen photo with its year, and still emit projects as before', () => {
+      const photos: PalettePhotoSelection[] = [];
+      const projects: PaletteSelection[] = [];
+      component.photoSelect.subscribe((selection: PalettePhotoSelection) => photos.push(selection));
+      component.projectSelect.subscribe((selection: PaletteSelection) => projects.push(selection));
+
+      open();
+      search('heron');
+      pressInPalette('Enter');
+      expect(photos).toEqual([{ year: '2022', image: 'lonely' }]);
+      expect(palette.isOpen()).toBe(false);
+
+      open();
+      (items()[2] as HTMLElement).click();
+      expect(photos.at(-1)).toEqual({ year: '2024', image: 'loon' });
+
+      open();
+      pressInPalette('ArrowDown');
+      pressInPalette('ArrowDown');
+      pressInPalette('ArrowDown');
+      pressInPalette('Enter');
+      expect(projects.map(selection => [selection.year, selection.project.name])).toEqual([['2023', 'Oak Bench']]);
+      expect(photos.length).toBe(2);
+    });
   });
 });
