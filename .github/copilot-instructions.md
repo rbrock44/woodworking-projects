@@ -62,6 +62,7 @@ command palette, favorites, stats, SEO, prerendering). Keep them close:
 - Port it the same way (same markup, class names, specs) so the two stay easy to diff, adapting only names and
   data that differ
 - Each repo gets its own commit
+- Never port the light/dark theme toggle here: this site stays dark only
 
 ## Conventions
 
