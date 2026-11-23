@@ -82,10 +82,12 @@ export function createMidsizeImageUrl(url: string): string {
     }
 }
 
-export function createImageForAll(year: string, projectName: string, image: Image): Image {
+export function createImageForAll(year: string, projectName: string | null, image: Image): Image {
+    const source = projectName ? `${year} - ${projectName}` : year;
+
     return {
         name: image.name,
-        desc: `(${year} - ${projectName})` + (image.desc.trim() !== '' ? ` - ${image.desc}` : ''),
+        desc: `(${source})` + (image.desc.trim() !== '' ? ` - ${image.desc}` : ''),
         url: image.url
     }
 }
@@ -100,26 +102,55 @@ export function extractAllImages(projectsData: Projects): Image[] {
 
     // NEW method - placing year and project name into image description
     projectsData.projectsByYear.forEach(projectsByYear => {
-        projectsByYear.projects.forEach(projects => {
-            projects.images.forEach(image => {
-                allImages.push(createImageForAll(projectsByYear.year, projects.name, image));
-            });
-        });
+        allImages.push(...extractImagesByYear(projectsByYear));
     });
 
     return allImages;
 }
 
-export function extractImagesByYear(projectsByYear: ProjectsByYear): Image[] {
-    const allImages: Image[] = [];
+/** One line of a year on the home page: a project, or a run of photos that belong to no project. */
+export type YearEntry = { project: Project } | { photos: Image[] };
 
-    projectsByYear.projects.forEach(projects => {
-        projects.images.forEach(image => {
-            allImages.push(createImageForAll(projectsByYear.year, projects.name, image));
-        });
+/**
+ * A year's projects and loose photos in list order. A loose photo sits after the project its `after`
+ * names, or before every project without one; one naming a project that isn't there goes last.
+ */
+export function yearEntries(projectsByYear: ProjectsByYear): YearEntry[] {
+    const loose = looseImages(projectsByYear);
+    const names = new Set(projectsByYear.projects.map(project => project.name));
+    const entries: YearEntry[] = [];
+    const addPhotos = (photos: Image[]) => {
+        if (photos.length === 0) {
+            return;
+        }
+        const last = entries.at(-1);
+        if (last && 'photos' in last) {
+            last.photos.push(...photos);
+        } else {
+            entries.push({ photos: [...photos] });
+        }
+    };
+
+    addPhotos(loose.filter(image => !image.after));
+    projectsByYear.projects.forEach(project => {
+        entries.push({ project });
+        addPhotos(loose.filter(image => image.after === project.name));
     });
+    addPhotos(loose.filter(image => image.after && !names.has(image.after)));
 
-    return allImages;
+    return entries;
+}
+
+/** A year's photos in the order the home page lists them, loose ones labeled with only the year. */
+export function extractImagesByYear(projectsByYear: ProjectsByYear): Image[] {
+    return yearEntries(projectsByYear).flatMap(entry => 'project' in entry
+        ? entry.project.images.map(image => createImageForAll(projectsByYear.year, entry.project.name, image))
+        : entry.photos.map(image => createImageForAll(projectsByYear.year, null, image)));
+}
+
+/** The photos in a year that belong to no project. */
+export function looseImages(projectsByYear: ProjectsByYear): Image[] {
+    return projectsByYear.images ?? [];
 }
 
 function createAllProjectsByYear(images: Image[]): ProjectsByYear {
@@ -233,9 +264,11 @@ export function filterProjectsBySearch(projectsByYear: ProjectsByYear[], search:
     projectsByYear.forEach(yearGroup => {
         const projects = yearGroup.projects.filter(project =>
             matchesAllTerms(terms, yearGroup.year, project.name, project.desc));
+        // Photos outside any project match on their own descriptions, or all of them on the year
+        const images = looseImages(yearGroup).filter(image => matchesAllTerms(terms, yearGroup.year, image.desc));
 
-        if (projects.length > 0) {
-            filtered.push({ year: yearGroup.year, projects: projects });
+        if (projects.length > 0 || images.length > 0) {
+            filtered.push(images.length > 0 ? { year: yearGroup.year, projects, images } : { year: yearGroup.year, projects });
         }
     });
 

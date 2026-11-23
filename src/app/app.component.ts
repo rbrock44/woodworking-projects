@@ -11,7 +11,7 @@ import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_SHARED, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
+import { ALL, FAVORITES, URL_PARAM_IMAGE, URL_PARAM_SHARED, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
 import { adjacentProjects, isPlainLeftClick, isStatsPath, parseProjectPath, parseSharedFavorites, ProjectLink, projectPath, projectsAtPaths, projectSlug, STATS_SEGMENT } from './constant/project-url';
 
 @Component({
@@ -313,6 +313,13 @@ export class AppComponent implements OnInit {
   allProjectsByYear(year: string): void {
     this.selectAllProjectsByYear(year);
     this.location.go(projectPath(year));
+    this.updateSeo();
+  }
+
+  /** A photo in no project opens in its year, shown on its own. */
+  photoClick(year: string, imageName: string): void {
+    this.location.go(projectPath(year), `${URL_PARAM_IMAGE}=${encodeURIComponent(imageName)}`);
+    this.selectAllProjectsByYear(year);
     this.updateSeo();
   }
 

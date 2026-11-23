@@ -60,7 +60,7 @@
       <li class="list-group-item">
         <div class="project-row">
           <p class="year-text">{{ projectsByYear.year }}</p>
-          @if (projectsByYear.year != 'All' && projectsByYear.projects.length != 1) {
+          @if (projectsByYear.year != 'All' && (projectsByYear.projects.length != 1 || this.looseCount(projectsByYear) > 0)) {
             <button class="all-button"
               (click)="this.yearSelect.emit(projectsByYear.year);"
               >
@@ -70,25 +70,39 @@
         </div>
         <div class="sub-list-container">
           <ul class="sub-list">
-            @for (project of projectsByYear.projects; track project) {
-              <li
-                (click)="this.projectSelect.emit({ project, year: projectsByYear.year })" class="sub-list-item">
-                @if (projectsByYear.year !== 'All') {
-                  @if (this.thumbnail(project); as thumbnail) {
-                    <img class="project-thumb" [src]="thumbnail" alt="" width="36" height="48" loading="lazy" decoding="async">
+            @for (entry of this.entries(projectsByYear); track $index) {
+              @if ('project' in entry) {
+                @let project = entry.project;
+                <li
+                  (click)="this.projectSelect.emit({ project, year: projectsByYear.year })" class="sub-list-item">
+                  @if (projectsByYear.year !== 'All') {
+                    @if (this.thumbnail(project); as thumbnail) {
+                      <img class="project-thumb" [src]="thumbnail" alt="" width="36" height="48" loading="lazy" decoding="async">
+                    }
                   }
-                }
-                <p class="project-name">{{ project.name }}</p>
-                @if (projectsByYear.year !== 'All') {
-                  @let isFavorite = this.favorites.isFavorite(projectsByYear.year, project);
-                  <button type="button" class="heart-button" [class.favorited]="isFavorite"
-                    [attr.aria-pressed]="isFavorite"
-                    [attr.aria-label]="(isFavorite ? 'Remove ' : 'Add ') + project.name + (isFavorite ? ' from favorites' : ' to favorites')"
-                    (click)="this.toggleFavorite($event, project, projectsByYear.year)">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                  </button>
-                }
-              </li>
+                  <p class="project-name">{{ project.name }}</p>
+                  @if (projectsByYear.year !== 'All') {
+                    @let isFavorite = this.favorites.isFavorite(projectsByYear.year, project);
+                    <button type="button" class="heart-button" [class.favorited]="isFavorite"
+                      [attr.aria-pressed]="isFavorite"
+                      [attr.aria-label]="(isFavorite ? 'Remove ' : 'Add ') + project.name + (isFavorite ? ' from favorites' : ' to favorites')"
+                      (click)="this.toggleFavorite($event, project, projectsByYear.year)">
+                      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                  }
+                </li>
+              } @else {
+                <li class="photo-row">
+                  @for (photo of entry.photos; track photo.url) {
+                    <button type="button" class="photo-button"
+                      [attr.aria-label]="'Open ' + this.photoLabel(photo, projectsByYear.year)"
+                      (click)="this.photoSelect.emit({ year: projectsByYear.year, image: photo.name })">
+                      <img class="photo-thumb" [src]="this.photoThumbnail(photo)" alt=""
+                        width="54" height="72" loading="lazy" decoding="async">
+                    </button>
+                  }
+                </li>
+              }
             }
           </ul>
         </div>

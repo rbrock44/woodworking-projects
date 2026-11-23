@@ -143,4 +143,49 @@ describe('ProjectListComponent', () => {
       expect(thumbs(favorite)?.getAttribute('src')).toEqual('https://example.com/a-150x200.jpg');
     });
   });
+
+  describe('photos in no project', () => {
+    const photo = (name: string, after?: string) =>
+      ({ name, desc: '', url: `https://example.com/${name}.jpg`, ...(after ? { after } : {}) });
+    const year: ProjectsByYear = {
+      year: '2025',
+      projects: [{ name: 'Owl', images: [] }],
+      images: [photo('a'), photo('b'), photo('c', 'Owl')],
+    };
+
+    function render() {
+      const fixture = TestBed.createComponent(ProjectListComponent);
+      fixture.componentRef.setInput('projectsByYear', [year]);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('should show runs of them as thumbnail rows around the projects, with no text', () => {
+      const list: HTMLElement = render().nativeElement.querySelector('.list-group-item:not(.favorites-group) .sub-list');
+      const rows = Array.from(list.children).map(row => row.classList.contains('photo-row')
+        ? Array.from(row.querySelectorAll('img')).map(img => img.getAttribute('src'))
+        : row.querySelector('.project-name')?.textContent?.trim());
+
+      expect(rows).toEqual([
+        ['https://example.com/a-150x200.jpg', 'https://example.com/b-150x200.jpg'],
+        'Owl',
+        ['https://example.com/c-150x200.jpg'],
+      ]);
+      expect(list.querySelector('.photo-row')?.textContent?.trim()).toEqual('');
+    });
+
+    it('should offer All for a year of one project once it has loose photos', () => {
+      expect(render().nativeElement.querySelector('.list-group-item:not(.favorites-group) .all-button')).not.toBeNull();
+    });
+
+    it('should emit the photo and its year when one is clicked', () => {
+      const fixture = render();
+      let selected: { year: string; image: string } | undefined;
+      fixture.componentInstance.photoSelect.subscribe(event => (selected = event));
+
+      (fixture.nativeElement.querySelectorAll('.photo-button')[2] as HTMLElement).click();
+
+      expect(selected).toEqual({ year: '2025', image: 'c' });
+    });
+  });
 });

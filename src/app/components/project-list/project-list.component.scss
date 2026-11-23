@@ -285,3 +285,29 @@ p {
     margin-top: var(--space-2);
   }
 }
+
+.photo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.photo-button {
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.photo-button:hover {
+  border-color: var(--color-accent);
+}
+
+.photo-thumb {
+  display: block;
+  width: 54px;
+  height: 72px;
+  object-fit: cover;
+}

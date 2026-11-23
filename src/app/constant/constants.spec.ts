@@ -1,4 +1,4 @@
-import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, projectThumbnailUrl, scrollPageToTop, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
+import { countProjects, yearEntries, createMidsizeImageUrl, extractImagesByYear, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, projectThumbnailUrl, scrollPageToTop, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -50,6 +50,53 @@ describe('filterProjectsBySearch', () => {
 
   it('should ignore case', () => {
     expect(countProjects(filterProjectsBySearch(projectsByYear, 'WALNUT'))).toEqual(1);
+  });
+});
+
+describe('photos outside any project', () => {
+  const photo = (name: string, desc = '') => ({ name, desc, url: `https://example.com/${name}.jpg` });
+  const year = { year: '2025', projects: [{ name: 'Owl', images: [photo('a')] }], images: [{ ...photo('b', 'Barn at dusk'), after: 'Owl' }, { ...photo('c'), after: 'Owl' }] };
+
+  it('should follow the project photos in the year view, labeled with only the year', () => {
+    expect(extractImagesByYear(year).map(image => image.desc)).toEqual(['(2025 - Owl)', '(2025) - Barn at dusk', '(2025)']);
+  });
+
+  it('should keep a year whose loose photos match a search even when no project does', () => {
+    expect(filterProjectsBySearch([year], 'barn')).toEqual([{ year: '2025', projects: [], images: [{ ...photo('b', 'Barn at dusk'), after: 'Owl' }] }]);
+  });
+
+  it('should keep every loose photo when the search names the year', () => {
+    expect(filterProjectsBySearch([year], '2025')[0].images?.length).toEqual(2);
+  });
+});
+
+describe('yearEntries', () => {
+  const photo = (name: string, after?: string) => ({ name, desc: '', url: `${name}.jpg`, ...(after ? { after } : {}) });
+  const owl = { name: 'Owl', images: [] };
+  const fox = { name: 'Fox', images: [] };
+  const names = (entries: ReturnType<typeof yearEntries>) =>
+    entries.map(entry => 'project' in entry ? entry.project.name : entry.photos.map(image => image.name));
+
+  it('should put photos before, between and after projects as their after says', () => {
+    const year = { year: '2025', projects: [owl, fox], images: [photo('a'), photo('b', 'Owl'), photo('c'), photo('d', 'Fox')] };
+
+    expect(names(yearEntries(year))).toEqual([['a', 'c'], 'Owl', ['b'], 'Fox', ['d']]);
+  });
+
+  it('should list photos after a project that is gone last, in one row with the photos of the last project', () => {
+    const year = { year: '2025', projects: [owl], images: [photo('a', 'Gone'), photo('b', 'Owl')] };
+
+    expect(names(yearEntries(year))).toEqual(['Owl', ['b', 'a']]);
+  });
+
+  it('should be only projects when every photo is in one', () => {
+    expect(names(yearEntries({ year: '2025', projects: [owl, fox] }))).toEqual(['Owl', 'Fox']);
+  });
+
+  it('should order the year view the same way', () => {
+    const year = { year: '2025', projects: [{ name: 'Owl', images: [photo('o')] }], images: [photo('b', 'Owl'), photo('a')] };
+
+    expect(extractImagesByYear(year).map(image => image.name)).toEqual(['a', 'o', 'b']);
   });
 });
 

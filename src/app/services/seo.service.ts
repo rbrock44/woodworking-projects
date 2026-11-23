@@ -1,7 +1,7 @@
 import { DOCUMENT, Injectable, InjectionToken, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
-import { ALL, FAVORITES, imageAltText, projectCover } from '../constant/constants';
+import { ALL, FAVORITES, imageAltText, looseImages, projectCover } from '../constant/constants';
 import { isStatsPath, isYearSegment, parseProjectPath, projectPath, projectSlug, STATS_SEGMENT } from '../constant/project-url';
 import { shopStats } from '../constant/stats';
 import { Project, ProjectsByYear } from '../type/project.type';
@@ -103,8 +103,8 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
     return {
       path: projectPath(group.year),
       title: `${group.year} Projects - ${SITE_TITLE}`,
-      description: `Woodworking projects built in ${group.year}: ${group.projects.map(project => project.name).join(', ')}.`,
-      image: coverImage(group.projects.at(-1)),
+      description: yearDescription(group),
+      image: yearImage(group),
     };
   }
 
@@ -178,4 +178,20 @@ export class SeoTitleStrategy extends TitleStrategy {
 
     this.seo.update(describePage(this.projectList, snapshot.url) ?? homePage(this.projectList));
   }
+}
+
+/** 'Woodworking projects built in 2024: Bench, Box.' with loose photos counted: '...: Bench and 6 more photos.' */
+function yearDescription(group: ProjectsByYear): string {
+  const names = group.projects.map(project => project.name);
+  const loose = looseImages(group).length;
+  const looseText = loose > 0 ? `${loose} ${names.length > 0 ? 'more ' : ''}photo${loose === 1 ? '' : 's'}` : '';
+  const parts = names.length > 0 && looseText ? `${names.join(', ')} and ${looseText}` : names.join(', ') || looseText;
+
+  return `Woodworking projects built in ${group.year}: ${parts}.`;
+}
+
+/** The newest project's cover, or the year's last loose photo when it has no projects. */
+function yearImage(group: ProjectsByYear): PageImage | undefined {
+  const photo = looseImages(group).at(-1);
+  return coverImage(group.projects.at(-1)) ?? (photo && { url: photo.url, alt: imageAltText(photo) });
 }

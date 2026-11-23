@@ -1,5 +1,5 @@
 import { Image, ProjectsByYear } from '../type/project.type';
-import { MONTHS } from './constants';
+import { looseImages, MONTHS } from './constants';
 import { isYearSegment, ProjectLink } from './project-url';
 
 export interface YearStat {
@@ -58,7 +58,7 @@ export function shopStats(projectsByYear: ProjectsByYear[]): ShopStats {
     const years: YearStat[] = groups.map(group => ({
         year: group.year,
         projects: group.projects.length,
-        photos: group.projects.reduce((total, project) => total + project.images.length, 0),
+        photos: group.projects.reduce((total, project) => total + project.images.length, 0) + looseImages(group).length,
     }));
 
     const busiestYear = years.reduce<YearStat | null>((best, year) => !best || year.projects > best.projects ? year : best, null);

@@ -56,6 +56,7 @@
         (searchChange)="this.searchChange($event)"
         (projectSelect)="this.projectClick($event.project, $event.year)"
         (yearSelect)="this.allProjectsByYear($event)"
+        (photoSelect)="this.photoClick($event.year, $event.image)"
         (favoritesSelect)="this.allFavorites()"
         (favoritesShare)="this.shareFavorites()">
       </app-project-list>

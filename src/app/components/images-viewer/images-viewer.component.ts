@@ -65,7 +65,9 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit(): void {
-    const imageParam = this.route.snapshot.queryParamMap.get(URL_PARAM_IMAGE);
+    // The URL, since opening a photo from the home page changes it without the router
+    const imageParam = new URLSearchParams(this.location.path().split('?')[1] ?? '').get(URL_PARAM_IMAGE)
+      ?? this.route.snapshot.queryParamMap.get(URL_PARAM_IMAGE);
     if (imageParam !== null && imageParam !== '') {
       const index = this.filteredImages().findIndex(image => image.name === imageParam);
       if (index !== -1) {

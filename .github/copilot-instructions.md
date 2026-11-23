@@ -26,6 +26,9 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 - A project's optional `cover` is the name of the photo that stands for it, picked by hand in `project-list.json`;
   `projectCover` falls back to the last photo (usually the finished piece). `project-list.server.spec.ts` fails on a
   cover that names no photo
+- A year's optional `images` are photos in no project. Each one's optional `after` names the project it's listed after
+  (missing: before every project); `yearEntries` turns them into rows of thumbnails between the projects on the home
+  page, and clicking one opens the year's view on that photo (`AppComponent.photoClick`). None exist yet
 - A project's URL is `/<year>/<slug>` where the slug comes from `projectSlug(name)`, so renaming a project changes its URL
 
 ## Architecture
