@@ -126,10 +126,17 @@ img {
   cursor: pointer;
 }
 
+// Grid so the arrows sit in the picture's row only, not beside the description under it
 .button-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, max-content) auto;
+  grid-template-rows: auto auto;
   justify-content: center;
   width: 100%;
+}
+
+.arrow-button {
+  grid-row: 1;
 }
 
 .back-button {
@@ -194,9 +201,10 @@ img {
   }
 }
 
+// Zero width with a full minimum: it wraps to the picture's width instead of widening the column
 .image-desc {
-  display: table-caption;
-  caption-side: bottom;
+  width: 0;
+  min-width: 100%;
   text-align: center;
   color: var(--color-text-muted);
   margin: 0;
@@ -212,8 +220,11 @@ img {
   padding-bottom: var(--space-3);
 }
 
+// Spans both rows on the parent's row lines: the picture fills the arrows' row, the description the one below
 .image-plus-desc {
-  display: table;
+  grid-row: 1 / span 2;
+  display: grid;
+  grid-template-rows: subgrid;
   min-width: 0;
   max-width: 100%;
   // Sideways drags are swipes between photos; the browser keeps vertical scrolling and pinch zoom.
