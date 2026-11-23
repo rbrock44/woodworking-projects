@@ -39,7 +39,7 @@ This is an angular frontend, prerendered to static pages at build time (one per 
 - `Select Image` - Selecting an image from the project level will expand and make the images larger (but single view)
 - `Expanded Image` - Click an image in single image project view and the image will be expanded to full screen with buttons (on the side(s) of the image to go forward and backward)
 - `Search` - Filter projects by name, year or description on the home page, or photos within a project
-- `Favorites` - Tap the heart on any project to save it to the `Favorites` group (kept in this browser)
+- `Favorites` - Tap the heart on any project, or on a photo that belongs to no project while it's open on its own, to save it to the `Favorites` group (kept in this browser)
 - `Jump` - Press `Ctrl K` (or the `Jump` button) to jump straight to any project
 
 ---

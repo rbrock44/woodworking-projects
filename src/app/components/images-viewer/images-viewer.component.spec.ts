@@ -4,6 +4,7 @@ import { provideLocationMocks } from '@angular/common/testing';
 import { Location } from '@angular/common';
 import { ImagesViewerComponent } from './images-viewer.component';
 import { Image } from '../../type/project.type';
+import { FavoritesService } from '../../services/favorites.service';
 
 function makeImages(count: number): Image[] {
   const images: Image[] = [];
@@ -30,6 +31,48 @@ describe('ImagesViewerComponent', () => {
       imports: [ImagesViewerComponent],
       providers: [provideRouter([]), provideLocationMocks()],
     }).compileComponents();
+  });
+
+  describe('favoriting a photo in no project', () => {
+    beforeEach(() => localStorage.removeItem('favorite-projects'));
+    afterEach(() => localStorage.removeItem('favorite-projects'));
+
+    function openFirst() {
+      const fixture = TestBed.createComponent(ImagesViewerComponent);
+      const images = makeImages(2);
+      fixture.componentRef.setInput('images', images);
+      fixture.componentRef.setInput('loosePhotoYears', new Map([[images[0].url, '2023']]));
+      fixture.detectChanges();
+      (fixture.nativeElement.querySelector('.image-item img') as HTMLElement).click();
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('should toggle the shown photo from a heart in the single view', () => {
+      const fixture = openFirst();
+      const heart = () => fixture.nativeElement.querySelector('.single-view .heart-button') as HTMLButtonElement;
+
+      expect(heart().getAttribute('aria-pressed')).toEqual('false');
+      heart().click();
+      fixture.detectChanges();
+
+      expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'img-0')).toBe(true);
+      expect(heart().classList).toContain('favorited');
+      expect(heart().getAttribute('aria-label')).toEqual('Remove this photo from favorites');
+
+      heart().click();
+      fixture.detectChanges();
+      expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'img-0')).toBe(false);
+    });
+
+    it('should show no heart for a photo that belongs to a project', () => {
+      const fixture = openFirst();
+
+      (fixture.nativeElement.querySelector('.right-arrow') as HTMLElement).click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.heart-button')).toBeNull();
+    });
   });
 
   it('should create the app', () => {

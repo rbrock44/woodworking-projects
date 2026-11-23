@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { Image, Project, ProjectsByYear } from '../../type/project.type';
 import { FavoritesService } from '../../services/favorites.service';
@@ -7,6 +8,7 @@ import { createThumbnailImageUrl, looseImages, projectThumbnailUrl, YearEntry, y
 /** The home page: title, project search, and every year's projects with the favorites group on top. */
 @Component({
   imports: [
+    NgTemplateOutlet,
     SearchBarComponent,
   ],
   selector: 'app-project-list',

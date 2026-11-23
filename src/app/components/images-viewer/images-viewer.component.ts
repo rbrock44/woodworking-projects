@@ -1,10 +1,11 @@
 import { Location, NgOptimizedImage } from '@angular/common';
 import { SubscriptionLike } from 'rxjs';
-import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, effect, input, signal } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, effect, inject, input, signal } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
+import { FavoritesService } from '../../services/favorites.service';
 import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, neighborImageUrls, scrollPageToTop, SwipeTracker, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
@@ -22,6 +23,8 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   readonly images = input<Image[]>([]);
   /** Names the photos in their alt text when they have no description. */
   readonly projectName = input('');
+  /** Each loose photo's year by its url; only those photos get a heart, project photos go with their project. */
+  readonly loosePhotoYears = input<ReadonlyMap<string, string>>(new Map());
   @Output() enlargedChange = new EventEmitter<boolean>();
   readonly currentIndex = signal(0);
   readonly isOverlayOpen = signal(false);
@@ -30,6 +33,12 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   readonly searchTerm = signal('');
   readonly filteredImages = computed(() => filterImagesBySearch(this.images(), this.searchTerm()));
   readonly currentImage = computed<Image | undefined>(() => this.filteredImages()[this.currentIndex()]);
+  readonly favorites = inject(FavoritesService);
+  /** The shown photo's year when it belongs to no project, else null. */
+  readonly looseYear = computed(() => {
+    const image = this.currentImage();
+    return image ? this.loosePhotoYears().get(image.url) ?? null : null;
+  });
   private popStateSubscription?: SubscriptionLike;
   private readonly swipe = new SwipeTracker();
   /** Held so the requests aren't dropped; the browser cache serves them when the photo is shown. */
@@ -212,6 +221,10 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
 
     this.location.go(this.buildImageUrl(null));
     this.checkForIndex(this.currentIndex().toString());
+  }
+
+  toggleFavorite(year: string, image: Image): void {
+    this.favorites.togglePhoto(year, image.name);
   }
 
   altText(image: Image): string {

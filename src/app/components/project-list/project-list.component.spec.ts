@@ -188,4 +188,42 @@ describe('ProjectListComponent', () => {
       expect(selected).toEqual({ year: '2025', image: 'c' });
     });
   });
+
+  describe('favorited photos in no project', () => {
+    const stamp = { name: 'stamp', desc: '', url: 'https://example.com/stamp.jpg', after: 'Bench' };
+    const favorites: ProjectsByYear[] = [{ year: '2024', projects: [bench], images: [stamp] }];
+
+    function render(count = 2) {
+      const fixture = TestBed.createComponent(ProjectListComponent);
+      fixture.componentRef.setInput('projectsByYear', projectsByYear);
+      fixture.componentRef.setInput('favoritesByYear', favorites);
+      fixture.componentRef.setInput('favoriteCount', count);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('should list them as a thumbnail row under their year beside the favorited projects', () => {
+      const group: HTMLElement = render().nativeElement.querySelector('.favorites-group');
+
+      expect(group.querySelector('.favorites-year')?.textContent?.trim()).toEqual('2024');
+      expect(group.querySelector('.sub-list-item .project-name')?.textContent?.trim()).toEqual('Bench');
+      expect(group.querySelector('.photo-row .photo-thumb')?.getAttribute('src')).toEqual('https://example.com/stamp-150x200.jpg');
+      expect(group.querySelector('.favorites-empty')).toBeNull();
+    });
+
+    it('should count a photo toward the All button', () => {
+      expect(render(2).nativeElement.querySelector('.favorites-group .all-button:not(.share-button)')).not.toBeNull();
+      expect(render(1).nativeElement.querySelector('.favorites-group .all-button:not(.share-button)')).toBeNull();
+    });
+
+    it('should open a favorited photo in its year when clicked', () => {
+      const fixture = render();
+      let selected: { year: string; image: string } | undefined;
+      fixture.componentInstance.photoSelect.subscribe(event => (selected = event));
+
+      (fixture.nativeElement.querySelector('.favorites-group .photo-button') as HTMLElement).click();
+
+      expect(selected).toEqual({ year: '2024', image: 'stamp' });
+    });
+  });
 });

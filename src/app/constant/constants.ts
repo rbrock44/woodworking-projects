@@ -148,6 +148,11 @@ export function extractImagesByYear(projectsByYear: ProjectsByYear): Image[] {
         : entry.photos.map(image => createImageForAll(projectsByYear.year, null, image)));
 }
 
+/** How many projects and loose photos a grouped list holds. */
+export function countEntries(projectsByYear: ProjectsByYear[]): number {
+    return projectsByYear.reduce((total, group) => total + group.projects.length + looseImages(group).length, 0);
+}
+
 /** The photos in a year that belong to no project. */
 export function looseImages(projectsByYear: ProjectsByYear): Image[] {
     return projectsByYear.images ?? [];

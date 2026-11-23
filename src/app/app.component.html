@@ -79,6 +79,7 @@
         <app-images-viewer
           [images]="project.images"
           [projectName]="project.name"
+          [loosePhotoYears]="this.loosePhotoYears()"
           (enlargedChange)="this.isImageEnlarged.set($event)">
         </app-images-viewer>
         @if (this.adjacent(); as adjacent) {

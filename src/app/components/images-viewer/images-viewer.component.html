@@ -39,6 +39,14 @@
       <div class="single-view">
         <div class="sticky-header">
           <button type="button" (click)="this.backClick()" class="back-button">Back</button>
+          @if (this.looseYear(); as year) {
+            @let isFavorite = this.favorites.isPhotoFavorite(year, image.name);
+            <button type="button" class="heart-button" [class.favorited]="isFavorite" [attr.aria-pressed]="isFavorite"
+              [attr.aria-label]="(isFavorite ? 'Remove this photo' : 'Add this photo') + (isFavorite ? ' from favorites' : ' to favorites')"
+              (click)="this.toggleFavorite(year, image)">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            </button>
+          }
         </div>
         <div class="index">
           <span class="progress-info">{{ this.currentIndex() + 1 }}/{{ this.filteredImages().length }}</span>

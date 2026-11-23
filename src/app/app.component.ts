@@ -11,8 +11,8 @@ import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_IMAGE, URL_PARAM_SHARED, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
-import { adjacentProjects, isPlainLeftClick, isStatsPath, parseProjectPath, parseSharedFavorites, ProjectLink, projectPath, projectsAtPaths, projectSlug, STATS_SEGMENT } from './constant/project-url';
+import { ALL, FAVORITES, URL_PARAM_IMAGE, URL_PARAM_SHARED, countEntries, countProjects, extractImagesByYear, looseImages, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
+import { adjacentProjects, isPlainLeftClick, isStatsPath, isYearSegment, parseProjectPath, parseSharedFavorites, pathsInGroups, ProjectLink, projectPath, projectsAtPaths, projectSlug, STATS_SEGMENT } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -51,7 +51,12 @@ export class AppComponent implements OnInit {
   readonly matchingProjectCount = computed(() => countProjects(this.filteredProjectsByYear()));
   private readonly favoritesByYear = computed(() => this.favorites.favoritesByYear(this.data().projectsByYear));
   readonly filteredFavoritesByYear = computed(() => filterProjectsBySearch(this.favoritesByYear(), this.searchTerm()));
-  readonly favoriteCount = computed(() => countProjects(this.favoritesByYear()));
+  // Favorited projects and loose photos together
+  readonly favoriteCount = computed(() => countEntries(this.favoritesByYear()));
+  /** Each loose photo's year by its url, so the single view can offer a heart for those photos only. */
+  readonly loosePhotoYears = computed(() => new Map(this.data().projectsByYear
+    .filter(group => isYearSegment(group.year))
+    .flatMap(group => looseImages(group).map(image => [image.url, group.year] as const))));
   // Paths from a share link being viewed; the prompt to add them shows while there are any
   readonly sharedPaths = signal<string[]>([]);
   readonly sharedNewCount = computed(() => this.sharedPaths().filter(path => !this.favorites.hasPath(path)).length);
@@ -177,13 +182,12 @@ export class AppComponent implements OnInit {
     this.updateSeo();
   }
 
-  /** The `?shared=` paths of a share link that name projects which exist. */
+  /** The `?shared=` paths of a share link that name projects or loose photos which exist. */
   private sharedFromPath(path: string): string[] {
     const query = path.split('#')[0].split('?')[1] ?? '';
     const paths = new Set(parseSharedFavorites(new URLSearchParams(query).get(URL_PARAM_SHARED)));
 
-    return projectsAtPaths(this.data().projectsByYear, paths)
-      .flatMap(group => group.projects.map(project => projectPath(group.year, project.name)));
+    return pathsInGroups(projectsAtPaths(this.data().projectsByYear, paths));
   }
 
   /** No favorites yet, or nothing new: take the shared ones. Otherwise show them and ask before merging. */

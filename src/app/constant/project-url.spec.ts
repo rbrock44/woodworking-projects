@@ -1,5 +1,5 @@
 import { ALL, FAVORITES } from './constants';
-import { adjacentProjects, isStatsPath, legacyProjectPath, parseProjectPath, parseSharedFavorites, projectPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
+import { adjacentProjects, isStatsPath, legacyProjectPath, parseProjectPath, parseSharedFavorites, pathsInGroups, photoPath, projectPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
 import { ProjectsByYear } from '../type/project.type';
 
 describe('project-url', () => {
@@ -25,6 +25,86 @@ describe('project-url', () => {
     ];
 
     expect(projectsAtPaths(groups, new Set(['/2023/lidded-box', '/2022/gone']))).toEqual([{ year: '2023', projects: [box] }]);
+  });
+
+  it('should key a loose photo by year and name under a segment no project path has', () => {
+    expect(photoPath('2023', 'stamp')).toEqual('/2023/photo/stamp');
+    expect(parseProjectPath(photoPath('2023', 'stamp'))).toBeNull();
+  });
+
+  it('should share loose photos readably and read them back', () => {
+    const param = sharedFavoritesParam(['/2024/walnut-bench', '/2023/photo/stamp']);
+
+    expect(param).toEqual('2024/walnut-bench,2023/photo/stamp');
+    expect(parseSharedFavorites(param)).toEqual(['/2024/walnut-bench', '/2023/photo/stamp']);
+  });
+
+  it('should keep a photo name with commas and spaces whole through a share link', () => {
+    const param = sharedFavoritesParam(['/2023/photo/a, b+c', '/2023/lidded-box']);
+    const decoded = new URLSearchParams(`shared=${param}`).get('shared');
+
+    expect(parseSharedFavorites(decoded)).toEqual(['/2023/photo/a, b+c', '/2023/lidded-box']);
+  });
+
+  it('should drop shared photos with a broken name or no year', () => {
+    expect(parseSharedFavorites('2023/photo/%E0%A4%A,abc/photo/x,2023/photo/ok')).toEqual(['/2023/photo/ok']);
+  });
+
+  it('should group loose photos at a set of paths with the projects of their year', () => {
+    const box = { name: 'Lidded Box', images: [] };
+    const stamp = { name: 'stamp', desc: '', url: '/images/2023/stamp.jpg' };
+    const other = { name: 'other', desc: '', url: '/images/2023/other.jpg' };
+    const groups: ProjectsByYear[] = [
+      { year: ALL, projects: [{ name: ALL, images: [] }] },
+      { year: '2024', projects: [], images: [{ name: 'stamp', desc: '', url: '/images/2024/stamp.jpg' }] },
+      { year: '2023', projects: [box], images: [stamp, other] },
+    ];
+    const found = projectsAtPaths(groups, new Set(['/2023/photo/stamp', '/2023/photo/gone']));
+
+    expect(found).toEqual([{ year: '2023', projects: [], images: [stamp] }]);
+    expect(pathsInGroups(found)).toEqual(['/2023/photo/stamp']);
+    expect(pathsInGroups(projectsAtPaths(groups, new Set(['/2023/photo/other', '/2023/lidded-box']))))
+      .toEqual(['/2023/lidded-box', '/2023/photo/other']);
+  });
+
+  it('should key a loose photo by year and name under a segment no project path has', () => {
+    expect(photoPath('2023', 'stamp')).toEqual('/2023/photo/stamp');
+    expect(parseProjectPath(photoPath('2023', 'stamp'))).toBeNull();
+  });
+
+  it('should share loose photos readably and read them back', () => {
+    const param = sharedFavoritesParam(['/2024/walnut-bench', '/2023/photo/stamp']);
+
+    expect(param).toEqual('2024/walnut-bench,2023/photo/stamp');
+    expect(parseSharedFavorites(param)).toEqual(['/2024/walnut-bench', '/2023/photo/stamp']);
+  });
+
+  it('should keep a photo name with commas and spaces whole through a share link', () => {
+    const param = sharedFavoritesParam(['/2023/photo/a, b+c', '/2023/lidded-box']);
+    const decoded = new URLSearchParams(`shared=${param}`).get('shared');
+
+    expect(parseSharedFavorites(decoded)).toEqual(['/2023/photo/a, b+c', '/2023/lidded-box']);
+  });
+
+  it('should drop shared photos with a broken name or no year', () => {
+    expect(parseSharedFavorites('2023/photo/%E0%A4%A,abc/photo/x,2023/photo/ok')).toEqual(['/2023/photo/ok']);
+  });
+
+  it('should group loose photos at a set of paths with the projects of their year', () => {
+    const box = { name: 'Lidded Box', images: [] };
+    const stamp = { name: 'stamp', desc: '', url: '/images/2023/stamp.jpg' };
+    const other = { name: 'other', desc: '', url: '/images/2023/other.jpg' };
+    const groups: ProjectsByYear[] = [
+      { year: ALL, projects: [{ name: ALL, images: [] }] },
+      { year: '2024', projects: [], images: [{ name: 'stamp', desc: '', url: '/images/2024/stamp.jpg' }] },
+      { year: '2023', projects: [box], images: [stamp, other] },
+    ];
+    const found = projectsAtPaths(groups, new Set(['/2023/photo/stamp', '/2023/photo/gone']));
+
+    expect(found).toEqual([{ year: '2023', projects: [], images: [stamp] }]);
+    expect(pathsInGroups(found)).toEqual(['/2023/photo/stamp']);
+    expect(pathsInGroups(projectsAtPaths(groups, new Set(['/2023/photo/other', '/2023/lidded-box']))))
+      .toEqual(['/2023/lidded-box', '/2023/photo/other']);
   });
 
   it('should slug names to lowercase ascii with hyphens', () => {

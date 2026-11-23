@@ -1,5 +1,13 @@
-import { ALL, FAVORITES } from './constants';
+import { ALL, FAVORITES, looseImages } from './constants';
 import { Project, ProjectsByYear } from '../type/project.type';
+
+/** The middle segment of a favorited loose photo's key, `/<year>/photo/<name>`; three segments never match a project. */
+export const PHOTO_SEGMENT: string = 'photo';
+
+/** The favorites key for a photo in no project: `/<year>/photo/<name>`. */
+export function photoPath(year: string, name: string): string {
+    return `/${year}/${PHOTO_SEGMENT}/${name}`;
+}
 
 /** The path segment for the synthetic group holding every image from every year. */
 export const ALL_SEGMENT: string = 'all';
@@ -113,28 +121,63 @@ export function adjacentProjects(projectsByYear: ProjectsByYear[], year: string,
     return { previous: ordered[index - 1] ?? null, next: ordered[index + 1] ?? null };
 }
 
+const SHARED_PHOTO = new RegExp(`^/?(\\d{4})/${PHOTO_SEGMENT}/(.+)$`);
+
 /**
  * The `?shared=` value for a favorites share link: each `/<year>/<slug>` path without its leading slash, joined
- * by commas, so the link stays readable: `2024/walnut-bench,2023/lidded-box`.
+ * by commas, so the link stays readable: `2024/walnut-bench,2023/lidded-box,2023/photo/stamp`. A photo's name is
+ * encoded for the list (so a comma in it can't split it) and again for the URL, which the browser decodes once.
  */
 export function sharedFavoritesParam(paths: Iterable<string>): string {
-    return [...paths].map(path => path.replace(/^\/+/, '')).join(',');
+    return [...paths].map(path => {
+        const photo = SHARED_PHOTO.exec(path);
+        return photo
+            ? `${photo[1]}/${PHOTO_SEGMENT}/${encodeURIComponent(encodeURIComponent(photo[2]))}`
+            : path.replace(/^\/+/, '');
+    }).join(',');
 }
 
-/** The `/<year>/<slug>` paths in a `?shared=` value. Anything that isn't a project path is dropped. */
+/**
+ * The `/<year>/<slug>` and `/<year>/photo/<name>` paths in a `?shared=` value (as decoded from the URL). Anything
+ * else is dropped.
+ */
 export function parseSharedFavorites(param: string | null): string[] {
-    const paths = (param ?? '').split(',')
-        .map(part => parseProjectPath(part.trim()))
-        .filter((target): target is ProjectTarget => target !== null && isYearSegment(target.year) && target.slug !== null)
-        .map(target => `/${target.year}/${target.slug}`);
+    const paths = (param ?? '').split(',').map(part => part.trim()).flatMap(part => {
+        const photo = SHARED_PHOTO.exec(part);
+        if (photo) {
+            try {
+                return [photoPath(photo[1], decodeURIComponent(photo[2]))];
+            } catch {
+                return [];
+            }
+        }
+
+        const target = parseProjectPath(part);
+        return target !== null && isYearSegment(target.year) && target.slug !== null ? [`/${target.year}/${target.slug}`] : [];
+    });
 
     return [...new Set(paths)];
 }
 
-/** The projects whose `/<year>/<slug>` paths are in `paths`, grouped by year in list order. Years with none are left out. */
+/**
+ * The projects whose `/<year>/<slug>` paths and loose photos whose `/<year>/photo/<name>` paths are in `paths`,
+ * grouped by year in list order (photos in the group's `images`). Years with none are left out.
+ */
 export function projectsAtPaths(projectsByYear: ProjectsByYear[], paths: ReadonlySet<string>): ProjectsByYear[] {
     return projectsByYear
         .filter(group => isYearSegment(group.year))
-        .map(group => ({ year: group.year, projects: group.projects.filter(project => paths.has(projectPath(group.year, project.name))) }))
-        .filter(group => group.projects.length > 0);
+        .map(group => {
+            const projects = group.projects.filter(project => paths.has(projectPath(group.year, project.name)));
+            const images = looseImages(group).filter(image => paths.has(photoPath(group.year, image.name)));
+            return images.length > 0 ? { year: group.year, projects, images } : { year: group.year, projects };
+        })
+        .filter(group => group.projects.length > 0 || (group.images?.length ?? 0) > 0);
+}
+
+/** The project and photo paths of a grouped list, as from `projectsAtPaths`. */
+export function pathsInGroups(groups: ProjectsByYear[]): string[] {
+    return groups.flatMap(group => [
+        ...group.projects.map(project => projectPath(group.year, project.name)),
+        ...looseImages(group).map(image => photoPath(group.year, image.name)),
+    ]);
 }

@@ -214,6 +214,68 @@ describe('AppComponent', () => {
       expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['20241013_1750']);
     });
 
+    describe('favorited photos in no project', () => {
+      const withLoose: ProjectsByYear[] = [
+        PROJECTS[0],
+        { ...PROJECTS[1], images: [image('loose'), image('other')] },
+      ];
+
+      beforeEach(() => TestBed.inject(TransferState).set(PROJECTS_STATE_KEY, withLoose));
+
+      it('should include them in /favorites and the favorite count', async () => {
+        const favorites = TestBed.inject(FavoritesService);
+        favorites.toggle('2024', PROJECTS[1].projects[0]);
+        favorites.togglePhoto('2024', 'loose');
+
+        const { app } = await openAt('/favorites');
+
+        expect(app.favoriteCount()).toEqual(2);
+        expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['loose', '20241013_1750']);
+      });
+
+      it('should open /favorites with only a favorited photo', async () => {
+        TestBed.inject(FavoritesService).togglePhoto('2024', 'other');
+
+        const { app } = await openAt('/favorites');
+
+        expect(app.selectedYear()).toEqual(FAVORITES);
+        expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['other']);
+      });
+
+      it('should restore shared photos and skip ones that no longer exist', async () => {
+        const { app, location } = await openAt('/favorites?shared=2024/photo/loose,2024/photo/gone,2023/oak-bench');
+
+        const favorites = TestBed.inject(FavoritesService);
+        expect(favorites.isPhotoFavorite('2024', 'loose')).toBe(true);
+        expect(favorites.hasPath('/2024/photo/gone')).toBe(false);
+        expect(favorites.isFavorite('2023', PROJECTS[0].projects[0])).toBe(true);
+        expect(app.favoriteCount()).toEqual(2);
+        expect(location.isCurrentPathEqualTo('/favorites')).toBe(true);
+      });
+
+      it('should hand the viewer the year of each loose photo only', async () => {
+        const { app } = await openAt('/');
+
+        expect([...app.loosePhotoYears()]).toEqual([
+          ['https://example.com/loose.jpg', '2024'],
+          ['https://example.com/other.jpg', '2024'],
+        ]);
+      });
+
+      it('should narrow favorited photos by the search like a year', async () => {
+        const favorites = TestBed.inject(FavoritesService);
+        favorites.togglePhoto('2024', 'loose');
+        favorites.toggle('2023', PROJECTS[0].projects[0]);
+        const { app } = await openAt('/');
+
+        app.searchChange('2024');
+        expect(app.filteredFavoritesByYear()).toEqual([{ year: '2024', projects: [], images: [image('loose')] }]);
+
+        app.searchChange('bench');
+        expect(app.filteredFavoritesByYear()).toEqual([{ year: '2023', projects: [PROJECTS[0].projects[0]] }]);
+      });
+    });
+
     it('should show the stats page for /stats', async () => {
       const { app, fixture, location } = await openAt('/stats');
 
