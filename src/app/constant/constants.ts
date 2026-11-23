@@ -300,3 +300,13 @@ export function neighborImageUrls(images: Image[], index: number, fullSize: bool
         .filter((image): image is Image => image !== undefined)
         .map(image => fullSize ? image.url : createMidsizeImageUrl(image.url));
 }
+
+/**
+ * Phones scroll the whole page rather than the card's own lists, so a newly shown view would open wherever the last
+ * one was scrolled to; this puts it back at the top. Elsewhere the page never scrolls and this does nothing.
+ */
+export function scrollPageToTop(): void {
+    if (typeof window !== 'undefined' && window.scrollY > 0) {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+}

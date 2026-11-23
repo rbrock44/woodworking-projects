@@ -87,11 +87,11 @@ export class CommandPaletteComponent {
 
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
-      // The page itself never scrolls; the project list and image grid do, so listen for any of them.
+      // Wide screens scroll the project list and image grid, phones the page itself, so listen for any of them.
       let lastTarget: EventTarget | null = null;
       let lastY = 0;
       const onScroll = (event: Event) => {
-        const target = event.target;
+        const target = event.target instanceof Document ? (event.target.scrollingElement ?? event.target.documentElement) : event.target;
         if (!(target instanceof HTMLElement)) return;
         const y = target.scrollTop;
         if (target !== lastTarget) {

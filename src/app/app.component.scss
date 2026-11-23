@@ -193,6 +193,18 @@ p {
   }
 }
 
+// Phones: the card grows with its content and the page scrolls (see styles.scss)
+@media (max-width: 750px), (max-height: 500px) {
+  .main {
+    height: auto;
+    overflow: visible;
+  }
+
+  .container {
+    height: auto;
+  }
+}
+
 // Sits over the shared favorites rather than blocking them, so they can be looked at before choosing.
 .shared-prompt {
   position: fixed;

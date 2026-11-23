@@ -5,7 +5,7 @@ import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
-import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, neighborImageUrls, SwipeTracker, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
+import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, neighborImageUrls, scrollPageToTop, SwipeTracker, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
     imports: [
@@ -40,6 +40,12 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     if (typeof window !== 'undefined') {
       this.adjustImageSize(window.innerWidth, window.innerHeight);
       effect(() => this.preloadNeighbors());
+      // Opening one photo starts at the top, as the grid it replaces may have been scrolled far down
+      effect(() => {
+        if (this.singleView()) {
+          scrollPageToTop();
+        }
+      });
     }
   }
 

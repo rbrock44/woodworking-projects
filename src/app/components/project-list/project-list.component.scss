@@ -265,6 +265,13 @@ p {
   color: var(--color-text-muted);
 }
 
+// Phones scroll the page (see styles.scss)
+@media (max-width: 750px), (max-height: 500px) {
+  .links-section {
+    overflow-y: visible;
+  }
+}
+
 @media (max-height: 700px) {
   .search-section {
     margin-top: var(--space-3);

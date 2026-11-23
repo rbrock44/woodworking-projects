@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, computed, inject, signal} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, computed, effect, inject, signal} from '@angular/core';
 import {RouterOutlet, Router, NavigationEnd} from '@angular/router';
 import {Project, Projects} from "./type/project.type";
 import {getProjects, prepareProjects, PROJECTS_STATE_KEY} from "./services/project.service";
@@ -11,7 +11,7 @@ import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_SHARED, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange } from './constant/constants';
+import { ALL, FAVORITES, URL_PARAM_SHARED, countProjects, extractImagesByYear, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
 import { adjacentProjects, isPlainLeftClick, isStatsPath, parseProjectPath, parseSharedFavorites, ProjectLink, projectPath, projectsAtPaths, projectSlug, STATS_SEGMENT } from './constant/project-url';
 
 @Component({
@@ -72,7 +72,14 @@ export class AppComponent implements OnInit {
   // Hidden while searching unless a favorite matches; otherwise always there so the empty hint can show
   readonly showFavorites = computed(() => this.filteredFavoritesByYear().length > 0 || this.searchTerm().trim() === '');
 
-  constructor(private location: Location) {}
+  constructor(private location: Location) {
+    // A new view starts at the top, as it does in the card's own scroller on wide screens
+    effect(() => {
+      this.selectedProject();
+      this.showStats();
+      scrollPageToTop();
+    });
+  }
 
   ngOnInit(): void {
     // Prerendering renders the page from project-list.json and hands the list on to the browser.

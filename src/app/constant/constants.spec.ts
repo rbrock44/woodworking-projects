@@ -1,4 +1,4 @@
-import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, projectThumbnailUrl, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
+import { countProjects, createMidsizeImageUrl, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, projectThumbnailUrl, scrollPageToTop, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -239,5 +239,28 @@ describe('projectThumbnailUrl', () => {
     expect(projectThumbnailUrl({ name: 'Bench', cover: 'a', images })).toEqual('https://example.com/a-150x200.jpg');
     expect(projectThumbnailUrl({ name: 'Bench', images })).toEqual('https://example.com/b-150x200.jpg');
     expect(projectThumbnailUrl({ name: 'Bench', images: [] })).toBeNull();
+  });
+});
+
+describe('scrollPageToTop', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should scroll a scrolled page back to the top', () => {
+    vi.spyOn(window, 'scrollY', 'get').mockReturnValue(900);
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+    scrollPageToTop();
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+  });
+
+  it('should leave a page already at the top alone', () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+    scrollPageToTop();
+
+    expect(scrollTo).not.toHaveBeenCalled();
   });
 });

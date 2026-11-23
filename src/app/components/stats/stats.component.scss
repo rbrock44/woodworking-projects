@@ -37,6 +37,13 @@
   gap: var(--space-4);
 }
 
+// Phones scroll the page (see styles.scss)
+@media (max-width: 750px), (max-height: 500px) {
+  .stats-body {
+    overflow-y: visible;
+  }
+}
+
 // Flex rather than grid so the small tiles always share their row evenly, however many fit
 .tiles {
   display: flex;

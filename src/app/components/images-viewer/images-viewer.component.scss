@@ -205,6 +205,18 @@ img {
   padding-bottom: var(--space-2);
 }
 
+// Phones scroll the page (see styles.scss); Back and the heart stay pinned to the screen's top
+@media (max-width: 750px), (max-height: 500px) {
+  .single-view,
+  .image-grid {
+    overflow-y: visible;
+  }
+
+  .sticky-header {
+    background-color: var(--color-surface);
+  }
+}
+
 @media (max-width: 350px) {
   .arrow-button {
     font-size: var(--text-lg);

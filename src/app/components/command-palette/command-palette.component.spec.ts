@@ -227,6 +227,22 @@ describe('CommandPaletteComponent', () => {
     list.remove();
   });
 
+  it('should tuck the floating button while the page itself scrolls down', () => {
+    const page = document.documentElement;
+    const scrollTo = (y: number) => {
+      Object.defineProperty(page, 'scrollTop', { value: y, configurable: true });
+      document.dispatchEvent(new Event('scroll'));
+    };
+
+    scrollTo(0);
+    scrollTo(400);
+    expect(component.fabTucked()).toBe(true);
+
+    scrollTo(20);
+    expect(component.fabTucked()).toBe(false);
+    delete (page as { scrollTop?: number }).scrollTop;
+  });
+
   it('should give the search box a mobile keyboard Go key', () => {
     open();
 

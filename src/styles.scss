@@ -69,6 +69,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+// Phones, upright or sideways: the whole page scrolls as one document rather than the card's own lists, so the
+// address bar can tuck away and pull to refresh works. Components repeat this query for their own scrollers.
+@media (max-width: 750px), (max-height: 500px) {
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+}
+
+// Full-screen layers hold the page still behind them
+html:has(app-image-overlay, app-command-palette .palette, dialog:modal) {
+  overflow: hidden;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-scroll-thumb) transparent;
