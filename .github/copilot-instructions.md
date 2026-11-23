@@ -51,6 +51,18 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   rankings from `shopStats` in `constant/stats.ts`)
 - Pure helpers (search, slugs, month ranges, image sizing) live in `src/app/constant/` and are where most unit tests are
 
+## Sister Repo
+
+`woodworking-projects` and `craft-showcase` (`C:\workspace\craft-showcase`) are sister repos: craft-showcase started as a copy of this one, and they share
+the same app shell, components and conventions (top bar icon buttons, project list, images viewer, overlay,
+command palette, favorites, stats, SEO, prerendering). Keep them close:
+
+- After adding or changing a feature here, ask whether it should also go to `craft-showcase` when it applies there.
+  Shared UI, layout, accessibility and bug fixes usually apply; craft-showcase's gallery/multi-site parts (gallery repos, site.json settings, shop, About, social links, watermark import) usually don't come back here
+- Port it the same way (same markup, class names, specs) so the two stay easy to diff, adapting only names and
+  data that differ
+- Each repo gets its own commit
+
 ## Conventions
 
 - Code that runs during prerendering must not touch `window`, `document` or `localStorage` unguarded — check
