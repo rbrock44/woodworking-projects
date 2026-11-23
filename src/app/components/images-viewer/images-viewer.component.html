@@ -21,12 +21,19 @@
         <!-- image grid -->
         <div class="image-item">
           @for (image of this.filteredImages(); track image; let i = $index) {
-            <div>
+            <div class="image-cell">
               <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" [alt]="this.altText(image)"
                 role="button" tabindex="0" [attr.aria-label]="'Enlarge photo ' + (i + 1) + ': ' + this.altText(image)"
                 (click)="this.onGridImageClick(i)"
                 (keydown.enter)="this.onGridImageClick(i)"
                 (keydown.space)="$event.preventDefault(); this.onGridImageClick(i)">
+              @if (this.loosePhotoYears().get(image.url); as year) {
+                @let isFavorite = this.favorites.isPhotoFavorite(year, image.name);
+                <!-- Only photos in no project can be favorited one by one; anywhere but the heart opens the photo -->
+                <button type="button" class="tile-heart" [class.favorited]="isFavorite" [attr.aria-pressed]="isFavorite"
+                  [attr.aria-label]="(isFavorite ? 'Remove ' : 'Add ') + this.altText(image) + (isFavorite ? ' from favorites' : ' to favorites')"
+                  (click)="this.toggleFavorite(year, image)"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+              }
               </div>
             }
           </div>

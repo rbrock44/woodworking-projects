@@ -65,6 +65,22 @@ describe('ImagesViewerComponent', () => {
       expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'img-0')).toBe(false);
     });
 
+    it('should put a heart on grid tiles of photos in no project only, toggling without opening', () => {
+      const fixture = TestBed.createComponent(ImagesViewerComponent);
+      const images = makeImages(2);
+      fixture.componentRef.setInput('images', images);
+      fixture.componentRef.setInput('loosePhotoYears', new Map([[images[0].url, '2023']]));
+      fixture.detectChanges();
+      const cells = Array.from(fixture.nativeElement.querySelectorAll('.image-cell')) as HTMLElement[];
+
+      expect(cells.map(cell => !!cell.querySelector('.tile-heart'))).toEqual([true, false]);
+      (cells[0].querySelector('.tile-heart') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'img-0')).toBe(true);
+      expect(fixture.nativeElement.querySelector('.single-view')).toBeNull();
+    });
+
     it('should show no heart for a photo that belongs to a project', () => {
       const fixture = openFirst();
 

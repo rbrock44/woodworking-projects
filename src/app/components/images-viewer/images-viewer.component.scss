@@ -58,6 +58,10 @@
   border-color: var(--color-accent);
 }
 
+.image-cell {
+  position: relative;
+}
+
 .image-item {
   display: flex;
   justify-content: center;

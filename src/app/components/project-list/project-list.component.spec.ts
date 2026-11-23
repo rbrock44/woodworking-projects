@@ -178,6 +178,23 @@ describe('ProjectListComponent', () => {
       expect(render().nativeElement.querySelector('.list-group-item:not(.favorites-group) .all-button')).not.toBeNull();
     });
 
+    it('should favorite a photo from the heart on its tile without opening it', () => {
+      localStorage.removeItem('favorite-projects');
+      const fixture = render();
+      let selected: unknown;
+      fixture.componentInstance.photoSelect.subscribe(event => (selected = event));
+      const heart = () => fixture.nativeElement.querySelector('.photo-tile .tile-heart') as HTMLButtonElement;
+
+      expect(heart().getAttribute('aria-pressed')).toEqual('false');
+      heart().click();
+      fixture.detectChanges();
+
+      expect(TestBed.inject(FavoritesService).isPhotoFavorite('2025', 'a')).toBe(true);
+      expect([heart().getAttribute('aria-pressed'), heart().classList.contains('favorited'), selected]).toEqual(['true', true, undefined]);
+      heart().click();
+      localStorage.removeItem('favorite-projects');
+    });
+
     it('should emit the photo and its year when one is clicked', () => {
       const fixture = render();
       let selected: { year: string; image: string } | undefined;
