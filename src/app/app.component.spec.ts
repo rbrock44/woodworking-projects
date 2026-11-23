@@ -366,10 +366,34 @@ describe('AppComponent', () => {
       expect(location.path()).toEqual('/2024/baby-rattles');
     });
 
+    it('should show jump and stats as labelled icon buttons', async () => {
+      const { fixture } = await openAt('/');
+
+      const jump = fixture.nativeElement.querySelector('button[aria-label="Jump to a project"]') as HTMLButtonElement;
+      expect(jump.title).toEqual('Jump to a project (Ctrl K)');
+      expect(jump.getAttribute('aria-haspopup')).toEqual('dialog');
+      expect(jump.textContent?.trim()).toEqual('');
+      expect(jump.querySelector('svg')?.getAttribute('aria-hidden')).toEqual('true');
+
+      const stats = fixture.nativeElement.querySelector('a[aria-label="Stats"]') as HTMLAnchorElement;
+      expect(stats.getAttribute('href')).toEqual('/stats');
+      expect(stats.title).toEqual('Stats');
+      expect(stats.textContent?.trim()).toEqual('');
+      expect(stats.querySelector('svg')?.getAttribute('aria-hidden')).toEqual('true');
+    });
+
+    it('should open the command palette from the jump button', async () => {
+      const { app, fixture } = await openAt('/');
+
+      (fixture.nativeElement.querySelector('button[aria-label="Jump to a project"]') as HTMLButtonElement).click();
+
+      expect(app.palette.isOpen()).toBe(true);
+    });
+
     it('should open the stats page from its link and come back home', async () => {
       const { app, fixture, location } = await openAt('/');
 
-      const stats = fixture.nativeElement.querySelector('.stats-link') as HTMLAnchorElement;
+      const stats = fixture.nativeElement.querySelector('a[aria-label="Stats"]') as HTMLAnchorElement;
       stats.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
       fixture.detectChanges();
 

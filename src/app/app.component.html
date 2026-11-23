@@ -16,12 +16,24 @@
         <a class="directory-link" href="https://directory.ryan-brock.com" target="_blank" rel="noopener noreferrer">
           Directory
         </a>
-        <button type="button" class="directory-link jump-button" aria-haspopup="dialog" title="Jump to a project (Ctrl K)"
-          (click)="this.palette.open()">
-          Jump
+        <button type="button" class="jump-button" aria-haspopup="dialog" aria-label="Jump to a project"
+          title="Jump to a project (Ctrl K)" (click)="this.palette.open()">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-4-4" />
+          </svg>
         </button>
         @if (!this.showStats()) {
-          <a class="directory-link stats-link" href="/stats" (click)="this.statsClick($event)">Stats</a>
+          <a class="stats-link" href="/stats" aria-label="Stats" title="Stats" (click)="this.statsClick($event)">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 20h16" />
+              <path d="M7 16v-5" />
+              <path d="M12 16V5" />
+              <path d="M17 16v-8" />
+            </svg>
+          </a>
         }
       }
     </div>
