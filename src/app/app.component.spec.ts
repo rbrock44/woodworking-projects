@@ -99,7 +99,7 @@ describe('AppComponent', () => {
       expect(app.data().projectsByYear.map(group => group.year)).toEqual([ALL, '2024', '2023']);
       expect(app.totalProjectCount()).toEqual(3);
       expect(fixture.nativeElement.querySelector('app-project-list')).not.toBeNull();
-      expect(TestBed.inject(Title).getTitle()).toEqual('Woodworking Projects');
+      expect(TestBed.inject(Title).getTitle()).toEqual('Woodworking Projects by Ryan Brock');
     });
 
     it('should select the project a project path names', async () => {
@@ -109,7 +109,7 @@ describe('AppComponent', () => {
       expect(app.selectedYear()).toEqual('2023');
       expect(app.selectedMonthRange()).toEqual('March – April');
       expect(fixture.nativeElement.querySelector('app-images-viewer')).not.toBeNull();
-      expect(TestBed.inject(Title).getTitle()).toEqual('Oak Bench (2023) - Woodworking Projects');
+      expect(TestBed.inject(Title).getTitle()).toEqual('Oak Bench (2023) - Woodworking Projects by Ryan Brock');
     });
 
     it('should show every image of a year for a year path', async () => {
@@ -300,7 +300,7 @@ describe('AppComponent', () => {
       location.back();
 
       expect(app.selectedProject()).toBeUndefined();
-      expect(TestBed.inject(Title).getTitle()).toEqual('Woodworking Projects');
+      expect(TestBed.inject(Title).getTitle()).toEqual('Woodworking Projects by Ryan Brock');
     });
 
     it('should show the previous project on back and the next on forward', async () => {
@@ -336,7 +336,7 @@ describe('AppComponent', () => {
 
       expect(app.selectedProject()?.name).toEqual('Walnut Box');
       expect(location.path()).toEqual('/2023/walnut-box');
-      expect(TestBed.inject(Title).getTitle()).toEqual('Walnut Box (2023) - Woodworking Projects');
+      expect(TestBed.inject(Title).getTitle()).toEqual('Walnut Box (2023) - Woodworking Projects by Ryan Brock');
     });
 
     it('should limit a year to the projects matching the search', async () => {
@@ -461,7 +461,7 @@ describe('AppComponent', () => {
 
       expect(app.showStats()).toBe(true);
       expect(location.path()).toEqual('/stats');
-      expect(TestBed.inject(Title).getTitle()).toEqual('Shop Stats - Woodworking Projects');
+      expect(TestBed.inject(Title).getTitle()).toEqual('Shop Stats - Woodworking Projects by Ryan Brock');
       expect(fixture.nativeElement.querySelector('app-stats')).toBeTruthy();
       expect(fixture.nativeElement.querySelector('app-project-list')).toBeNull();
 

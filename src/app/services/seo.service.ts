@@ -7,7 +7,7 @@ import { shopStats } from '../constant/stats';
 import { Project, ProjectsByYear } from '../type/project.type';
 
 export const SITE_URL = 'https://woodworking-projects.ryan-brock.com';
-const SITE_TITLE = 'Woodworking Projects';
+const SITE_TITLE = 'Woodworking Projects by Ryan Brock';
 
 export interface PageMeta {
   path: string;

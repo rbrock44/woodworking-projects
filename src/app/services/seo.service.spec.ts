@@ -12,7 +12,7 @@ describe('describePage', () => {
   it('should describe a project from its description', () => {
     expect(describePage(projectsByYear, '/2024/walnut-bench')).toEqual({
       path: '/2024/walnut-bench',
-      title: 'Walnut Bench (2024) - Woodworking Projects',
+      title: 'Walnut Bench (2024) - Woodworking Projects by Ryan Brock',
       description: 'Live edge seat',
     });
   });
@@ -24,7 +24,7 @@ describe('describePage', () => {
 
   it('should describe a year by listing its projects', () => {
     const page = describePage(projectsByYear, '/2024');
-    expect(page?.title).toEqual('2024 Projects - Woodworking Projects');
+    expect(page?.title).toEqual('2024 Projects - Woodworking Projects by Ryan Brock');
     expect(page?.description).toEqual('Woodworking projects built in 2024: Walnut Bench, Baby Rattles.');
   });
 
@@ -47,7 +47,7 @@ describe('describePage', () => {
   it('should describe the stats page with the totals', () => {
     expect(describePage(projectsByYear, '/stats')).toEqual({
       path: '/stats',
-      title: 'Shop Stats - Woodworking Projects',
+      title: 'Shop Stats - Woodworking Projects by Ryan Brock',
       description: '2 woodworking projects and 0 photos, 2024: projects per year, the most photographed and the longest builds.',
     });
   });
