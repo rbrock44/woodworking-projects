@@ -1,6 +1,6 @@
 // Runs after `ng build`: writes sitemap.xml from the prerendered pages and adds the
 // 404.html fallback GitHub Pages serves for any path that has no file.
-import { copyFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const SITE_URL = 'https://woodworking-projects.ryan-brock.com';
@@ -36,5 +36,8 @@ writeFileSync(
 );
 
 copyFileSync(join(dist, 'index.csr.html'), join(dist, '404.html'));
+
+// A build file, not part of the site; read above and not published
+rmSync(join(dist, 'prerendered-routes.json'));
 
 console.log(`sitemap.xml: ${urls.length} urls, 404.html: copied from index.csr.html`);
