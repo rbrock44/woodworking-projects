@@ -1,4 +1,4 @@
-import { ImageSize, Image, Projects, ProjectsByYear, Project } from "../type/project.type";
+import { ImageSize, Image, PhotoPlace, Projects, ProjectsByYear, Project } from "../type/project.type";
 
 export const PROJECT_LIST: string = 'project-list.json';
 export const ALL: string = 'All';
@@ -283,6 +283,15 @@ export function filterProjectsBySearch(projectsByYear: ProjectsByYear[], search:
     });
 
     return filtered;
+}
+
+/** Favorited photos matching every search term in their year, project, title or description. */
+export function filterPhotoPlacesBySearch(places: PhotoPlace[], search: string): PhotoPlace[] {
+    const terms = splitSearchTerms(search);
+
+    return terms.length === 0
+        ? places
+        : places.filter(place => matchesAllTerms(terms, place.year, place.project ?? undefined, place.image.desc));
 }
 
 export function countProjects(projectsByYear: ProjectsByYear[]): number {

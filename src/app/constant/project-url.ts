@@ -1,12 +1,35 @@
 import { ALL, FAVORITES, looseImages, yearEntries } from './constants';
-import { Image, Project, ProjectsByYear } from '../type/project.type';
+import { Image, PhotoPlace, Project, ProjectsByYear } from '../type/project.type';
 
-/** The middle segment of a favorited loose photo's key, `/<year>/photo/<name>`; three segments never match a project. */
+/**
+ * The segment before a favorited photo's name: `/<year>/photo/<name>` in no project, `/<year>/<slug>/photo/<name>`
+ * in one. Three or four segments never match a project, which is always two.
+ */
 export const PHOTO_SEGMENT: string = 'photo';
 
 /** The favorites key for a photo in no project: `/<year>/photo/<name>`. */
 export function photoPath(year: string, name: string): string {
     return `/${year}/${PHOTO_SEGMENT}/${name}`;
+}
+
+/** The favorites key for a photo inside a project: `/<year>/<slug>/photo/<name>`. */
+export function projectPhotoPath(year: string, projectName: string, name: string): string {
+    return `${projectPath(year, projectName)}/${PHOTO_SEGMENT}/${name}`;
+}
+
+/** A photo's favorites key, in its project when it has one. */
+export function favoritePhotoPath(year: string, name: string, projectName?: string | null): string {
+    return projectName ? projectPhotoPath(year, projectName, name) : photoPath(year, name);
+}
+
+// Checked before the loose form: photo names have no slash, so `2023/photo/photo/x` is photo x of a project
+// slugged 'photo', never a loose photo named 'photo/x'. The loose form keeps its old `.+` so old keys read as before.
+const PROJECT_PHOTO_KEY = new RegExp(`^/?(\\d{4})/([^/]+)/${PHOTO_SEGMENT}/([^/]+)$`);
+const LOOSE_PHOTO_KEY = new RegExp(`^/?(\\d{4})/${PHOTO_SEGMENT}/(.+)$`);
+
+/** True for a favorited photo's key, in a project or not; false for a project's. */
+export function isPhotoFavoritePath(path: string): boolean {
+    return PROJECT_PHOTO_KEY.test(path) || LOOSE_PHOTO_KEY.test(path);
 }
 
 /** The path segment for the synthetic group holding every image from every year. */
@@ -146,35 +169,49 @@ export function adjacentLinks(projectsByYear: ProjectsByYear[], year: string, ta
     return { previous: ordered[index - 1] ?? null, next: ordered[index + 1] ?? null };
 }
 
-const SHARED_PHOTO = new RegExp(`^/?(\\d{4})/${PHOTO_SEGMENT}/(.+)$`);
-
 /**
- * The `?shared=` value for a favorites share link: each `/<year>/<slug>` path without its leading slash, joined
- * by commas, so the link stays readable: `2024/walnut-bench,2023/lidded-box,2023/photo/stamp`. A photo's name is
- * encoded for the list (so a comma in it can't split it) and again for the URL, which the browser decodes once.
+ * The `?shared=` value for a favorites share link: each path without its leading slash, joined by commas, so the
+ * link stays readable: `2024/walnut-bench,2023/photo/stamp,2023/lidded-box/photo/lid`. A photo's name is encoded
+ * for the list (so a comma in it can't split it) and again for the URL, which the browser decodes once.
  */
 export function sharedFavoritesParam(paths: Iterable<string>): string {
+    const twice = (name: string) => encodeURIComponent(encodeURIComponent(name));
+
     return [...paths].map(path => {
-        const photo = SHARED_PHOTO.exec(path);
-        return photo
-            ? `${photo[1]}/${PHOTO_SEGMENT}/${encodeURIComponent(encodeURIComponent(photo[2]))}`
-            : path.replace(/^\/+/, '');
+        const inProject = PROJECT_PHOTO_KEY.exec(path);
+        if (inProject) {
+            return `${inProject[1]}/${inProject[2]}/${PHOTO_SEGMENT}/${twice(inProject[3])}`;
+        }
+
+        const loose = LOOSE_PHOTO_KEY.exec(path);
+        return loose ? `${loose[1]}/${PHOTO_SEGMENT}/${twice(loose[2])}` : path.replace(/^\/+/, '');
     }).join(',');
 }
 
 /**
- * The `/<year>/<slug>` and `/<year>/photo/<name>` paths in a `?shared=` value (as decoded from the URL). Anything
- * else is dropped.
+ * The `/<year>/<slug>`, `/<year>/photo/<name>` and `/<year>/<slug>/photo/<name>` paths in a `?shared=` value (as
+ * decoded from the URL). Anything else is dropped.
  */
 export function parseSharedFavorites(param: string | null): string[] {
+    const decoded = (name: string): string | null => {
+        try {
+            return decodeURIComponent(name);
+        } catch {
+            return null;
+        }
+    };
+
     const paths = (param ?? '').split(',').map(part => part.trim()).flatMap(part => {
-        const photo = SHARED_PHOTO.exec(part);
-        if (photo) {
-            try {
-                return [photoPath(photo[1], decodeURIComponent(photo[2]))];
-            } catch {
-                return [];
-            }
+        const inProject = PROJECT_PHOTO_KEY.exec(part);
+        if (inProject) {
+            const name = decoded(inProject[3]);
+            return name === null ? [] : [`/${inProject[1]}/${inProject[2]}/${PHOTO_SEGMENT}/${name}`];
+        }
+
+        const loose = LOOSE_PHOTO_KEY.exec(part);
+        if (loose) {
+            const name = decoded(loose[2]);
+            return name === null ? [] : [photoPath(loose[1], name)];
         }
 
         const target = parseProjectPath(part);
@@ -205,4 +242,42 @@ export function pathsInGroups(groups: ProjectsByYear[]): string[] {
         ...group.projects.map(project => projectPath(group.year, project.name)),
         ...looseImages(group).map(image => photoPath(group.year, image.name)),
     ]);
+}
+
+/** The projects whose `/<year>/<slug>` paths are in `paths`, grouped by year in list order, without any photos. */
+export function favoriteProjectsAtPaths(projectsByYear: ProjectsByYear[], paths: ReadonlySet<string>): ProjectsByYear[] {
+    return projectsAtPaths(projectsByYear, paths)
+        .filter(group => group.projects.length > 0)
+        .map(group => ({ year: group.year, projects: group.projects }));
+}
+
+/** Every real year's photos, in a project or not, by url: where each one lives and its favorites key. */
+export function photoPlaces(projectsByYear: ProjectsByYear[]): Map<string, PhotoPlace> {
+    return new Map(homeOrderPhotos(projectsByYear).map(place => [place.image.url, place] as const));
+}
+
+/** The photos, in projects or not, whose favorites keys are in `paths`, newest year first in home page order. */
+export function photosAtPaths(projectsByYear: ProjectsByYear[], paths: ReadonlySet<string>): PhotoPlace[] {
+    return homeOrderPhotos(projectsByYear).filter(place => paths.has(place.path));
+}
+
+/** The paths in `paths` that still name a project or photo: projects first, then photos, both in list order. */
+export function existingFavoritePaths(projectsByYear: ProjectsByYear[], paths: ReadonlySet<string>): string[] {
+    return [
+        ...pathsInGroups(favoriteProjectsAtPaths(projectsByYear, paths)),
+        ...photosAtPaths(projectsByYear, paths).map(place => place.path),
+    ];
+}
+
+function homeOrderPhotos(projectsByYear: ProjectsByYear[]): PhotoPlace[] {
+    return projectsByYear
+        .filter(group => isYearSegment(group.year))
+        .flatMap(group => yearEntries(group).flatMap((entry): PhotoPlace[] => 'project' in entry
+            ? entry.project.images.map(image => ({
+                year: group.year,
+                project: entry.project.name,
+                path: projectPhotoPath(group.year, entry.project.name, image.name),
+                image,
+            }))
+            : entry.photos.map(image => ({ year: group.year, project: null, path: photoPath(group.year, image.name), image }))));
 }

@@ -36,10 +36,26 @@
         @if (this.favoriteCount() === 0) {
           <p class="favorites-empty">Tap a heart to save a project or photo here</p>
         }
-        <!-- Favorited projects as rows, favorited loose photos as thumbnail rows, like a year -->
-        @for (favoritesByYear of this.favoritesByYear(); track favoritesByYear.year) {
-          <p class="favorites-year">{{ favoritesByYear.year }}</p>
-          <ng-container *ngTemplateOutlet="yearRows; context: { $implicit: favoritesByYear }" />
+        <!-- Two kinds, each under its own heading: whole projects as rows, single photos as thumbnail rows -->
+        @if (this.favoriteProjects().length > 0) {
+          <h3 class="favorites-kind">Projects</h3>
+          @for (favoritesByYear of this.favoriteProjects(); track favoritesByYear.year) {
+            <p class="favorites-year">{{ favoritesByYear.year }}</p>
+            <ng-container *ngTemplateOutlet="yearRows; context: { $implicit: favoritesByYear }" />
+          }
+        }
+        @if (this.favoritePhotos().length > 0) {
+          <h3 class="favorites-kind">Photos</h3>
+          @for (row of this.favoritePhotoRows(); track row.year) {
+            <p class="favorites-year">{{ row.year }}</p>
+            <ul class="sub-list">
+              <li class="photo-row">
+                @for (place of row.photos; track place.path) {
+                  <ng-container *ngTemplateOutlet="photoTile; context: { $implicit: place.image, year: place.year, project: place.project, label: this.placeLabel(place) }" />
+                }
+              </li>
+            </ul>
+          }
         }
       </li>
     }
@@ -81,7 +97,7 @@
             @let isFavorite = this.favorites.isFavorite(group.year, project);
             <button type="button" class="heart-button" [class.favorited]="isFavorite"
               [attr.aria-pressed]="isFavorite"
-              [attr.aria-label]="(isFavorite ? 'Remove ' : 'Add ') + project.name + (isFavorite ? ' from favorites' : ' to favorites')"
+              [attr.aria-label]="(isFavorite ? 'Remove the ' : 'Add the ') + 'project ' + project.name + (isFavorite ? ' from favorites' : ' to favorites')"
               (click)="this.toggleFavorite($event, project, group.year)">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
             </button>
@@ -90,22 +106,26 @@
       } @else {
         <li class="photo-row">
           @for (photo of entry.photos; track photo.url) {
-            @let isFavorite = this.favorites.isPhotoFavorite(group.year, photo.name);
-            <!-- The heart sits over the corner; anywhere else on the tile opens the photo -->
-            <div class="photo-tile">
-            <button type="button" class="photo-button"
-              [attr.aria-label]="'Open ' + this.photoLabel(photo, group.year)"
-              (click)="this.photoSelect.emit({ year: group.year, image: photo.name })">
-              <img class="photo-thumb" [src]="this.photoThumbnail(photo)" alt=""
-                width="54" height="72" loading="lazy" decoding="async">
-            </button>
-            <button type="button" class="tile-heart" [class.favorited]="isFavorite" [attr.aria-pressed]="isFavorite"
-              [attr.aria-label]="(isFavorite ? 'Remove ' : 'Add ') + this.photoLabel(photo, group.year) + (isFavorite ? ' from favorites' : ' to favorites')"
-              (click)="this.favorites.togglePhoto(group.year, photo.name)"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
-            </div>
+            <ng-container *ngTemplateOutlet="photoTile; context: { $implicit: photo, year: group.year, project: null, label: this.photoLabel(photo, group.year) }" />
           }
         </li>
       }
     }
   </ul>
+</ng-template>
+
+<!-- One photo's thumbnail: the heart sits over the corner, anywhere else on the tile opens the photo -->
+<ng-template #photoTile let-photo let-year="year" let-project="project" let-label="label">
+  @let isFavorite = this.favorites.isPhotoFavorite(year, photo.name, project);
+  <div class="photo-tile">
+    <button type="button" class="photo-button"
+      [attr.aria-label]="'Open ' + label"
+      (click)="this.photoSelect.emit(project ? { year, image: photo.name, project } : { year, image: photo.name })">
+      <img class="photo-thumb" [src]="this.photoThumbnail(photo)" alt=""
+        width="54" height="72" loading="lazy" decoding="async">
+    </button>
+    <button type="button" class="tile-heart" [class.favorited]="isFavorite" [attr.aria-pressed]="isFavorite"
+      [attr.aria-label]="(isFavorite ? 'Remove the photo ' : 'Add the photo ') + label + (isFavorite ? ' from favorites' : ' to favorites')"
+      (click)="this.favorites.togglePhoto(year, photo.name, project)"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+  </div>
 </ng-template>

@@ -1,7 +1,7 @@
 import { Location, NgOptimizedImage } from '@angular/common';
 import { SubscriptionLike } from 'rxjs';
 import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, effect, inject, input, output, signal } from '@angular/core';
-import { Image, ImageSize } from '../../type/project.type';
+import { Image, ImageSize, PhotoPlace } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
@@ -23,8 +23,10 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   readonly images = input<Image[]>([]);
   /** Names the photos in their alt text when they have no description. */
   readonly projectName = input('');
-  /** Each loose photo's year by its url; only those photos get a heart, project photos go with their project. */
-  readonly loosePhotoYears = input<ReadonlyMap<string, string>>(new Map());
+  /** Every photo's year, project and favorites key by its url; each one with a place gets a heart. */
+  readonly photoPlaces = input<ReadonlyMap<string, PhotoPlace>>(new Map());
+  /** A heading per picture, as the Favorites grid splits projects from single photos; empty for one plain grid. */
+  readonly sections = input<ReadonlyMap<Image, string>>(new Map());
   @Output() enlargedChange = new EventEmitter<boolean>();
   /** The photo the single view shows, null for the grid; the page's previous/next links follow it. */
   readonly shownImageChange = output<Image | null>();
@@ -36,10 +38,26 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   readonly filteredImages = computed(() => filterImagesBySearch(this.images(), this.searchTerm()));
   readonly currentImage = computed<Image | undefined>(() => this.filteredImages()[this.currentIndex()]);
   readonly favorites = inject(FavoritesService);
-  /** The shown photo's year when it belongs to no project, else null. */
-  readonly looseYear = computed(() => {
+  /** The shown photo's place, null for one the project list doesn't have. */
+  readonly currentPlace = computed(() => {
     const image = this.currentImage();
-    return image ? this.loosePhotoYears().get(image.url) ?? null : null;
+    return image ? this.photoPlaces().get(image.url) ?? null : null;
+  });
+  /** No project name: a year, All, Featured or Favorites view, where photos from many projects sit together. */
+  readonly mixed = computed(() => this.projectName().trim() === '');
+  /** The grid as runs of photos under the same heading, each photo keeping its index in the whole list. */
+  readonly gridRuns = computed(() => {
+    const runs: { heading: string; items: { image: Image; index: number }[] }[] = [];
+    this.filteredImages().forEach((image, index) => {
+      const heading = this.sections().get(image) ?? '';
+      const last = runs.at(-1);
+      if (last && last.heading === heading) {
+        last.items.push({ image, index });
+      } else {
+        runs.push({ heading, items: [{ image, index }] });
+      }
+    });
+    return runs;
   });
   private popStateSubscription?: SubscriptionLike;
   private readonly swipe = new SwipeTracker();
@@ -228,12 +246,30 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     this.checkForIndex(this.currentIndex().toString());
   }
 
-  toggleFavorite(year: string, image: Image): void {
-    this.favorites.togglePhoto(year, image.name);
+  toggleFavorite(place: PhotoPlace): void {
+    this.favorites.togglePath(place.path);
+  }
+
+  place(image: Image): PhotoPlace | null {
+    return this.photoPlaces().get(image.url) ?? null;
+  }
+
+  /** The project a photo comes from, only where photos of many projects mix; '' for a loose one or one project. */
+  source(image: Image): string {
+    return this.mixed() ? this.place(image)?.project ?? '' : '';
   }
 
   altText(image: Image): string {
-    return imageAltText(image, this.projectName());
+    const place = this.place(image);
+    if (!this.mixed() || !place) {
+      return imageAltText(image, this.projectName());
+    }
+
+    // The project list's own photo, as a mixed view's copy carries '(2026 - Project)' in its description;
+    // a photo with no description already names its project in the alt text
+    const text = imageAltText(place.image, place.project ?? '');
+    const named = place.image.desc.trim() !== '';
+    return place.project && named ? `${text}, from ${place.project}` : text;
   }
 
   getThumbnailImage(url: string): string {

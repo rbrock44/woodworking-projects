@@ -40,7 +40,8 @@ This is an angular frontend, prerendered to static pages at build time (one per 
 - `Expanded Image` - Click an image in single image project view and the image will be expanded to full screen with buttons (on the side(s) of the image to go forward and backward)
 - `Previous / Next` - Links at the bottom of a project, or of a photo in no project opened on its own, step through everything in home page order: newest year first, each year's projects and the photos listed between them, one photo at a time. Each link shows whether it leads to a project or a single photo
 - `Search` - Filter projects by name, year or description on the home page, or photos within a project
-- `Favorites` - Tap the heart on any project, or on a photo that belongs to no project while it's open on its own, to save it to the `Favorites` group (kept in this browser)
+- `Favorites` - Two kinds, both kept in this browser: a whole project (the heart on its home page row, or `Favorite this project` beside its name on its own page), or a single photo, in a project or not (the heart on its tile in any grid or on the home page, or beside `Back` while it's open). The `Favorites` group and its `All` show them apart, projects under one heading and photos under another; a favorited photo opens where it lives, in its project at that photo. `Share` makes a link carrying both kinds
+- `Where it's from` - In views that mix projects (a year's `All`, `Favorites`) each photo tile names its project; a photo in no project shows nothing extra
 - `Jump` - Press `Ctrl K` (or the `Jump` button) to jump straight to any project, or to any photo that belongs to no project
 
 ---

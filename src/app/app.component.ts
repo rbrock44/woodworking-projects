@@ -1,6 +1,6 @@
 import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, computed, effect, inject, signal} from '@angular/core';
 import {RouterOutlet, Router, NavigationEnd} from '@angular/router';
-import {Image, Project, Projects} from "./type/project.type";
+import {Image, PhotoPlace, Project, Projects, ProjectsByYear} from "./type/project.type";
 import {getProjects, prepareProjects, PROJECTS_STATE_KEY} from "./services/project.service";
 import { isPlatformBrowser, Location, NgTemplateOutlet } from "@angular/common";
 import { filter, firstValueFrom } from 'rxjs';
@@ -11,8 +11,8 @@ import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService, PALETTE_LABEL} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_IMAGE, URL_PARAM_SHARED, countEntries, countProjects, extractImagesByYear, looseImages, filterProjectsBySearch, photoLabel, projectMonthRange, scrollPageToTop } from './constant/constants';
-import { adjacentLinks, isPlainLeftClick, isStatsPath, isYearSegment, parseProjectPath, parseSharedFavorites, pathsInGroups, projectPath, SequenceLink, projectsAtPaths, projectSlug, STATS_SEGMENT } from './constant/project-url';
+import { ALL, FAVORITES, URL_PARAM_IMAGE, URL_PARAM_SHARED, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, photoLabel, projectMonthRange, scrollPageToTop } from './constant/constants';
+import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parseProjectPath, parseSharedFavorites, photoPlaces, photosAtPaths, projectPath, SequenceLink, projectSlug, STATS_SEGMENT } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -51,17 +51,37 @@ export class AppComponent implements OnInit {
   // The synthetic 'All' group is a shortcut, not a project, so it stays out of the count
   readonly totalProjectCount = computed(() => countProjects(this.data().projectsByYear.filter(group => group.year !== ALL)));
   readonly matchingProjectCount = computed(() => countProjects(this.filteredProjectsByYear()));
-  private readonly favoritesByYear = computed(() => this.favorites.favoritesByYear(this.data().projectsByYear));
-  readonly filteredFavoritesByYear = computed(() => filterProjectsBySearch(this.favoritesByYear(), this.searchTerm()));
-  // Favorited projects and loose photos together
-  readonly favoriteCount = computed(() => countEntries(this.favoritesByYear()));
-  /** Each loose photo's year by its url, so the single view can offer a heart for those photos only. */
+  // Two kinds: whole projects, and single photos whether in a project or not
+  private readonly favoriteProjects = computed(() => this.favorites.favoriteProjects(this.data().projectsByYear));
+  private readonly favoritePhotos = computed(() => this.favorites.favoritePhotos(this.data().projectsByYear));
+  readonly filteredFavoriteProjects = computed(() => filterProjectsBySearch(this.favoriteProjects(), this.searchTerm()));
+  readonly filteredFavoritePhotos = computed(() => filterPhotoPlacesBySearch(this.favoritePhotos(), this.searchTerm()));
+  readonly favoriteCount = computed(() => countProjects(this.favoriteProjects()) + this.favoritePhotos().length);
+  /** Every photo's year, project and favorites key by its url, so any grid tile or single view can heart it. */
+  readonly placesByUrl = computed(() => photoPlaces(this.data().projectsByYear));
+  /** Section headings for the Favorites grid's pictures, empty for every other view. */
+  readonly selectedSections = signal<ReadonlyMap<Image, string>>(new Map());
+  /** Each loose photo's year by its url, so previous/next can follow a loose photo shown on its own. */
   readonly loosePhotoYears = computed(() => new Map(this.data().projectsByYear
     .filter(group => isYearSegment(group.year))
     .flatMap(group => looseImages(group).map(image => [image.url, group.year] as const))));
   // Paths from a share link being viewed; the prompt to add them shows while there are any
   readonly sharedPaths = signal<string[]>([]);
   readonly sharedNewCount = computed(() => this.sharedPaths().filter(path => !this.favorites.hasPath(path)).length);
+  // Names both kinds: '1 project and 2 photos'
+  readonly sharedSummary = computed(() => {
+    const photos = this.sharedPaths().filter(isPhotoFavoritePath).length;
+    const projects = this.sharedPaths().length - photos;
+    return [
+      ...(projects > 0 ? [`${projects} ${projects === 1 ? 'project' : 'projects'}`] : []),
+      ...(photos > 0 ? [`${photos} ${photos === 1 ? 'photo' : 'photos'}`] : []),
+    ].join(' and ');
+  });
+  /** The open project's own favorite state; false for a year, All, Favorites or Featured. */
+  readonly isProjectFavorite = computed(() => {
+    const project = this.selectedProject();
+    return !!project?.name && this.favorites.isFavorite(this.selectedYear(), project);
+  });
   readonly shareCopied = signal(false);
   private shareCopiedTimer?: ReturnType<typeof setTimeout>;
 
@@ -93,7 +113,8 @@ export class AppComponent implements OnInit {
   });
 
   // Hidden while searching unless a favorite matches; otherwise always there so the empty hint can show
-  readonly showFavorites = computed(() => this.filteredFavoritesByYear().length > 0 || this.searchTerm().trim() === '');
+  readonly showFavorites = computed(() => this.filteredFavoriteProjects().length > 0
+    || this.filteredFavoritePhotos().length > 0 || this.searchTerm().trim() === '');
 
   constructor(private location: Location) {
     // A new view starts at the top, as it does in the card's own scroller on wide screens
@@ -200,12 +221,29 @@ export class AppComponent implements OnInit {
     this.updateSeo();
   }
 
-  /** The `?shared=` paths of a share link that name projects or loose photos which exist. */
+  /** The `?shared=` paths of a share link that name projects or photos which exist. */
   private sharedFromPath(path: string): string[] {
     const query = path.split('#')[0].split('?')[1] ?? '';
     const paths = new Set(parseSharedFavorites(new URLSearchParams(query).get(URL_PARAM_SHARED)));
 
-    return pathsInGroups(projectsAtPaths(this.data().projectsByYear, paths));
+    return existingFavoritePaths(this.data().projectsByYear, paths);
+  }
+
+  /**
+   * A favorites grid: the projects' photos under one heading, then the single photos under another, so a
+   * favorited project's photos and a favorited photo never read as the same kind.
+   */
+  private favoritesGrid(projects: ProjectsByYear[], photos: PhotoPlace[]): { images: Image[]; sections: Map<Image, string> } {
+    const projectImages = projects.flatMap(yearGroup => extractImagesByYear(yearGroup));
+    const photoImages = photos.map(place => createImageForAll(place.year, place.project, place.image));
+
+    return {
+      images: [...projectImages, ...photoImages],
+      sections: new Map([
+        ...projectImages.map(image => [image, 'Projects'] as const),
+        ...photoImages.map(image => [image, 'Photos'] as const),
+      ]),
+    };
   }
 
   /** No favorites yet, or nothing new: take the shared ones. Otherwise show them and ask before merging. */
@@ -217,14 +255,15 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    const images = projectsAtPaths(this.data().projectsByYear, new Set(paths))
-      .flatMap(yearGroup => extractImagesByYear(yearGroup));
+    const shared = new Set(paths);
+    const { images, sections } = this.favoritesGrid(
+      favoriteProjectsAtPaths(this.data().projectsByYear, shared), photosAtPaths(this.data().projectsByYear, shared));
 
     this.select({
       name: '',
       desc: 'Shared favorites',
       images: images
-    }, FAVORITES);
+    }, FAVORITES, sections);
     this.sharedPaths.set(paths);
   }
 
@@ -269,13 +308,13 @@ export class AppComponent implements OnInit {
 
   private selectAllFavorites(): void {
     // Search-aware like a year's 'All'; each image keeps its year and project in the description
-    const images = this.filteredFavoritesByYear().flatMap(yearGroup => extractImagesByYear(yearGroup));
+    const { images, sections } = this.favoritesGrid(this.filteredFavoriteProjects(), this.filteredFavoritePhotos());
 
     this.select({
       name: '',
       desc: `All of ${FAVORITES}`,
       images: images
-    }, FAVORITES);
+    }, FAVORITES, sections);
   }
 
   projectClick(project: Project, year: string): void {
@@ -371,8 +410,27 @@ export class AppComponent implements OnInit {
     this.photoClick(year, imageName);
   }
 
-  /** A photo in no project opens in its year, shown on its own. */
-  photoClick(year: string, imageName: string): void {
+  /** The heart beside an open project's name: favorites the whole project, not the photo shown. */
+  toggleProjectFavorite(): void {
+    const project = this.selectedProject();
+    if (project?.name) {
+      this.favorites.toggle(this.selectedYear(), project);
+    }
+  }
+
+  /** A photo in no project opens in its year, shown on its own; one in a project opens in that project at it. */
+  photoClick(year: string, imageName: string, projectName?: string | null): void {
+    const project = projectName
+      ? this.data().projectsByYear.find(x => x.year === year)?.projects.find(p => p.name === projectName)
+      : undefined;
+    if (project) {
+      this.isImageEnlarged.set(false);
+      this.location.go(projectPath(year, project.name), `${URL_PARAM_IMAGE}=${encodeURIComponent(imageName)}`);
+      this.select(project, year);
+      this.updateSeo();
+      return;
+    }
+
     this.location.go(projectPath(year), `${URL_PARAM_IMAGE}=${encodeURIComponent(imageName)}`);
     this.selectAllProjectsByYear(year);
     this.updateSeo();
@@ -391,8 +449,9 @@ export class AppComponent implements OnInit {
     }, year);
   }
 
-  private select(project: Project, year: string): void {
+  private select(project: Project, year: string, sections: ReadonlyMap<Image, string> = new Map()): void {
     this.sharedPaths.set([]);
+    this.selectedSections.set(sections);
     this.showStats.set(false);
     this.selectedProject.set(project);
     this.selectedYear.set(year);

@@ -46,7 +46,8 @@
     } @else if (!this.selectedProject()) {
       <app-project-list
         [projectsByYear]="this.filteredProjectsByYear()"
-        [favoritesByYear]="this.filteredFavoritesByYear()"
+        [favoriteProjects]="this.filteredFavoriteProjects()"
+        [favoritePhotos]="this.filteredFavoritePhotos()"
         [favoriteCount]="this.favoriteCount()"
         [showFavorites]="this.showFavorites()"
         [searchTerm]="this.searchTerm()"
@@ -56,7 +57,7 @@
         (searchChange)="this.searchChange($event)"
         (projectSelect)="this.projectClick($event.project, $event.year)"
         (yearSelect)="this.allProjectsByYear($event)"
-        (photoSelect)="this.photoClick($event.year, $event.image)"
+        (photoSelect)="this.photoClick($event.year, $event.image, $event.project)"
         (favoritesSelect)="this.allFavorites()"
         (favoritesShare)="this.shareFavorites()">
       </app-project-list>
@@ -67,7 +68,18 @@
         <div class="project-meta">
           <p><strong>Year:</strong> {{ this.selectedYear() }}</p>
           @if (project.name != undefined && project.name != '') {
-            <p><strong>Project:</strong> {{ project.name }}</p>
+            <div class="project-name-row">
+              <p><strong>Project:</strong> {{ project.name }}</p>
+              @let projectFavorite = this.isProjectFavorite();
+              <!-- The whole project, unlike the round photo hearts on each photo: a labelled pill beside its name -->
+              <button type="button" class="project-favorite" [class.favorited]="projectFavorite"
+                [attr.aria-pressed]="projectFavorite"
+                [attr.aria-label]="(projectFavorite ? 'Remove the project ' : 'Add the project ') + project.name + (projectFavorite ? ' from favorites' : ' to favorites')"
+                (click)="this.toggleProjectFavorite()">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <span aria-hidden="true">{{ projectFavorite ? 'Project favorited' : 'Favorite this project' }}</span>
+              </button>
+            </div>
             @if (this.selectedMonthRange()) {
               <p><strong>Built:</strong> {{ this.selectedMonthRange() }}</p>
             }
@@ -79,7 +91,8 @@
         <app-images-viewer
           [images]="project.images"
           [projectName]="project.name"
-          [loosePhotoYears]="this.loosePhotoYears()"
+          [photoPlaces]="this.placesByUrl()"
+          [sections]="this.selectedSections()"
           (enlargedChange)="this.isImageEnlarged.set($event)"
           (shownImageChange)="this.shownImage.set($event)">
         </app-images-viewer>
@@ -128,7 +141,7 @@
 @if (this.sharedPaths().length > 0 && !this.isImageEnlarged()) {
   <div class="shared-prompt" role="dialog" aria-labelledby="shared-prompt-title">
     <p id="shared-prompt-title" class="shared-prompt-title">
-      Someone shared {{ this.sharedPaths().length }} favorite{{ this.sharedPaths().length === 1 ? '' : 's' }} with you
+      Someone shared {{ this.sharedSummary() }} with you
     </p>
     <p class="shared-prompt-text">
       {{ this.sharedNewCount() }} {{ this.sharedNewCount() === 1 ? "isn't" : "aren't" }} in your favorites yet.

@@ -51,10 +51,21 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 - No hydration — the browser re-renders over the prerendered markup. Router initial navigation is blocking so that
   first render already has the URL
 - `prepareProjects` sorts years newest first and prepends the synthetic `All` group (`ALL`/`/all`). `Favorites`
-  (`/favorites`) is another synthetic group, built from paths stored in `localStorage` (`favorite-projects`) by `FavoritesService`:
-  `/<year>/<slug>` for a project, `/<year>/photo/<name>` (`photoPath`) for a loose photo, hearted in the single view only.
-  `projectsAtPaths` puts favorited loose photos in their year's `images`, so they show as thumbnail rows. Share links are
-  `/favorites?shared=2024/slug,2023/photo/name`: with no favorites yet they're added outright, otherwise they're shown
+  (`/favorites`) is another synthetic group, built from paths stored in `localStorage` (`favorite-projects`) by `FavoritesService`.
+  Two kinds: a project, `/<year>/<slug>` (home row heart, or the `.project-favorite` pill beside the name on its own page), and
+  a single photo, `/<year>/photo/<name>` (`photoPath`) in no project or `/<year>/<slug>/photo/<name>` (`projectPhotoPath`)
+  in one (`favoritePhotoPath` picks; `isPhotoFavoritePath` tells them from projects). A favorited project doesn't favorite its
+  photos one by one. Every photo has a heart: `.tile-heart` on each grid tile and home thumbnail, `.heart-button` in the
+  single view, found through `photoPlaces` (url to `PhotoPlace`: year, project or null, path, the project list's own image),
+  passed to the viewer as `photoPlaces`. Old project and loose photo paths read as before. `favoriteProjectsAtPaths` and
+  `photosAtPaths` split them: the home group shows `.favorites-kind` headings (`Projects`, `Photos`) over project rows and
+  over thumbnail rows of photos (a project photo opens in its project at it, `photoClick(year, name, project)`); the
+  `/favorites` grid gets the same headings through the viewer's `sections` input (`.grid-section`). `existingFavoritePaths`
+  feeds the share link and the merge prompt, which names both counts
+- Views that mix projects (a year, All, Favorites: the viewer's `projectName` is empty) name each photo's project as
+  `.image-source` under its grid tile, from `photoPlaces`, never parsed out of `createImageForAll`'s desc; a loose photo
+  shows nothing extra, and a project's own page shows none. Share links are
+  `/favorites?shared=2024/slug,2023/photo/name,2023/slug/photo/name` (photo names encoded twice): with no favorites yet they're added outright, otherwise they're shown
   with a prompt to add them (`AppComponent.openShared`)
 - `SeoService` sets title, description, Open Graph, Twitter and canonical tags; `describePage` maps a path to them.
   `SeoTitleStrategy` applies them during prerendering, `AppComponent.updateSeo` in the browser

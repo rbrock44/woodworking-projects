@@ -246,6 +246,24 @@ p {
   }
 }
 
+// 'Projects' and 'Pieces' inside the Favorites group, so the two kinds of favorites never blur together
+.favorites-kind {
+  margin: var(--space-4) 0 0;
+  padding-bottom: var(--space-1);
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.favorites-kind + .favorites-year {
+  margin-top: var(--space-2);
+}
+
 .favorites-year {
   margin: var(--space-3) 0 0;
   text-align: left;

@@ -233,7 +233,8 @@ describe('AppComponent', () => {
         const { app } = await openAt('/favorites');
 
         expect(app.favoriteCount()).toEqual(2);
-        expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['loose', '20241013_1750']);
+        // Favorited projects first, then the single photos, each under its own heading
+        expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['20241013_1750', 'loose']);
       });
 
       it('should open /favorites with only a favorited photo', async () => {
@@ -272,10 +273,148 @@ describe('AppComponent', () => {
         const { app } = await openAt('/');
 
         app.searchChange('2024');
-        expect(app.filteredFavoritesByYear()).toEqual([{ year: '2024', projects: [], images: [image('loose')] }]);
+        expect(app.filteredFavoriteProjects()).toEqual([]);
+        expect(app.filteredFavoritePhotos().map(place => place.image)).toEqual([image('loose')]);
 
         app.searchChange('bench');
-        expect(app.filteredFavoritesByYear()).toEqual([{ year: '2023', projects: [PROJECTS[0].projects[0]] }]);
+        expect(app.filteredFavoriteProjects()).toEqual([{ year: '2023', projects: [PROJECTS[0].projects[0]] }]);
+        expect(app.filteredFavoritePhotos()).toEqual([]);
+      });
+    });
+
+    describe('favorited photos inside a project', () => {
+      const withLoose: ProjectsByYear[] = [
+        PROJECTS[0],
+        { ...PROJECTS[1], images: [image('loose')] },
+      ];
+      const projectsHeading = 'Projects';
+      const photosHeading = 'Photos';
+
+      beforeEach(() => TestBed.inject(TransferState).set(PROJECTS_STATE_KEY, withLoose));
+
+      it('should split /favorites into projects and photos', async () => {
+        const favorites = TestBed.inject(FavoritesService);
+        favorites.toggle('2024', PROJECTS[1].projects[0]);
+        favorites.togglePhoto('2023', '20230415_1200', 'Oak Bench');
+        favorites.togglePhoto('2024', 'loose');
+
+        const { app, fixture } = await openAt('/favorites');
+
+        expect(app.favoriteCount()).toEqual(3);
+        // Photos newest year first, as the home page lists them
+        expect(app.selectedProject()?.images.map(image => image.name)).toEqual(['20241013_1750', 'loose', '20230415_1200']);
+        const headings = Array.from(fixture.nativeElement.querySelectorAll('.grid-section')) as HTMLElement[];
+        expect(headings.map(heading => heading.textContent?.trim())).toEqual([projectsHeading, photosHeading]);
+        const cells = Array.from(fixture.nativeElement.querySelectorAll('.image-cell')) as HTMLElement[];
+        expect(cells.length).toEqual(3);
+        expect(cells.every(cell => !!cell.querySelector('.tile-heart'))).toBe(true);
+        // Mixed views say which project a picture is from
+        expect(cells.map(cell => cell.querySelector('.image-source')?.textContent?.trim() ?? null))
+          .toEqual(['Baby Rattles', null, 'Oak Bench']);
+      });
+
+      it('should split the home page Favorites group into projects and photos', async () => {
+        const favorites = TestBed.inject(FavoritesService);
+        favorites.toggle('2024', PROJECTS[1].projects[0]);
+        favorites.togglePhoto('2023', '20230415_1200', 'Oak Bench');
+
+        const { fixture } = await openAt('/');
+        const group = fixture.nativeElement.querySelector('.favorites-group') as HTMLElement;
+
+        expect(Array.from(group.querySelectorAll('.favorites-kind')).map(kind => kind.textContent?.trim()))
+          .toEqual([projectsHeading, photosHeading]);
+        expect(Array.from(group.querySelectorAll('.project-name')).map(name => name.textContent?.trim())).toEqual(['Baby Rattles']);
+        expect(group.querySelectorAll('.photo-tile').length).toEqual(1);
+      });
+
+      it('should open a favorited project photo in its project, at that photo', async () => {
+        TestBed.inject(FavoritesService).togglePhoto('2023', '20230415_1200', 'Oak Bench');
+        const { app, fixture, location } = await openAt('/');
+        const goSpy = vi.spyOn(location, 'go');
+
+        (fixture.nativeElement.querySelector('.favorites-group .photo-button') as HTMLElement).click();
+        fixture.detectChanges();
+
+        expect(app.selectedProject()?.name).toEqual('Oak Bench');
+        expect(app.selectedYear()).toEqual('2023');
+        // The viewer opens the photo the ?image= names, as for a loose photo
+        expect(goSpy).toHaveBeenCalledWith('/2023/oak-bench', 'image=20230415_1200');
+      });
+
+      it('should give every tile of a year view a heart, project photos included', async () => {
+        const { fixture } = await openAt('/2023');
+        const cells = Array.from(fixture.nativeElement.querySelectorAll('.image-cell')) as HTMLElement[];
+
+        expect(cells.length).toEqual(3);
+        expect(cells.every(cell => !!cell.querySelector('.tile-heart'))).toBe(true);
+        (cells[1].querySelector('.tile-heart') as HTMLButtonElement).click();
+        fixture.detectChanges();
+
+        expect(TestBed.inject(FavoritesService).hasPath('/2023/oak-bench/photo/20230415_1200')).toBe(true);
+        expect(fixture.nativeElement.querySelector('.single-view')).toBeNull();
+      });
+
+      it('should restore a shared project photo and count both kinds in the merge prompt', async () => {
+        const favorites = TestBed.inject(FavoritesService);
+        favorites.toggle('2024', PROJECTS[1].projects[0]);
+
+        const { app, fixture } = await openAt('/favorites?shared=2023/oak-bench,2023/walnut-box/photo/20230601_1200,2024/photo/loose,2023/oak-bench/photo/gone');
+
+        expect(app.sharedPaths()).toEqual(['/2023/oak-bench', '/2024/photo/loose', '/2023/walnut-box/photo/20230601_1200']);
+        expect(fixture.nativeElement.querySelector('.shared-prompt-title').textContent.trim())
+          .toEqual(`Someone shared 1 project and 2 photos with you`);
+        expect(fixture.nativeElement.querySelector('.shared-prompt-text').textContent.trim()).toContain('3');
+        expect((Array.from(fixture.nativeElement.querySelectorAll('.grid-section')) as HTMLElement[])
+          .map(heading => heading.textContent?.trim())).toEqual([projectsHeading, photosHeading]);
+
+        (fixture.nativeElement.querySelector('.shared-prompt-button.primary') as HTMLElement).click();
+        fixture.detectChanges();
+
+        expect(favorites.isPhotoFavorite('2023', '20230601_1200', 'Walnut Box')).toBe(true);
+        expect(favorites.isPhotoFavorite('2024', 'loose')).toBe(true);
+        expect(app.favoriteCount()).toEqual(4);
+      });
+    });
+
+    describe('the project heart', () => {
+      it('should favorite the whole project from its own page', async () => {
+        const { fixture } = await openAt('/2023/oak-bench');
+        const favorites = TestBed.inject(FavoritesService);
+        const button = () => fixture.nativeElement.querySelector('.project-favorite') as HTMLButtonElement;
+
+        expect(button().getAttribute('aria-pressed')).toEqual('false');
+        expect(button().getAttribute('aria-label')).toEqual(`Add the project Oak Bench to favorites`);
+        expect(button().textContent?.trim()).toEqual(`Favorite this project`);
+
+        button().click();
+        fixture.detectChanges();
+
+        expect(favorites.isFavorite('2023', PROJECTS[0].projects[0])).toBe(true);
+        expect(favorites.isPhotoFavorite('2023', '20230301_1200', 'Oak Bench')).toBe(false);
+        expect(button().getAttribute('aria-pressed')).toEqual('true');
+        expect(button().getAttribute('aria-label')).toEqual(`Remove the project Oak Bench from favorites`);
+      });
+
+      it('should not show on a year or the favorites view', async () => {
+        const { fixture } = await openAt('/2023');
+
+        expect(fixture.nativeElement.querySelector('.project-favorite')).toBeNull();
+      });
+
+      it('should sit apart from the photo heart in the single view', async () => {
+        const { fixture } = await openAt('/2023/oak-bench?image=20230415_1200');
+        const photoHeart = fixture.nativeElement.querySelector('.single-view .heart-button') as HTMLButtonElement;
+
+        expect(photoHeart.getAttribute('aria-label')).toEqual(`Add this photo to favorites`);
+        photoHeart.click();
+        fixture.detectChanges();
+
+        const favorites = TestBed.inject(FavoritesService);
+        expect(favorites.isPhotoFavorite('2023', '20230415_1200', 'Oak Bench')).toBe(true);
+        expect(favorites.isFavorite('2023', PROJECTS[0].projects[0])).toBe(false);
+        expect(fixture.nativeElement.querySelector('.project-favorite').getAttribute('aria-pressed')).toEqual('false');
+        // One project's own page doesn't repeat its name under each picture
+        expect(fixture.nativeElement.querySelector('.piece-source')).toBeNull();
       });
     });
 

@@ -18,25 +18,36 @@
         <p class="click-to-enlarge">Click any image to enlarge</p>
       }
       <div class="image-grid">
+        @for (run of this.gridRuns(); track $index) {
+        @if (run.heading) {
+          <h2 class="grid-section">{{ run.heading }}</h2>
+        }
         <!-- image grid -->
         <div class="image-item">
-          @for (image of this.filteredImages(); track image; let i = $index) {
+          @for (item of run.items; track item.image) {
+            @let image = item.image;
+            @let i = item.index;
             <div class="image-cell">
               <img ngSrc="{{this.getThumbnailImage(image.url)}}" height="200" width="150" [alt]="this.altText(image)"
                 role="button" tabindex="0" [attr.aria-label]="'Enlarge photo ' + (i + 1) + ': ' + this.altText(image)"
                 (click)="this.onGridImageClick(i)"
                 (keydown.enter)="this.onGridImageClick(i)"
                 (keydown.space)="$event.preventDefault(); this.onGridImageClick(i)">
-              @if (this.loosePhotoYears().get(image.url); as year) {
-                @let isFavorite = this.favorites.isPhotoFavorite(year, image.name);
-                <!-- Only photos in no project can be favorited one by one; anywhere but the heart opens the photo -->
+              @if (this.source(image); as source) {
+                <!-- Where it's from, as photos of many projects sit together here; the alt text says it too -->
+                <p class="image-source" aria-hidden="true">{{ source }}</p>
+              }
+              @if (this.place(image); as place) {
+                @let isFavorite = this.favorites.hasPath(place.path);
+                <!-- Every photo, in a project or not; anywhere but the heart opens the photo -->
                 <button type="button" class="tile-heart" [class.favorited]="isFavorite" [attr.aria-pressed]="isFavorite"
-                  [attr.aria-label]="(isFavorite ? 'Remove ' : 'Add ') + this.altText(image) + (isFavorite ? ' from favorites' : ' to favorites')"
-                  (click)="this.toggleFavorite(year, image)"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                  [attr.aria-label]="(isFavorite ? 'Remove the photo ' : 'Add the photo ') + this.altText(image) + (isFavorite ? ' from favorites' : ' to favorites')"
+                  (click)="this.toggleFavorite(place)"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
               }
               </div>
             }
           </div>
+        }
         </div>
       </div>
     }
@@ -46,11 +57,11 @@
       <div class="single-view">
         <div class="sticky-header">
           <button type="button" (click)="this.backClick()" class="back-button">Back</button>
-          @if (this.looseYear(); as year) {
-            @let isFavorite = this.favorites.isPhotoFavorite(year, image.name);
+          @if (this.currentPlace(); as place) {
+            @let isFavorite = this.favorites.hasPath(place.path);
             <button type="button" class="heart-button" [class.favorited]="isFavorite" [attr.aria-pressed]="isFavorite"
               [attr.aria-label]="(isFavorite ? 'Remove this photo' : 'Add this photo') + (isFavorite ? ' from favorites' : ' to favorites')"
-              (click)="this.toggleFavorite(year, image)">
+              (click)="this.toggleFavorite(place)">
               <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
             </button>
           }

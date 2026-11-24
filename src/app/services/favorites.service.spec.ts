@@ -32,11 +32,11 @@ describe('FavoritesService', () => {
     expect(favorites.isFavorite('2024', bench)).toBe(false);
   });
 
-  it('should group favorites by year, leaving out years with none and the All group', () => {
+  it('should group favorite projects by year, leaving out years with none and the All group', () => {
     const favorites = TestBed.inject(FavoritesService);
     favorites.toggle('2024', rattles);
 
-    expect(favorites.favoritesByYear(projectsByYear)).toEqual([{ year: '2024', projects: [rattles] }]);
+    expect(favorites.favoriteProjects(projectsByYear)).toEqual([{ year: '2024', projects: [rattles] }]);
   });
 
   it('should keep favorites across visits', () => {
@@ -52,7 +52,7 @@ describe('FavoritesService', () => {
 
     favorites.addAll(['/2023/lidded-box', '/2024/walnut-bench']);
 
-    expect(favorites.favoritesByYear(projectsByYear)).toEqual([
+    expect(favorites.favoriteProjects(projectsByYear)).toEqual([
       { year: '2024', projects: [bench] },
       { year: '2023', projects: [box] },
     ]);
@@ -68,16 +68,19 @@ describe('FavoritesService', () => {
       .toEqual('https://example.com/favorites?shared=2024/baby-rattles,2023/lidded-box');
   });
 
-  describe('loose photos', () => {
+  describe('photos', () => {
     const stamp = { name: 'stamp', desc: 'A stamp', url: '/images/2023/stamp.jpg', after: 'Lidded Box' };
     const odd = { name: 'odd, name+1', desc: '', url: '/images/2023/odd.jpg' };
+    const lid = { name: 'lid', desc: 'The lid', url: '/images/2023/lidded-box/lid.jpg' };
+    const base = { name: 'base, 2', desc: '', url: '/images/2023/lidded-box/base.jpg' };
+    const boxWithPhotos = { name: 'Lidded Box', images: [lid, base] };
     const withPhotos: ProjectsByYear[] = [
       { year: 'All', projects: [{ name: 'All', images: [] }] },
       { year: '2024', projects: [bench, rattles] },
-      { year: '2023', projects: [box], images: [stamp, odd] },
+      { year: '2023', projects: [boxWithPhotos], images: [stamp, odd] },
     ];
 
-    it('should toggle a photo on and off without touching projects', () => {
+    it('should toggle a loose photo on and off without touching projects', () => {
       const favorites = TestBed.inject(FavoritesService);
 
       favorites.togglePhoto('2023', 'stamp');
@@ -90,53 +93,78 @@ describe('FavoritesService', () => {
       expect(favorites.isPhotoFavorite('2023', 'stamp')).toBe(false);
     });
 
+    it('should favorite a photo inside a project apart from the project itself', () => {
+      const favorites = TestBed.inject(FavoritesService);
+
+      favorites.togglePhoto('2023', 'lid', 'Lidded Box');
+      expect(favorites.isPhotoFavorite('2023', 'lid', 'Lidded Box')).toBe(true);
+      expect(favorites.isPhotoFavorite('2023', 'lid')).toBe(false);
+      expect(favorites.isFavorite('2023', boxWithPhotos)).toBe(false);
+      expect(favorites.hasPath('/2023/lidded-box/photo/lid')).toBe(true);
+      expect(favorites.favoriteProjects(withPhotos)).toEqual([]);
+      expect(favorites.favoritePhotos(withPhotos).map(place => place.image)).toEqual([lid]);
+
+      favorites.togglePath('/2023/lidded-box/photo/lid');
+      expect(favorites.isPhotoFavorite('2023', 'lid', 'Lidded Box')).toBe(false);
+    });
+
     it('should store photos in the same list as projects', () => {
       const favorites = TestBed.inject(FavoritesService);
       favorites.toggle('2023', box);
       favorites.togglePhoto('2023', 'stamp');
+      favorites.togglePhoto('2023', 'lid', 'Lidded Box');
 
-      expect(JSON.parse(localStorage.getItem('favorite-projects')!)).toEqual(['/2023/lidded-box', '/2023/photo/stamp']);
+      expect(JSON.parse(localStorage.getItem('favorite-projects')!))
+        .toEqual(['/2023/lidded-box', '/2023/photo/stamp', '/2023/lidded-box/photo/lid']);
       TestBed.resetTestingModule();
       expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'stamp')).toBe(true);
+      expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'lid', 'Lidded Box')).toBe(true);
     });
 
-    it('should read old project only data as before', () => {
-      localStorage.setItem('favorite-projects', JSON.stringify(['/2024/walnut-bench', '/2023/lidded-box']));
+    it('should read old project and loose photo data as before', () => {
+      localStorage.setItem('favorite-projects', JSON.stringify(['/2024/walnut-bench', '/2023/lidded-box', '/2023/photo/stamp']));
       const favorites = TestBed.inject(FavoritesService);
 
-      expect(favorites.favoritesByYear(withPhotos)).toEqual([
+      expect(favorites.favoriteProjects(withPhotos)).toEqual([
         { year: '2024', projects: [bench] },
-        { year: '2023', projects: [box] },
+        { year: '2023', projects: [boxWithPhotos] },
       ]);
-      favorites.togglePhoto('2023', 'stamp');
-      expect(favorites.isFavorite('2024', bench)).toBe(true);
+      expect(favorites.favoritePhotos(withPhotos)).toEqual([
+        { year: '2023', project: null, path: '/2023/photo/stamp', image: stamp },
+      ]);
+      // A favorited project doesn't make its photos favorites one by one
+      expect(favorites.isPhotoFavorite('2023', 'lid', 'Lidded Box')).toBe(false);
     });
 
-    it('should group favorited photos under their year beside its projects', () => {
+    it('should list favorite photos in home page order, keeping projects apart', () => {
       const favorites = TestBed.inject(FavoritesService);
       favorites.togglePhoto('2023', 'stamp');
+      favorites.togglePhoto('2023', 'lid', 'Lidded Box');
+      favorites.toggle('2024', bench);
 
-      expect(favorites.favoritesByYear(withPhotos)).toEqual([{ year: '2023', projects: [], images: [stamp] }]);
-
-      favorites.toggle('2023', box);
-      expect(favorites.favoritesByYear(withPhotos)).toEqual([{ year: '2023', projects: [box], images: [stamp] }]);
+      expect(favorites.favoriteProjects(withPhotos)).toEqual([{ year: '2024', projects: [bench] }]);
+      // stamp is placed after Lidded Box, so the box's lid comes first
+      expect(favorites.favoritePhotos(withPhotos).map(place => [place.project, place.image.name]))
+        .toEqual([['Lidded Box', 'lid'], [null, 'stamp']]);
     });
 
     it('should leave out a favorited photo that no longer exists', () => {
       const favorites = TestBed.inject(FavoritesService);
-      favorites.addAll(['/2023/photo/gone', '/2023/photo/stamp']);
+      favorites.addAll(['/2023/photo/gone', '/2023/photo/stamp', '/2023/lidded-box/photo/gone']);
 
-      expect(favorites.favoritesByYear(withPhotos)).toEqual([{ year: '2023', projects: [], images: [stamp] }]);
+      expect(favorites.favoritePhotos(withPhotos).map(place => place.image)).toEqual([stamp]);
       expect(favorites.shareUrl('https://example.com', withPhotos))
         .toEqual('https://example.com/favorites?shared=2023/photo/stamp');
     });
 
-    it('should round trip photos and projects through a share link', () => {
+    it('should round trip both kinds through a share link', () => {
       const favorites = TestBed.inject(FavoritesService);
       favorites.toggle('2024', bench);
       favorites.togglePhoto('2023', 'stamp');
       favorites.togglePhoto('2023', odd.name);
-      const expected = favorites.favoritesByYear(withPhotos);
+      favorites.togglePhoto('2023', base.name, 'Lidded Box');
+      const projects = favorites.favoriteProjects(withPhotos);
+      const photos = favorites.favoritePhotos(withPhotos);
 
       const url = new URL(favorites.shareUrl('https://example.com', withPhotos));
       localStorage.removeItem('favorite-projects');
@@ -144,14 +172,16 @@ describe('FavoritesService', () => {
       const other = TestBed.inject(FavoritesService);
       other.addAll(parseSharedFavorites(url.searchParams.get(URL_PARAM_SHARED)));
 
-      expect(other.favoritesByYear(withPhotos)).toEqual(expected);
+      expect(other.favoriteProjects(withPhotos)).toEqual(projects);
+      expect(other.favoritePhotos(withPhotos)).toEqual(photos);
       expect(other.isPhotoFavorite('2023', odd.name)).toBe(true);
+      expect(other.isPhotoFavorite('2023', base.name, 'Lidded Box')).toBe(true);
     });
   });
 
   it('should start empty when storage holds something unreadable', () => {
     localStorage.setItem('favorite-projects', '{not json');
 
-    expect(TestBed.inject(FavoritesService).favoritesByYear(projectsByYear)).toEqual([]);
+    expect(TestBed.inject(FavoritesService).favoriteProjects(projectsByYear)).toEqual([]);
   });
 });

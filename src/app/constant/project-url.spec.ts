@@ -1,5 +1,5 @@
 import { ALL, FAVORITES } from './constants';
-import { adjacentLinks, homeSequence, isStatsPath, SequenceLink, legacyProjectPath, parseProjectPath, parseSharedFavorites, pathsInGroups, photoPath, projectPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
+import { adjacentLinks, existingFavoritePaths, favoritePhotoPath, favoriteProjectsAtPaths, homeSequence, isPhotoFavoritePath, isStatsPath, SequenceLink, legacyProjectPath, parseProjectPath, parseSharedFavorites, pathsInGroups, photoPath, photoPlaces, photosAtPaths, projectPath, projectPhotoPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
 import { ProjectsByYear } from '../type/project.type';
 
 describe('project-url', () => {
@@ -105,6 +105,68 @@ describe('project-url', () => {
     expect(pathsInGroups(found)).toEqual(['/2023/photo/stamp']);
     expect(pathsInGroups(projectsAtPaths(groups, new Set(['/2023/photo/other', '/2023/lidded-box']))))
       .toEqual(['/2023/lidded-box', '/2023/photo/other']);
+  });
+
+  describe('photos inside a project', () => {
+    const lid = { name: 'lid', desc: '', url: '/images/2023/lidded-box/lid.jpg' };
+    const base = { name: 'base', desc: '', url: '/images/2023/lidded-box/base.jpg' };
+    const box = { name: 'Lidded Box', images: [lid, base] };
+    const stamp = { name: 'stamp', desc: '', url: '/images/2023/stamp.jpg' };
+    const groups: ProjectsByYear[] = [
+      { year: ALL, projects: [{ name: ALL, images: [] }] },
+      { year: '2023', projects: [box], images: [stamp] },
+    ];
+
+    it('should key a project photo under its project, apart from the project and loose photos', () => {
+      expect(projectPhotoPath('2023', 'Lidded Box', 'lid')).toEqual('/2023/lidded-box/photo/lid');
+      expect(favoritePhotoPath('2023', 'lid', 'Lidded Box')).toEqual('/2023/lidded-box/photo/lid');
+      expect(favoritePhotoPath('2023', 'stamp')).toEqual('/2023/photo/stamp');
+      expect(parseProjectPath('/2023/lidded-box/photo/lid')).toBeNull();
+      expect(isPhotoFavoritePath('/2023/lidded-box/photo/lid')).toBe(true);
+      expect(isPhotoFavoritePath('/2023/photo/stamp')).toBe(true);
+      expect(isPhotoFavoritePath('/2023/lidded-box')).toBe(false);
+      expect(isPhotoFavoritePath('/2023/photo')).toBe(false);
+    });
+
+    it('should resolve project photo paths to the right photo', () => {
+      const found = photosAtPaths(groups, new Set(['/2023/lidded-box/photo/base', '/2023/photo/lid', '/2023/other/photo/lid']));
+
+      expect(found).toEqual([{ year: '2023', project: 'Lidded Box', path: '/2023/lidded-box/photo/base', image: base }]);
+      expect(photoPlaces(groups).get(lid.url)).toEqual({ year: '2023', project: 'Lidded Box', path: '/2023/lidded-box/photo/lid', image: lid });
+      expect(photoPlaces(groups).get(stamp.url)).toEqual({ year: '2023', project: null, path: '/2023/photo/stamp', image: stamp });
+    });
+
+    it('should keep old project and loose photo paths meaning what they did', () => {
+      const old = new Set(['/2023/lidded-box', '/2023/photo/stamp']);
+
+      expect(favoriteProjectsAtPaths(groups, old)).toEqual([{ year: '2023', projects: [box] }]);
+      expect(photosAtPaths(groups, old).map(place => place.image)).toEqual([stamp]);
+      expect(projectsAtPaths(groups, old)).toEqual([{ year: '2023', projects: [box], images: [stamp] }]);
+      expect(parseSharedFavorites('2023/lidded-box,2023/photo/stamp')).toEqual(['/2023/lidded-box', '/2023/photo/stamp']);
+    });
+
+    it('should read a project slugged photo as a project, and its photos as its own', () => {
+      const photoProject = { name: 'Photo', images: [lid] };
+      const odd: ProjectsByYear[] = [{ year: '2023', projects: [photoProject], images: [] }];
+
+      expect(parseSharedFavorites('2023/photo,2023/photo/photo/lid')).toEqual(['/2023/photo', '/2023/photo/photo/lid']);
+      expect(photosAtPaths(odd, new Set(['/2023/photo/photo/lid']))[0].project).toEqual('Photo');
+    });
+
+    it('should round trip project photos through a share link, odd names included', () => {
+      const paths = ['/2023/lidded-box', '/2023/photo/a, b', '/2023/lidded-box/photo/c,d+e f'];
+      const param = sharedFavoritesParam(paths);
+      const decoded = new URLSearchParams(`shared=${param}`).get('shared');
+
+      expect(param.split(',')).toHaveLength(3);
+      expect(parseSharedFavorites(decoded)).toEqual(paths);
+      expect(parseSharedFavorites('2023/lidded-box/photo/%E0%A4%A,2023/lidded-box/photo/ok')).toEqual(['/2023/lidded-box/photo/ok']);
+    });
+
+    it('should list only existing favorites, projects then photos', () => {
+      expect(existingFavoritePaths(groups, new Set(['/2023/photo/stamp', '/2023/lidded-box/photo/lid', '/2023/lidded-box', '/2023/gone/photo/x'])))
+        .toEqual(['/2023/lidded-box', '/2023/photo/stamp', '/2023/lidded-box/photo/lid']); // stamp has no after, so it leads its year
+    });
   });
 
   it('should slug names to lowercase ascii with hyphens', () => {

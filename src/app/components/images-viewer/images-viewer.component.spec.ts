@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideLocationMocks } from '@angular/common/testing';
 import { Location } from '@angular/common';
 import { ImagesViewerComponent } from './images-viewer.component';
-import { Image } from '../../type/project.type';
+import { Image, PhotoPlace } from '../../type/project.type';
 import { FavoritesService } from '../../services/favorites.service';
 
 function makeImages(count: number): Image[] {
@@ -68,16 +68,30 @@ describe('ImagesViewerComponent', () => {
     expect((fixture.nativeElement.querySelector('.image-plus-desc img') as HTMLImageElement).getAttribute('width')).toEqual('123');
   });
 
-  describe('favoriting a photo in no project', () => {
+  describe('favoriting photos', () => {
     beforeEach(() => localStorage.removeItem('favorite-projects'));
     afterEach(() => localStorage.removeItem('favorite-projects'));
 
-    function openFirst() {
+    // img-0 is a loose photo of 2023, img-1 belongs to the project 'Lidded Box'
+    function places(images: Image[]): Map<string, PhotoPlace> {
+      return new Map([
+        [images[0].url, { year: '2023', project: null, path: '/2023/photo/img-0', image: images[0] }],
+        [images[1].url, { year: '2023', project: 'Lidded Box', path: '/2023/lidded-box/photo/img-1', image: images[1] }],
+      ]);
+    }
+
+    function render(projectName = '') {
       const fixture = TestBed.createComponent(ImagesViewerComponent);
       const images = makeImages(2);
       fixture.componentRef.setInput('images', images);
-      fixture.componentRef.setInput('loosePhotoYears', new Map([[images[0].url, '2023']]));
+      fixture.componentRef.setInput('projectName', projectName);
+      fixture.componentRef.setInput('photoPlaces', places(images));
       fixture.detectChanges();
+      return fixture;
+    }
+
+    function openFirst() {
+      const fixture = render();
       (fixture.nativeElement.querySelector('.image-item img') as HTMLElement).click();
       fixture.detectChanges();
       return fixture;
@@ -100,29 +114,89 @@ describe('ImagesViewerComponent', () => {
       expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'img-0')).toBe(false);
     });
 
-    it('should put a heart on grid tiles of photos in no project only, toggling without opening', () => {
-      const fixture = TestBed.createComponent(ImagesViewerComponent);
-      const images = makeImages(2);
-      fixture.componentRef.setInput('images', images);
-      fixture.componentRef.setInput('loosePhotoYears', new Map([[images[0].url, '2023']]));
-      fixture.detectChanges();
+    it('should put a heart on every grid tile, toggling without opening', () => {
+      const fixture = render();
       const cells = Array.from(fixture.nativeElement.querySelectorAll('.image-cell')) as HTMLElement[];
 
-      expect(cells.map(cell => !!cell.querySelector('.tile-heart'))).toEqual([true, false]);
+      expect(cells.map(cell => !!cell.querySelector('.tile-heart'))).toEqual([true, true]);
       (cells[0].querySelector('.tile-heart') as HTMLButtonElement).click();
+      (cells[1].querySelector('.tile-heart') as HTMLButtonElement).click();
       fixture.detectChanges();
 
-      expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'img-0')).toBe(true);
+      const favorites = TestBed.inject(FavoritesService);
+      expect(favorites.isPhotoFavorite('2023', 'img-0')).toBe(true);
+      expect(favorites.isPhotoFavorite('2023', 'img-1', 'Lidded Box')).toBe(true);
+      expect(favorites.isFavorite('2023', { name: 'Lidded Box', images: [] })).toBe(false);
       expect(fixture.nativeElement.querySelector('.single-view')).toBeNull();
+      expect(cells[1].querySelector('.tile-heart')?.getAttribute('aria-label'))
+        .toEqual(`Remove the photo Photo 1, from Lidded Box from favorites`);
     });
 
-    it('should show no heart for a photo that belongs to a project', () => {
+    it('should give a project photo its own heart in the single view', () => {
       const fixture = openFirst();
 
       (fixture.nativeElement.querySelector('.right-arrow') as HTMLElement).click();
       fixture.detectChanges();
+      (fixture.nativeElement.querySelector('.single-view .heart-button') as HTMLButtonElement).click();
+      fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('.heart-button')).toBeNull();
+      expect(TestBed.inject(FavoritesService).hasPath('/2023/lidded-box/photo/img-1')).toBe(true);
+      expect(TestBed.inject(FavoritesService).isPhotoFavorite('2023', 'img-0')).toBe(false);
+    });
+
+    it('should show no heart for a photo the gallery does not list', () => {
+      const fixture = TestBed.createComponent(ImagesViewerComponent);
+      fixture.componentRef.setInput('images', makeImages(1));
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.tile-heart')).toBeNull();
+    });
+  });
+
+  describe('where a photo is from', () => {
+    function render(projectName: string, sections?: Map<Image, string>) {
+      const fixture = TestBed.createComponent(ImagesViewerComponent);
+      // As a mixed view shows them: the description carries the source, the place keeps the project list's own photo
+      const own = [
+        { name: 'a', desc: 'Glue up', url: 'https://example.com/a.jpg' },
+        { name: 'b', desc: '', url: 'https://example.com/b.jpg' },
+      ];
+      const shown = [{ ...own[0], desc: '(2026 - Oak Bench) - Glue up' }, { ...own[1], desc: '(2026)' }];
+      fixture.componentRef.setInput('images', shown);
+      fixture.componentRef.setInput('projectName', projectName);
+      fixture.componentRef.setInput('photoPlaces', new Map([
+        [own[0].url, { year: '2026', project: 'Oak Bench', path: '/2026/oak-bench/photo/a', image: own[0] }],
+        [own[1].url, { year: '2026', project: null, path: '/2026/photo/b', image: own[1] }],
+      ]));
+      if (sections) {
+        fixture.componentRef.setInput('sections', new Map([[shown[0], 'Projects'], [shown[1], 'Photos']]));
+      }
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('should name the project under a tile in a mixed view, and nothing for a loose photo', () => {
+      const element = render('').nativeElement as HTMLElement;
+      const cells = Array.from(element.querySelectorAll('.image-cell'));
+
+      expect(cells.map(cell => cell.querySelector('.image-source')?.textContent?.trim() ?? null)).toEqual(['Oak Bench', null]);
+      expect(cells[0].querySelector('img')?.getAttribute('alt')).toEqual('Glue up, from Oak Bench');
+    });
+
+    it('should not repeat the project on its own page', () => {
+      const element = render('Oak Bench').nativeElement as HTMLElement;
+
+      expect(element.querySelector('.image-source')).toBeNull();
+    });
+
+    it('should split the grid under section headings, keeping one index across them', () => {
+      const fixture = render('', new Map());
+      const element = fixture.nativeElement as HTMLElement;
+
+      expect(Array.from(element.querySelectorAll('.grid-section')).map(heading => heading.textContent?.trim())).toEqual(['Projects', 'Photos']);
+      (element.querySelectorAll('.image-item img')[1] as HTMLElement).click();
+      fixture.detectChanges();
+      expect(element.querySelector('.progress-info')?.textContent?.trim()).toEqual('2/2');
     });
   });
 

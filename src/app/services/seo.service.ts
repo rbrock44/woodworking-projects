@@ -88,7 +88,7 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
     return {
       path: projectPath(FAVORITES),
       title: `Favorite Projects - ${SITE_TITLE}`,
-      description: 'The woodworking projects you have favorited.',
+      description: 'The woodworking projects and photos you have favorited.',
       noindex: true,
       image: coverImage(newestProject(projectsByYear)),
     };

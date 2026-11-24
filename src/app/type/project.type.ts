@@ -30,3 +30,14 @@ export interface Projects {
   projectsByYear: ProjectsByYear[];
 }
 
+
+/** Where a photo lives: its year, its project (null for a photo in no project) and its favorites key. */
+export interface PhotoPlace {
+  year: string;
+  /** The project's name, or null for a photo that belongs to the year only. */
+  project: string | null;
+  /** `/<year>/<slug>/photo/<name>` in a project, `/<year>/photo/<name>` in none. */
+  path: string;
+  /** The photo as the project list has it, before a mixed view relabels its description. */
+  image: Image;
+}

@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { Image, Project, ProjectsByYear } from '../../type/project.type';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Image, PhotoPlace, Project, ProjectsByYear } from '../../type/project.type';
 import { FavoritesService } from '../../services/favorites.service';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { createThumbnailImageUrl, looseImages, projectThumbnailUrl, YearEntry, yearEntries } from '../../constant/constants';
@@ -18,7 +18,10 @@ import { createThumbnailImageUrl, looseImages, projectThumbnailUrl, YearEntry, y
 })
 export class ProjectListComponent {
   readonly projectsByYear = input<ProjectsByYear[]>([]);
-  readonly favoritesByYear = input<ProjectsByYear[]>([]);
+  /** Favorited whole projects by year, already narrowed by the search. */
+  readonly favoriteProjects = input<ProjectsByYear[]>([]);
+  /** Favorited single photos, in projects or not, already narrowed by the search. */
+  readonly favoritePhotos = input<PhotoPlace[]>([]);
   readonly favoriteCount = input(0);
   readonly showFavorites = input(true);
   readonly searchTerm = input('');
@@ -29,11 +32,26 @@ export class ProjectListComponent {
   readonly searchChange = output<string>();
   readonly projectSelect = output<{ project: Project; year: string }>();
   readonly yearSelect = output<string>();
-  readonly photoSelect = output<{ year: string; image: string }>();
+  /** A photo to open: in its year when `project` is missing, else in that project. */
+  readonly photoSelect = output<{ year: string; image: string; project?: string | null }>();
   readonly favoritesSelect = output<void>();
   readonly favoritesShare = output<void>();
 
   readonly favorites = inject(FavoritesService);
+
+  /** The favorited photos as one thumbnail row per year, newest first like the rest of the list. */
+  readonly favoritePhotoRows = computed(() => {
+    const rows: { year: string; photos: PhotoPlace[] }[] = [];
+    this.favoritePhotos().forEach(place => {
+      const last = rows.at(-1);
+      if (last && last.year === place.year) {
+        last.photos.push(place);
+      } else {
+        rows.push({ year: place.year, photos: [place] });
+      }
+    });
+    return rows;
+  });
 
   looseCount(group: ProjectsByYear): number {
     return looseImages(group).length;
@@ -50,6 +68,15 @@ export class ProjectListComponent {
 
   photoLabel(photo: Image, year: string): string {
     return photo.desc.trim() !== '' ? photo.desc : `Photo from ${year}`;
+  }
+
+  /** A favorited photo's name, saying which project it's from when it's in one: 'Walnut lid, from Lidded Box'. */
+  placeLabel(place: PhotoPlace): string {
+    if (!place.project) {
+      return this.photoLabel(place.image, place.year);
+    }
+    const own = place.image.desc.trim();
+    return own ? `${own}, from ${place.project}` : `Photo from ${place.project}, ${place.year}`;
   }
 
   thumbnail(project: Project): string | null {

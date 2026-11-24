@@ -1,4 +1,4 @@
-import { countProjects, yearEntries, createMidsizeImageUrl, extractImagesByYear, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, photoLabel, projectCover, projectMonthRange, projectThumbnailUrl, scrollPageToTop, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
+import { countProjects, yearEntries, createMidsizeImageUrl, extractImagesByYear, filterImagesBySearch, filterPhotoPlacesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, photoLabel, projectCover, projectMonthRange, projectThumbnailUrl, scrollPageToTop, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -317,5 +317,16 @@ describe('scrollPageToTop', () => {
     scrollPageToTop();
 
     expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('should narrow favorited photos by year, project or description', () => {
+    const lid = { year: '2023', project: 'Lidded Box', path: '/2023/lidded-box/photo/lid', image: { name: 'lid', desc: 'Walnut lid', url: '/l.jpg' } };
+    const stamp = { year: '2024', project: null, path: '/2024/photo/stamp', image: { name: 'stamp', desc: 'A stamp', url: '/s.jpg' } };
+
+    expect(filterPhotoPlacesBySearch([lid, stamp], '')).toEqual([lid, stamp]);
+    expect(filterPhotoPlacesBySearch([lid, stamp], 'box')).toEqual([lid]);
+    expect(filterPhotoPlacesBySearch([lid, stamp], 'walnut 2023')).toEqual([lid]);
+    expect(filterPhotoPlacesBySearch([lid, stamp], 'stamp 2024')).toEqual([stamp]);
+    expect(filterPhotoPlacesBySearch([lid, stamp], 'nothing')).toEqual([]);
   });
 });
