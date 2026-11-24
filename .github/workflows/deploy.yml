@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+  # Tested and built before it gets to master; only a push to master deploys
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build-deploy:
@@ -29,6 +33,7 @@ jobs:
       run: npm run deploy
 
     - name: Deploy to GitHub Pages
+      if: github.event_name == 'push'
       uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}

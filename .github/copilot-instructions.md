@@ -13,7 +13,8 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   writes `sitemap.xml`, copies `index.csr.html` to `404.html`, drops `prerendered-routes.json` and puts a
   Content-Security-Policy meta tag in every page (GitHub Pages can't send headers; inline scripts allowed by hash,
   photos only from `raw.githubusercontent.com`; a new outside origin has to be added there). Output in `dist/woodworking-projects/`
-- Deploy: CI only, `.github/workflows/deploy.yml` on push to `master` (tests, build, `peaceiris/actions-gh-pages`)
+- Deploy: CI only, `.github/workflows/deploy.yml` on push to `master` (tests, build, `peaceiris/actions-gh-pages`).
+  Pull requests into `master` run the same tests and build but skip the deploy step
 
 ## Data
 
