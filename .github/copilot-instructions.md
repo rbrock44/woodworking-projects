@@ -110,3 +110,6 @@ command palette, favorites, stats, SEO, prerendering). Keep them close:
   rather than string literals
 - Templates reference members through `this.` (`this.selectedProject`)
 - Specs sit next to their source as `*.spec.ts`
+- Fonts are self-hosted from fontsource packages (Fraunces and Work Sans variable, IBM Plex Mono 400/500), listed in
+  `angular.json`'s `styles` and bundled into `media/`; no Google Fonts, so the content policy allows only `'self'` for
+  fonts and styles

@@ -43,7 +43,7 @@ rmSync(join(dist, 'prerendered-routes.json'));
 
 // GitHub Pages can't send security headers, so every page carries its content policy in a meta tag: only this
 // site's own scripts plus the build's inline ones (allowed by hash, so a script slipped into a page can't run),
-// fonts from Google Fonts, photos from the images repo, and no plugins. (Framing protection and HSTS need real
+// fonts and styles from the site itself, photos from the images repo, and no plugins. (Framing protection and HSTS need real
 // headers, which a meta tag can't give.)
 const htmlFiles = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry =>
   entry.isDirectory() ? htmlFiles(join(dir, entry.name)) : entry.name.endsWith('.html') ? [join(dir, entry.name)] : []);
@@ -61,8 +61,8 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' ${[...scriptHashes].sort().join(' ')}`.trim(),
   // Angular and the critical-CSS step write style attributes and <style> blocks, so inline styles stay allowed
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data: https://raw.githubusercontent.com",
   "connect-src 'self'",
   "base-uri 'self'",
