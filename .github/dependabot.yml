@@ -5,6 +5,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Angular names the TypeScript it supports, so a new major waits for the Angular release that takes it
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       # Angular's packages move together, so one pull request per release
       angular:
