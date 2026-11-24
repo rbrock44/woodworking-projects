@@ -61,6 +61,8 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     return runs;
   });
   private popStateSubscription?: SubscriptionLike;
+  /** The pending scroll back to a grid photo, cleared when the viewer goes. */
+  private scrollTimer?: ReturnType<typeof setTimeout>;
   private readonly swipe = new SwipeTracker();
   /** Held so the requests aren't dropped; the browser cache serves them when the photo is shown. */
   private readonly preloaded = new Map<string, HTMLImageElement>();
@@ -117,6 +119,8 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.popStateSubscription?.unsubscribe();
+    // A view torn down before its grid scrolled back to the photo has nothing left to scroll
+    clearTimeout(this.scrollTimer);
   }
 
   private restoreFromHistory(): void {
@@ -168,14 +172,13 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     if (indexParam !== null && indexParam !== '') {
       const index = parseInt(indexParam, 10);
 
-      setTimeout(() => {
-        const images = document.querySelectorAll(CSS_SELECTOR_IMAGES);
-        if (images[index]) {
-          images[index].scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
-        }
+      clearTimeout(this.scrollTimer);
+      this.scrollTimer = setTimeout(() => {
+        // jsdom (the specs) has no scrollIntoView
+        document.querySelectorAll(CSS_SELECTOR_IMAGES)[index]?.scrollIntoView?.({
+          behavior: 'smooth',
+          block: 'center'
+        });
       }, 100);
     }
   }

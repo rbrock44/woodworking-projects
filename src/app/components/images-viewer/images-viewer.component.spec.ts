@@ -33,6 +33,46 @@ describe('ImagesViewerComponent', () => {
     }).compileComponents();
   });
 
+  describe('scrolling back to the grid photo', () => {
+    // The scroll waits 100ms for the grid to render; a spec (or a view) can end first, and jsdom has no scrollIntoView
+    it('should scroll to the photo when there is a way to, and do nothing otherwise', async () => {
+      const fixture = TestBed.createComponent(ImagesViewerComponent);
+      fixture.componentRef.setInput('images', makeImages(3));
+      fixture.detectChanges();
+      const scrolled: Element[] = [];
+      const element = fixture.nativeElement as HTMLElement;
+      const second = element.querySelectorAll('.image-item img')[1] as HTMLElement & { scrollIntoView?: unknown };
+      second.scrollIntoView = function (this: Element) { scrolled.push(this); };
+
+      fixture.componentInstance.checkForIndex('1');
+      fixture.componentInstance.checkForIndex('0');
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      // Only the last request counts, and the first photo has no scrollIntoView here: nothing thrown, nothing scrolled
+      expect(scrolled).toEqual([]);
+      fixture.componentInstance.checkForIndex('1');
+      await new Promise(resolve => setTimeout(resolve, 150));
+      expect(scrolled).toEqual([second]);
+    });
+
+    it('should drop a pending scroll when the viewer is destroyed', async () => {
+      const fixture = TestBed.createComponent(ImagesViewerComponent);
+      fixture.componentRef.setInput('images', makeImages(2));
+      fixture.detectChanges();
+      const scrolled: Element[] = [];
+      Element.prototype.scrollIntoView = function (this: Element) { scrolled.push(this); };
+
+      try {
+        fixture.componentInstance.checkForIndex('0');
+        fixture.destroy();
+        await new Promise(resolve => setTimeout(resolve, 150));
+        expect(scrolled).toEqual([]);
+      } finally {
+        delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+      }
+    });
+  });
+
   it('should report the photo the single view shows, and null for the grid', () => {
     const fixture = TestBed.createComponent(ImagesViewerComponent);
     const images = makeImages(2);
