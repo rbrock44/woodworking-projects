@@ -51,8 +51,12 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 
 ## Architecture
 
-- `AppComponent` owns all view state (selected year/project, search, favorites) and picks the view from the URL.
-  The routes in `app.routes.ts` only decide which URLs are valid; view changes move the URL with `Location`, not the router
+- `GalleryService` holds the gallery as loaded (`data`, `dataLoaded`, `load`), the home search and everything that
+  follows from them: filtered years, counts, favorites lists, each photo's place. It knows nothing of the open view or
+  the URL
+- `AppComponent` owns the view state (selected year/project, stats, the shown photo, share prompt) and picks the view
+  from the URL; it exposes `GalleryService`'s signals under the same names for its template.
+The routes in `app.routes.ts` only decide which URLs are valid; view changes move the URL with `Location`, not the router
 - Previous/next links (`.project-nav` under the viewer): `homeSequence` in `constant/project-url.ts` flattens
   `yearEntries` newest year first into one list of projects and loose photos (a photo per step), and `adjacentLinks`
   finds the neighbours of a project or loose photo. They show on a project page and on a loose photo's single view in

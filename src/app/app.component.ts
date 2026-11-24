@@ -14,8 +14,9 @@ import {SharedPromptComponent} from "./components/shared-prompt/shared-prompt.co
 import {CommandPaletteService, PALETTE_LABEL} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_SHARED, URL_PARAM_YEAR, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
-import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoPlaces, photoUrl, photosAtPaths, projectPath, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
+import {GalleryService} from "./services/gallery.service";
+import { ALL, FAVORITES, URL_PARAM_SHARED, URL_PARAM_YEAR, createImageForAll, extractImagesByYear, looseImages, projectMonthRange, scrollPageToTop } from './constant/constants';
+import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoUrl, photosAtPaths, projectPath, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -38,10 +39,7 @@ export class AppComponent implements OnInit {
   title = 'woodworking-projects';
   readonly selectedProject = signal<Project | undefined>(undefined);
   readonly selectedYear = signal('');
-  readonly data = signal<Projects>({ projectsByYear: [] });
   readonly isImageEnlarged = signal(false);
-  readonly searchTerm = signal('');
-  readonly dataLoaded = signal(false);
   readonly showStats = signal(false);
   readonly palette = inject(CommandPaletteService);
   readonly paletteLabel = PALETTE_LABEL;
@@ -52,24 +50,23 @@ export class AppComponent implements OnInit {
   private readonly transferState = inject(TransferState);
   private readonly projectList = inject(PROJECT_LIST, { optional: true });
 
-  readonly filteredProjectsByYear = computed(() => filterProjectsBySearch(this.data().projectsByYear, this.searchTerm()));
-  // The synthetic 'All' group is a shortcut, not a project, so it stays out of the count
-  readonly totalProjectCount = computed(() => countProjects(this.data().projectsByYear.filter(group => group.year !== ALL)));
-  readonly matchingProjectCount = computed(() => countProjects(this.filteredProjectsByYear()));
-  // Two kinds: whole projects, and single photos whether in a project or not
-  private readonly favoriteProjects = computed(() => this.favorites.favoriteProjects(this.data().projectsByYear));
-  private readonly favoritePhotos = computed(() => this.favorites.favoritePhotos(this.data().projectsByYear));
-  readonly filteredFavoriteProjects = computed(() => filterProjectsBySearch(this.favoriteProjects(), this.searchTerm()));
-  readonly filteredFavoritePhotos = computed(() => filterPhotoPlacesBySearch(this.favoritePhotos(), this.searchTerm()));
-  readonly favoriteCount = computed(() => countProjects(this.favoriteProjects()) + this.favoritePhotos().length);
-  /** Every photo's year, project and favorites key by its url, so any grid tile or single view can heart it. */
-  readonly placesByUrl = computed(() => photoPlaces(this.data().projectsByYear));
+  // The gallery and what follows from it live in GalleryService; the view and template read them through here
+  private readonly gallery = inject(GalleryService);
+  readonly data = this.gallery.data;
+  readonly dataLoaded = this.gallery.dataLoaded;
+  readonly searchTerm = this.gallery.searchTerm;
+  readonly filteredProjectsByYear = this.gallery.filteredProjectsByYear;
+  readonly totalProjectCount = this.gallery.totalProjectCount;
+  readonly matchingProjectCount = this.gallery.matchingProjectCount;
+  readonly filteredFavoriteProjects = this.gallery.filteredFavoriteProjects;
+  readonly filteredFavoritePhotos = this.gallery.filteredFavoritePhotos;
+  readonly favoriteCount = this.gallery.favoriteCount;
+  readonly showFavorites = this.gallery.showFavorites;
+  readonly placesByUrl = this.gallery.placesByUrl;
+  readonly loosePhotoYears = this.gallery.loosePhotoYears;
+
   /** Section headings for the Favorites grid's pictures, empty for every other view. */
   readonly selectedSections = signal<ReadonlyMap<Image, string>>(new Map());
-  /** Each loose photo's year by its url, so previous/next can follow a loose photo shown on its own. */
-  readonly loosePhotoYears = computed(() => new Map(this.data().projectsByYear
-    .filter(group => isYearSegment(group.year))
-    .flatMap(group => looseImages(group).map(image => [image.url, group.year] as const))));
   // Paths from a share link being viewed; the prompt to add them shows while there are any
   readonly sharedPaths = signal<string[]>([]);
   readonly sharedNewCount = computed(() => this.sharedPaths().filter(path => !this.favorites.hasPath(path)).length);
@@ -117,10 +114,6 @@ export class AppComponent implements OnInit {
       : null;
   });
 
-  // Hidden while searching unless a favorite matches; otherwise always there so the empty hint can show
-  readonly showFavorites = computed(() => this.filteredFavoriteProjects().length > 0
-    || this.filteredFavoritePhotos().length > 0 || this.searchTerm().trim() === '');
-
   constructor(private location: Location) {
     // A new view starts at the top, as it does in the card's own scroller on wide screens
     effect(() => {
@@ -145,8 +138,7 @@ export class AppComponent implements OnInit {
     if (!this.isBrowser) {
       if (this.projectList) {
         this.transferState.set(PROJECTS_STATE_KEY, this.projectList);
-        this.data.set(prepareProjects(this.projectList));
-        this.dataLoaded.set(true);
+        this.gallery.load(prepareProjects(this.projectList));
         this.selectFromPath(this.location.path());
       }
       return;
@@ -186,8 +178,7 @@ export class AppComponent implements OnInit {
   }
 
   private start(projects: Projects): void {
-    this.data.set(projects);
-    this.dataLoaded.set(true);
+    this.gallery.load(projects);
     this.selectFromPath(this.location.path());
 
     // Slot a home entry in underneath a deep link so browser/mouse back lands on home.
