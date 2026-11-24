@@ -1,0 +1,28 @@
+# Weekly update pull requests. deploy.yml tests and builds them (without deploying) before they can reach master.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # Angular's packages move together, so one pull request per release
+      angular:
+        patterns:
+          - "@angular/*"
+          - "@angular-devkit/*"
+          - "typescript"
+      fonts:
+        patterns:
+          - "@fontsource/*"
+          - "@fontsource-variable/*"
+      test:
+        patterns:
+          - "vitest"
+          - "jsdom"
+
+  # Updates the commit SHAs the workflows pin their actions to
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

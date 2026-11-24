@@ -15,6 +15,8 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   photos only from `raw.githubusercontent.com`; a new outside origin has to be added there). Output in `dist/woodworking-projects/`
 - Deploy: CI only, `.github/workflows/deploy.yml` on push to `master` (tests, build, `peaceiris/actions-gh-pages`).
   Pull requests into `master` run the same tests and build but skip the deploy step
+- `.github/dependabot.yml` opens weekly update pull requests for npm (Angular, fonts and test packages grouped) and
+  for the pinned action SHAs; `deploy.yml` tests them
 
 ## Data
 
