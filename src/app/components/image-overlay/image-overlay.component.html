@@ -22,7 +22,8 @@
       (keydown.space)="$event.preventDefault(); $event.stopPropagation(); this.next.emit()"
       title="Next"></div>
 
-    <img [src]="this.imageSrc" [alt]="this.imageAlt" loading="lazy">
+    <!-- Asked for by a click, so it loads now and first; previous and next are preloaded by the viewer -->
+    <img [src]="this.imageSrc" [alt]="this.imageAlt" loading="eager" fetchpriority="high" decoding="async">
     <button #closeBtn class="close-btn" aria-label="Close image viewer" (click)="this.closeOverlay()">X</button>
   </div>
 </div>

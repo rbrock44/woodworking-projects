@@ -34,6 +34,16 @@ describe('ImageOverlayComponent', () => {
     expect(img.src).toContain('photo.jpg');
   });
 
+  it('should load the full size image right away, ahead of anything else', () => {
+    const fixture = TestBed.createComponent(ImageOverlayComponent);
+    fixture.componentInstance.imageSrc = 'photo.jpg';
+    fixture.detectChanges();
+
+    const img = fixture.nativeElement.querySelector('.image-overlay img') as HTMLImageElement;
+    expect(img.getAttribute('loading')).toEqual('eager');
+    expect(img.getAttribute('fetchpriority')).toEqual('high');
+  });
+
   it('should move focus to the close button on open', () => {
     const fixture = TestBed.createComponent(ImageOverlayComponent);
     fixture.detectChanges();
