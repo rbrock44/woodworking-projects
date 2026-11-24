@@ -1,0 +1,12 @@
+<div class="shared-prompt" role="dialog" aria-labelledby="shared-prompt-title">
+  <p id="shared-prompt-title" class="shared-prompt-title">
+    Someone shared {{ this.summary() }} with you
+  </p>
+  <p class="shared-prompt-text">
+    {{ this.newCount() }} {{ this.newCount() === 1 ? "isn't" : "aren't" }} in your favorites yet.
+  </p>
+  <div class="shared-prompt-actions">
+    <button type="button" class="shared-prompt-button" (click)="this.dismiss.emit()">Just view</button>
+    <button type="button" class="shared-prompt-button primary" (click)="this.add.emit()">Add to my favorites</button>
+  </div>
+</div>

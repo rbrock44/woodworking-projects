@@ -2,27 +2,32 @@ import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, 
 import {RouterOutlet, Router, NavigationEnd} from '@angular/router';
 import {Image, PhotoPlace, Project, Projects, ProjectsByYear} from "./type/project.type";
 import {getProjects, prepareProjects, PROJECTS_STATE_KEY} from "./services/project.service";
-import { isPlatformBrowser, Location, NgTemplateOutlet } from "@angular/common";
+import { isPlatformBrowser, Location } from "@angular/common";
 import { filter, firstValueFrom } from 'rxjs';
 import {ImagesViewerComponent} from "./components/images-viewer/images-viewer.component";
 import {ProjectListComponent} from "./components/project-list/project-list.component";
 import {CommandPaletteComponent} from "./components/command-palette/command-palette.component";
 import {StatsComponent} from "./components/stats/stats.component";
+import {ProjectMetaComponent} from "./components/project-meta/project-meta.component";
+import {ProjectNavComponent} from "./components/project-nav/project-nav.component";
+import {SharedPromptComponent} from "./components/shared-prompt/shared-prompt.component";
 import {CommandPaletteService, PALETTE_LABEL} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_SHARED, URL_PARAM_YEAR, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, photoLabel, projectMonthRange, scrollPageToTop } from './constant/constants';
-import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoPlaces, photoUrl, photosAtPaths, projectPath, SequenceLink, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
+import { ALL, FAVORITES, URL_PARAM_SHARED, URL_PARAM_YEAR, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, projectMonthRange, scrollPageToTop } from './constant/constants';
+import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoPlaces, photoUrl, photosAtPaths, projectPath, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
     imports: [
     RouterOutlet,
-    NgTemplateOutlet,
     ImagesViewerComponent,
     ProjectListComponent,
     CommandPaletteComponent,
-    StatsComponent
+    StatsComponent,
+    ProjectMetaComponent,
+    ProjectNavComponent,
+    SharedPromptComponent
 ],
     providers: [],
     templateUrl: './app.component.html',
@@ -385,20 +390,6 @@ export class AppComponent implements OnInit {
     this.projectClick(project, year);
   }
 
-  /** Real links so they prerender and open in new tabs; a plain click swaps the project or photo in place. */
-  adjacentClick(event: MouseEvent, link: SequenceLink): void {
-    if (!isPlainLeftClick(event)) {
-      return;
-    }
-
-    event.preventDefault();
-    if (link.kind === 'project') {
-      this.jumpToProject(link.project, link.year);
-    } else {
-      this.jumpToPhoto(link.year, link.image.name);
-    }
-  }
-
   statsClick(event: MouseEvent): void {
     if (!isPlainLeftClick(event)) {
       return;
@@ -412,26 +403,6 @@ export class AppComponent implements OnInit {
 
     this.location.go(`/${STATS_SEGMENT}`);
     this.updateSeo();
-  }
-
-  linkPath(link: SequenceLink): string {
-    return link.kind === 'project'
-      ? projectPath(link.year, link.project.name)
-      : photoUrl(link.year, link.image.name);
-  }
-
-  linkName(link: SequenceLink): string {
-    return link.kind === 'project' ? link.project.name : photoLabel(link.image, link.year);
-  }
-
-  linkKind(link: SequenceLink): string {
-    return link.kind === 'project' ? 'Project' : 'Photo';
-  }
-
-  /** Says which kind the link leads to, since the badge alone is only seen: 'Next photo: Fox sketch, 2024'. */
-  linkLabel(direction: 'Previous' | 'Next', link: SequenceLink): string {
-    const noun = link.kind === 'project' ? 'project' : 'photo';
-    return `${direction} ${noun}: ${this.linkName(link)}, ${link.year}`;
   }
 
   homeClick(): void {

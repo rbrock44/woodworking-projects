@@ -1,0 +1,87 @@
+:host {
+  display: block;
+  flex: none;
+}
+
+.project-nav {
+  flex: none;
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.project-nav-link {
+  flex: 0 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.project-nav-link.next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.project-nav-link:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-accent);
+}
+
+// On a phone the badge drops below the direction rather than splitting "← Previous"
+.project-nav-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+// The badge comes first here, so wrap upward to keep "Next →" on the top line like "← Previous"
+.project-nav-link.next .project-nav-label {
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+}
+
+// Project or single photo: accent outline for a project, a quieter muted one for a photo
+.project-nav-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 5px;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-hover);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.project-nav-kind.photo {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-muted);
+}
+
+.project-nav-year {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--color-accent-hover);
+}
+
+.project-nav-name {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

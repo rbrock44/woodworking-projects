@@ -52,7 +52,7 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   finds the neighbours of a project or loose photo. They show on a project page and on a loose photo's single view in
   its year (`ImagesViewerComponent.shownImageChange` tells `AppComponent` which photo is shown), never in All or
   Favorites, and ignore the home search. A project goes through `jumpToProject`, a photo through `jumpToPhoto` (so
-  `photoClick`). Each link has a `.project-nav-kind` badge (folder or picture icon and `Project` / `Photo`, `.photo`
+  `photoClick`). `project-nav` renders them; each link has a `.project-nav-kind` badge (folder or picture icon and `Project` / `Photo`, `.photo`
   for a photo), the photo named by `photoLabel` in `constants.ts`, and an aria-label like `Next photo: Fox sketch, 2024`
 - Prerendering: `app.routes.server.ts` lists every year and project from `project-list.server.ts` (reads the JSON
   at build time). On the server `AppComponent` renders the page from the `PROJECT_LIST` token and puts the list in
@@ -86,7 +86,9 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   `SeoTitleStrategy` applies them during prerendering, `AppComponent.updateSeo` in the browser
 - Old `?year=&project=` links are redirected to the path form by `redirectLegacyProject` in `app.routes.ts`
 - Components in `src/app/components/`: `project-list` (home page title, search and year list; inputs in, events
-  out), `images-viewer` (grid, single view, `?image=`/`?index=` params),
+  out), `project-meta` (year, name, the project's favorite pill, built and desc above the viewer), `project-nav` (the
+  previous/next links; `AppComponent` keeps `adjacent` and passes it in), `shared-prompt` (the share link's add-or-just-view
+  dialog; `AppComponent` keeps `sharedPaths`), `images-viewer` (grid, single view, `?image=`/`?index=` params),
   `image-overlay` (full screen), `search-bar`, `command-palette` (Ctrl K jump to a project or loose photo, labelled `PALETTE_LABEL`; a loose photo shows its thumbnail and `photoLabel`, follows its year's projects, and opens through `AppComponent.jumpToPhoto`, which reuses the home page's `photoClick`), `stats` (`/stats`, totals and
   rankings from `shopStats` in `constant/stats.ts`)
 - Pure helpers (search, slugs, month ranges, image sizing) live in `src/app/constant/` and are where most unit tests are

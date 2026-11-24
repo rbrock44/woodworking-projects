@@ -1,0 +1,24 @@
+@let project = this.project();
+<div class="project-meta">
+  <p><strong>Year:</strong> {{ this.year() }}</p>
+  @if (project.name != undefined && project.name != '') {
+    <div class="project-name-row">
+      <p><strong>Project:</strong> {{ project.name }}</p>
+      @let projectFavorite = this.isFavorite();
+      <!-- The whole project, unlike the round photo hearts on each photo: a labelled pill beside its name -->
+      <button type="button" class="project-favorite" [class.favorited]="projectFavorite"
+        [attr.aria-pressed]="projectFavorite"
+        [attr.aria-label]="(projectFavorite ? 'Remove the project ' : 'Add the project ') + project.name + (projectFavorite ? ' from favorites' : ' to favorites')"
+        (click)="this.favoriteToggle.emit()">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        <span aria-hidden="true">{{ projectFavorite ? 'Project favorited' : 'Favorite this project' }}</span>
+      </button>
+    </div>
+    @if (this.monthRange()) {
+      <p><strong>Built:</strong> {{ this.monthRange() }}</p>
+    }
+  }
+  @if (project.desc != undefined && project.desc != '') {
+    <p><strong>Desc:</strong> {{ project.desc }}</p>
+  }
+</div>
