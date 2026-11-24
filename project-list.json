@@ -162,17 +162,14 @@
               "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2020/closets/20201025_1407.jpg"
             }
           ]
-        },
+        }
+      ],
+      "images": [
         {
-          "name": "Laundry Room Shelves",
-          "desc": "Shelves were need above the washer/dryer",
-          "images": [
-            {
-              "name": "20201107_1347",
-              "desc": "",
-              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2020/laundry-room/20201107_1347.jpg"
-            }
-          ]
+          "name": "20201107_1347",
+          "desc": "Laundry Room Shelves - Shelves were need above the washer/dryer",
+          "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2020/laundry-room/20201107_1347.jpg",
+          "after": "Closets"
         }
       ]
     },
@@ -822,28 +819,6 @@
           ]
         },
         {
-          "name": "Post Maul",
-          "desc": "Another estate sale find, for $5 (post maul head) that I fitted a hickory handle to",
-          "images": [
-            {
-              "name": "20231008_0101",
-              "desc": "",
-              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/post-maul/20231008_0101.jpg"
-            }
-          ]
-        },
-        {
-          "name": "Ladder",
-          "desc": "This got created when I needed to repurpose some crepe myrtle limbs that died in my yard",
-          "images": [
-            {
-              "name": "20231014_2321",
-              "desc": "",
-              "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/ladder/20231014_2321.jpg"
-            }
-          ]
-        },
-        {
           "name": "Hammer",
           "desc": "This little hammer was found at an estate sale in a bucket for 50 cents. I use it often to stamp the year plus my initials in the projects",
           "images": [
@@ -978,6 +953,20 @@
               "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/christmas/20240218_2321.jpg"
             }
           ]
+        }
+      ],
+      "images": [
+        {
+          "name": "20231008_0101",
+          "desc": "Post Maul - Another estate sale find, for $5 (post maul head) that I fitted a hickory handle to",
+          "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/post-maul/20231008_0101.jpg",
+          "after": "Cookie Slice (Tree)"
+        },
+        {
+          "name": "20231014_2321",
+          "desc": "Ladder - This got created when I needed to repurpose some crepe myrtle limbs that died in my yard",
+          "url": "https://raw.githubusercontent.com/rbrock44/woodworking-projects-images/master/2023/ladder/20231014_2321.jpg",
+          "after": "Cookie Slice (Tree)"
         }
       ]
     },
