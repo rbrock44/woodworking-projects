@@ -11,7 +11,7 @@ import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService, PALETTE_LABEL} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_SHARED, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, photoLabel, projectMonthRange, scrollPageToTop } from './constant/constants';
+import { ALL, FAVORITES, URL_PARAM_SHARED, URL_PARAM_YEAR, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, photoLabel, projectMonthRange, scrollPageToTop } from './constant/constants';
 import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoPlaces, photoUrl, photosAtPaths, projectPath, SequenceLink, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
 
 @Component({
@@ -148,21 +148,15 @@ export class AppComponent implements OnInit {
     }
 
     const prerendered = this.transferState.get(PROJECTS_STATE_KEY, null);
-    const projects = prerendered ? Promise.resolve(prepareProjects(prerendered)) : getProjects();
-
-    // Wait for the router too, so an old ?year= link has already been redirected to its path.
-    Promise.all([projects, this.initialNavigation()]).then(([response]) => {
-      this.data.set(response);
-      this.dataLoaded.set(true);
-      this.selectFromPath(this.location.path());
-
-      // Slot a home entry in underneath a deep link so browser/mouse back lands on home.
-      if (this.selectedProject() || this.showStats()) {
-        const deepLink = this.location.path();
-        this.location.replaceState('/');
-        this.location.go(deepLink);
-      }
-    });
+    if (prerendered && !this.isLegacyLink()) {
+      // A prerendered page: its list and URL are here already, so the first render matches the page's markup and
+      // hydrates it rather than drawing over it
+      this.start(prepareProjects(prerendered));
+    } else {
+      const projects = prerendered ? Promise.resolve(prepareProjects(prerendered)) : getProjects();
+      // Wait for the router too, so an old ?year= link has already been redirected to its path.
+      Promise.all([projects, this.initialNavigation()]).then(([response]) => this.start(response));
+    }
 
     // Browser/mouse back and forward land here; show whichever project the URL now names.
     this.location.subscribe(() => {
@@ -179,6 +173,24 @@ export class AppComponent implements OnInit {
       this.sharedPaths.set([]);
       this.selectFromPath(path);
     });
+  }
+
+  /** An old `?year=` link, which the router redirects to its path before the view can be picked. */
+  private isLegacyLink(): boolean {
+    return new URLSearchParams(this.location.path().split('?')[1] ?? '').has(URL_PARAM_YEAR);
+  }
+
+  private start(projects: Projects): void {
+    this.data.set(projects);
+    this.dataLoaded.set(true);
+    this.selectFromPath(this.location.path());
+
+    // Slot a home entry in underneath a deep link so browser/mouse back lands on home.
+    if (this.selectedProject() || this.showStats()) {
+      const deepLink = this.location.path();
+      this.location.replaceState('/');
+      this.location.go(deepLink);
+    }
   }
 
   private initialNavigation(): Promise<unknown> {

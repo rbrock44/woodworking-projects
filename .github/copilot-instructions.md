@@ -58,8 +58,13 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   at build time). On the server `AppComponent` renders the page from the `PROJECT_LIST` token and puts the list in
   `TransferState`; the browser reads it back so its first render matches without a fetch, falling back to
   `getProjects()` (fetches `project-list.json`) when there is no state, e.g. `ng serve`
-- No hydration — the browser re-renders over the prerendered markup. Router initial navigation is blocking so that
-  first render already has the URL
+- Hydration with event replay (`provideClientHydration(withEventReplay())`): the browser takes over the prerendered
+  markup instead of drawing it again, and clicks made before it's ready are replayed. That needs the first browser render
+  to match the server's, so with `TransferState` present `AppComponent` starts synchronously (`start`) from the URL in
+  `Location`; only an old `?year=` link (`isLegacyLink`) or no state (`ng serve`) waits for the router and data. Router
+  initial navigation is not blocking (Angular rejects blocking with hydration). Browser-only differences must sit
+  inside control flow (`@if`/`@for`), which hydration handles; direct DOM edits need `ngSkipHydration`. Event replay
+  adds an inline script per page, which `finish-static-build.mjs` hashes into the content policy
 - `prepareProjects` sorts years newest first and prepends the synthetic `All` group (`ALL`/`/all`). `Favorites`
   (`/favorites`) is another synthetic group, built from paths stored in `localStorage` (`favorite-projects`) by `FavoritesService`.
   Two kinds: a project, `/<year>/<slug>` (home row heart, or the `.project-favorite` pill beside the name on its own page), and
