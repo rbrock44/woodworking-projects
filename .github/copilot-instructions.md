@@ -1,7 +1,7 @@
 # Woodworking Projects
 
 Angular 22 site showcasing woodworking projects by year, with a photo gallery per project. Built with
-`outputMode: "static"`, so every year and project page is prerendered to its own `index.html` and served from
+`outputMode: "static"`, so every year, project and photo page is prerendered to its own `index.html` and served from
 GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 
 ## Commands
@@ -32,6 +32,15 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   (missing: before every project); `yearEntries` turns them into rows of thumbnails between the projects on the home
   page, and clicking one opens the year's view on that photo (`AppComponent.photoClick`). None exist yet
 - A project's URL is `/<year>/<slug>` where the slug comes from `projectSlug(name)`, so renaming a project changes its URL
+- Photo pages: every photo has its own prerendered page at its favorites path, name encoded (`photoUrl`):
+  `/<year>/<slug>/photo/<name>` in a project, `/<year>/photo/<name>` in none, so a shared link previews that photo
+  (`describePage` gives it the photo's title, description, canonical and `og:image`). It opens the project (or year) at
+  that photo; a gone photo leaves the grid open at the project or year path. The viewer reads the photo from the path
+  (`parsePhotoPath`) or `?image=`, and writes a photo's own page only in the view it lives in (`ownPhotoUrl`): a
+  project photo on its project's page, a loose photo in its year. Mixed views (a year's project photos, All,
+  Favorites) keep `?image=`. `viewPathOf` strips `/photo/<name>` so `AppComponent` treats a photo page as its view.
+  `AppComponent.updateSeo` describes the photo page while one is shown. Previous/next links to loose photos and
+  `photoClick` go to photo pages
 
 ## Architecture
 

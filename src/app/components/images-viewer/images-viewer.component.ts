@@ -6,6 +6,7 @@ import { ImageOverlayComponent } from '../image-overlay/image-overlay.component'
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { ActivatedRoute } from '@angular/router';
 import { FavoritesService } from '../../services/favorites.service';
+import { ownPhotoUrl, parsePhotoPath, viewPathOf } from '../../constant/project-url';
 import { adjustImageToScreenSize, createMidsizeImageUrl, createThumbnailImageUrl, CSS_SELECTOR_IMAGES, filterImagesBySearch, IMAGE_SIZE_DEFAULT, imageAltText, neighborImageUrls, scrollPageToTop, SwipeTracker, URL_PARAM_IMAGE, URL_PARAM_INDEX } from '../../constant/constants';
 
 @Component({
@@ -98,8 +99,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     // The URL, since opening a photo from the home page changes it without the router
-    const imageParam = new URLSearchParams(this.location.path().split('?')[1] ?? '').get(URL_PARAM_IMAGE)
-      ?? this.route.snapshot.queryParamMap.get(URL_PARAM_IMAGE);
+    const imageParam = this.urlImageName() ?? this.route.snapshot.queryParamMap.get(URL_PARAM_IMAGE);
     if (imageParam !== null && imageParam !== '') {
       const index = this.filteredImages().findIndex(image => image.name === imageParam);
       if (index !== -1) {
@@ -120,8 +120,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private restoreFromHistory(): void {
-    const params = new URLSearchParams(this.location.path().split('?')[1] ?? '');
-    const imageParam = params.get(URL_PARAM_IMAGE);
+    const imageParam = this.urlImageName();
     const index = imageParam ? this.filteredImages().findIndex(image => image.name === imageParam) : -1;
 
     this.singleView.set(index !== -1);
@@ -143,7 +142,7 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     // Jumping to another project (or back to one) swaps the images under an open viewer; show the
     // image the URL names, else the grid. The parent already cleared its enlarged state.
     if (!changes['images']?.firstChange) {
-      const imageParam = new URLSearchParams(this.location.path().split('?')[1] ?? '').get(URL_PARAM_IMAGE);
+      const imageParam = this.urlImageName();
       const index = imageParam ? this.filteredImages().findIndex(image => image.name === imageParam) : -1;
 
       this.currentIndex.set(Math.max(index, 0));
@@ -297,10 +296,26 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
     this.location.replaceState(url, '', this.location.getState());
   }
 
+  /** The photo the URL names: a photo page's own, else the `?image=` param. */
+  private urlImageName(): string | null {
+    const path = this.location.path();
+    return parsePhotoPath(path)?.name ?? new URLSearchParams(path.split('?')[1] ?? '').get(URL_PARAM_IMAGE);
+  }
+
+  /**
+   * A photo's own page when this view is where it lives (its project, or its year for a photo in no project), so the
+   * address bar is a link that previews it; `?image=` in a view mixing many places. The grid is the view's own path.
+   */
   private buildImageUrl(imageName: string | null, index: number | null = null): string {
     const queryParams = new URLSearchParams(window.location.search);
+    // Location's path, as a photo page's in-app URL only reaches window.location through the browser
+    const current = this.location.path().split(/[?#]/)[0] || location.pathname;
+    const path = parsePhotoPath(current) ? viewPathOf(current) : location.pathname;
+    const image = imageName === null ? undefined : this.filteredImages().find(image => image.name === imageName);
+    const place = image ? this.place(image) : null;
+    const own = place ? ownPhotoUrl(path, place) : null;
 
-    if (imageName === null) {
+    if (imageName === null || own) {
       queryParams.delete(URL_PARAM_IMAGE);
     } else {
       queryParams.set(URL_PARAM_IMAGE, imageName);
@@ -310,6 +325,6 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
       queryParams.set(URL_PARAM_INDEX, index.toString());
     }
 
-    return `${location.pathname}?${queryParams.toString()}`;
+    return `${own ?? path}?${queryParams.toString()}`;
   }
 }

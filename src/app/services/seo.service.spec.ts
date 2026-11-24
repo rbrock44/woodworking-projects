@@ -28,6 +28,46 @@ describe('describePage', () => {
     expect(page?.description).toEqual('Woodworking projects built in 2024: Walnut Bench, Baby Rattles.');
   });
 
+  describe('photo pages', () => {
+    const photos: ProjectsByYear[] = [{
+      year: '2024',
+      projects: [{ name: 'Barn Owl', images: [
+        { name: 'owl-1', desc: 'Carved from oak', url: 'https://example.com/owl-1.jpg' },
+        { name: 'owl-2', desc: '', url: 'https://example.com/owl-2.jpg' },
+      ] }],
+      images: [{ name: 'stamp 1', desc: '', url: 'https://example.com/stamp 1.jpg' }],
+    }];
+
+    it('should describe a project photo with that photo as its preview', () => {
+      expect(describePage(photos, '/2024/barn-owl/photo/owl-1/')).toEqual({
+        path: '/2024/barn-owl/photo/owl-1',
+        title: 'Carved from oak - Barn Owl (2024) - Woodworking Projects by Ryan Brock',
+        description: 'Carved from oak',
+        image: { url: 'https://example.com/owl-1.jpg', alt: 'Carved from oak' },
+      });
+    });
+
+    it('should name an undescribed project photo by its project', () => {
+      const page = describePage(photos, '/2024/barn-owl/photo/owl-2');
+      expect(page?.title).toEqual('Barn Owl, photo - Barn Owl (2024) - Woodworking Projects by Ryan Brock');
+      expect(page?.description).toEqual('Barn Owl, photo, a photo from Barn Owl, 2024.');
+    });
+
+    it('should describe a photo in no project, its encoded name read back', () => {
+      const page = describePage(photos, '/2024/photo/stamp%201');
+      expect(page?.path).toEqual('/2024/photo/stamp%201');
+      expect(page?.title).toEqual('Photo from 2024 - Woodworking Projects by Ryan Brock');
+      expect(page?.image?.url).toEqual('https://example.com/stamp 1.jpg');
+    });
+
+    it('should return null for a photo, project or year that does not exist', () => {
+      expect(describePage(photos, '/2024/barn-owl/photo/nope')).toBeNull();
+      expect(describePage(photos, '/2024/nope/photo/owl-1')).toBeNull();
+      expect(describePage(photos, '/2024/photo/owl-1')).toBeNull();
+      expect(describePage(photos, '/2023/photo/stamp%201')).toBeNull();
+    });
+  });
+
   it('should describe the all page', () => {
     expect(describePage(projectsByYear, '/all')?.path).toEqual('/all');
   });

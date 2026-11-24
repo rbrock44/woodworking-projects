@@ -1,8 +1,8 @@
 import { DOCUMENT, Injectable, InjectionToken, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
-import { ALL, FAVORITES, imageAltText, looseImages, projectCover } from '../constant/constants';
-import { isStatsPath, isYearSegment, parseProjectPath, projectPath, projectSlug, STATS_SEGMENT } from '../constant/project-url';
+import { ALL, FAVORITES, imageAltText, looseImages, photoLabel, projectCover } from '../constant/constants';
+import { isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, photoUrl, projectPath, projectSlug, STATS_SEGMENT } from '../constant/project-url';
 import { shopStats } from '../constant/stats';
 import { Project, ProjectsByYear } from '../type/project.type';
 
@@ -69,6 +69,11 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
     };
   }
 
+  const photo = parsePhotoPath(path);
+  if (photo) {
+    return describePhoto(projectsByYear, photo.year, photo.slug, photo.name);
+  }
+
   const target = parseProjectPath(path);
   if (!target) {
     return null;
@@ -118,6 +123,33 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
     title: `${project.name} (${group.year}) - ${SITE_TITLE}`,
     description: project.desc?.trim() || `${project.name}, a woodworking project from ${group.year}.`,
     image: coverImage(project),
+  };
+}
+
+/** A photo's own page, previewing that photo; null when its year, project or the photo itself doesn't exist. */
+function describePhoto(projectsByYear: ProjectsByYear[], year: string, slug: string | null, name: string): PageMeta | null {
+  const group = projectsByYear.find(group => group.year === year && isYearSegment(year));
+  const project = slug === null ? undefined : group?.projects.find(project => projectSlug(project.name) === slug);
+  const image = slug === null
+    ? group && looseImages(group).find(image => image.name === name)
+    : project?.images.find(image => image.name === name);
+  if (!group || !image) {
+    return null;
+  }
+
+  // A photo with no description is named by its project, else as 'Photo from <year>'
+  const named = image.desc.trim() !== '';
+  const label = project && !named ? `${project.name}, photo` : photoLabel(image, year);
+  // 'Photo from 2024' already says the year
+  const heading = project ? `${label} - ${project.name} (${year})` : named ? `${label} (${year})` : label;
+  const description = image.desc.trim()
+    || (project ? `${label}, a photo from ${project.name}, ${year}.` : `${label}, a woodworking photo.`);
+
+  return {
+    path: photoUrl(year, image.name, project?.name),
+    title: `${heading} - ${SITE_TITLE}`,
+    description,
+    image: { url: image.url, alt: imageAltText(image, project?.name) },
   };
 }
 

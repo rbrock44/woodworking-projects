@@ -36,7 +36,7 @@ This is an angular frontend, prerendered to static pages at build time (one per 
 ## 🚦 How to Use
 
 - `Select Project` - Select any project (from any year or select `All` for an entire year)
-- `Select Image` - Selecting an image from the project level will expand and make the images larger (but single view)
+- `Select Image` - Selecting an image from the project level will expand and make the images larger (but single view). Each photo has its own page, so copying the address while it's open in its project (or its year, for a photo in no project) gives a link that previews that photo
 - `Expanded Image` - Click an image in single image project view and the image will be expanded to full screen with buttons (on the side(s) of the image to go forward and backward)
 - `Previous / Next` - Links at the bottom of a project, or of a photo in no project opened on its own, step through everything in home page order: newest year first, each year's projects and the photos listed between them, one photo at a time. Each link shows whether it leads to a project or a single photo
 - `Search` - Filter projects by name, year or description on the home page, or photos within a project

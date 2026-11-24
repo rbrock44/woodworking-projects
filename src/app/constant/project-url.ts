@@ -32,6 +32,65 @@ export function isPhotoFavoritePath(path: string): boolean {
     return PROJECT_PHOTO_KEY.test(path) || LOOSE_PHOTO_KEY.test(path);
 }
 
+/**
+ * A photo's own page, the same path as its favorites key with the name encoded for a URL. Each one is prerendered,
+ * so a shared link previews that photo rather than its project.
+ */
+export function photoUrl(year: string, name: string, projectName?: string | null): string {
+    return favoritePhotoPath(year, encodeURIComponent(name), projectName);
+}
+
+export interface PhotoTarget {
+    year: string;
+    /** The project's slug, or null for a photo in no project. */
+    slug: string | null;
+    /** The photo's file name, decoded. */
+    name: string;
+}
+
+const PROJECT_PHOTO_URL = new RegExp(`^/?(\\d{4})/([^/]+)/${PHOTO_SEGMENT}/([^/]+)$`);
+const LOOSE_PHOTO_URL = new RegExp(`^/?(\\d{4})/${PHOTO_SEGMENT}/([^/]+)$`);
+
+/** The photo a `/<year>/photo/<name>` or `/<year>/<slug>/photo/<name>` page shows, or null for any other path. */
+export function parsePhotoPath(path: string): PhotoTarget | null {
+    const clean = path.split(/[?#]/)[0].replace(/\/+$/, '');
+    const inProject = PROJECT_PHOTO_URL.exec(clean);
+    const loose = inProject ? null : LOOSE_PHOTO_URL.exec(clean);
+    const [year, slug, encoded] = inProject ? [inProject[1], inProject[2], inProject[3]] : loose ? [loose[1], null, loose[2]] : [];
+    if (!year || encoded === undefined) {
+        return null;
+    }
+
+    try {
+        return { year, slug: slug ?? null, name: decodeURIComponent(encoded) };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * The view a path shows, without query, hash, trailing slash or a photo page's `/photo/<name>`: `/2024/owl` for
+ * `/2024/owl/photo/a?index=2`, `/2024` for `/2024/photo/b`, '' for home.
+ */
+export function viewPathOf(path: string): string {
+    const clean = path.split(/[?#]/)[0].replace(/\/+$/, '');
+    const photo = parsePhotoPath(clean);
+    if (!photo) {
+        return clean;
+    }
+
+    return photo.slug === null ? `/${photo.year}` : `/${photo.year}/${photo.slug}`;
+}
+
+/**
+ * The photo's own page when the view at `viewPath` is where it lives (its project's page, or its year for a photo
+ * in no project); null in any other view, such as a year, All or Favorites showing a project's photo.
+ */
+export function ownPhotoUrl(viewPath: string, place: PhotoPlace): string | null {
+    const home = projectPath(place.year, place.project);
+    return viewPathOf(viewPath) === home ? photoUrl(place.year, place.image.name, place.project) : null;
+}
+
 /** The path segment for the synthetic group holding every image from every year. */
 export const ALL_SEGMENT: string = 'all';
 

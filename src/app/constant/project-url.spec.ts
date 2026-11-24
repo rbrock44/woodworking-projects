@@ -1,8 +1,48 @@
 import { ALL, FAVORITES } from './constants';
-import { adjacentLinks, existingFavoritePaths, favoritePhotoPath, favoriteProjectsAtPaths, homeSequence, isPhotoFavoritePath, isStatsPath, SequenceLink, legacyProjectPath, parseProjectPath, parseSharedFavorites, pathsInGroups, photoPath, photoPlaces, photosAtPaths, projectPath, projectPhotoPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
+import { adjacentLinks, existingFavoritePaths, favoritePhotoPath, favoriteProjectsAtPaths, homeSequence, isPhotoFavoritePath, isStatsPath, ownPhotoUrl, parsePhotoPath, photoUrl, SequenceLink, viewPathOf, legacyProjectPath, parseProjectPath, parseSharedFavorites, pathsInGroups, photoPath, photoPlaces, photosAtPaths, projectPath, projectPhotoPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
 import { ProjectsByYear } from '../type/project.type';
 
 describe('project-url', () => {
+  describe('photo pages', () => {
+    it('should give a photo its own page at its favorites path, name encoded', () => {
+      expect(photoUrl('2024', 'owl-1', 'Barn Owl')).toEqual('/2024/barn-owl/photo/owl-1');
+      expect(photoUrl('2024', 'stamp 2')).toEqual('/2024/photo/stamp%202');
+    });
+
+    it('should read a photo page back, ignoring query, hash and trailing slash', () => {
+      expect(parsePhotoPath('/2024/barn-owl/photo/owl-1/?index=2')).toEqual({ year: '2024', slug: 'barn-owl', name: 'owl-1' });
+      expect(parsePhotoPath('2024/photo/stamp%202#x')).toEqual({ year: '2024', slug: null, name: 'stamp 2' });
+      expect(parsePhotoPath('/2024/photo/photo/a')).toEqual({ year: '2024', slug: 'photo', name: 'a' });
+    });
+
+    it('should not read projects, years or broken names as photo pages', () => {
+      expect(parsePhotoPath('/2024/photo')).toBeNull();
+      expect(parsePhotoPath('/2024/barn-owl')).toBeNull();
+      expect(parsePhotoPath('/all/photo/a')).toBeNull();
+      expect(parsePhotoPath('/2024/photo/%E0%A4%A')).toBeNull();
+    });
+
+    it('should find the view a path shows', () => {
+      expect(viewPathOf('/2024/barn-owl/photo/owl-1?index=2')).toEqual('/2024/barn-owl');
+      expect(viewPathOf('/2024/photo/stamp/')).toEqual('/2024');
+      expect(viewPathOf('/2024/barn-owl/?image=a')).toEqual('/2024/barn-owl');
+      expect(viewPathOf('/')).toEqual('');
+    });
+
+    it('should use a photo page only in the view the photo lives in', () => {
+      const image = { name: 'owl-1', desc: '', url: '/images/2024/barn-owl/owl-1.jpg' };
+      const inProject = { year: '2024', project: 'Barn Owl', path: '/2024/barn-owl/photo/owl-1', image };
+      const loose = { year: '2024', project: null, path: '/2024/photo/owl-1', image };
+
+      expect(ownPhotoUrl('/2024/barn-owl/', inProject)).toEqual('/2024/barn-owl/photo/owl-1');
+      expect(ownPhotoUrl('/2024/barn-owl/photo/other', inProject)).toEqual('/2024/barn-owl/photo/owl-1');
+      expect(ownPhotoUrl('/2024', inProject)).toBeNull();
+      expect(ownPhotoUrl('/all', inProject)).toBeNull();
+      expect(ownPhotoUrl('/2024', loose)).toEqual('/2024/photo/owl-1');
+      expect(ownPhotoUrl('/favorites', loose)).toBeNull();
+    });
+  });
+
   it('should write shared favorites as comma joined paths and read them back', () => {
     const param = sharedFavoritesParam(['/2024/walnut-bench', '/2023/lidded-box']);
 

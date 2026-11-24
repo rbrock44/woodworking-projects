@@ -337,8 +337,8 @@ describe('AppComponent', () => {
 
         expect(app.selectedProject()?.name).toEqual('Oak Bench');
         expect(app.selectedYear()).toEqual('2023');
-        // The viewer opens the photo the ?image= names, as for a loose photo
-        expect(goSpy).toHaveBeenCalledWith('/2023/oak-bench', 'image=20230415_1200');
+        // The photo's own page, which the viewer opens at that photo
+        expect(goSpy).toHaveBeenCalledWith('/2023/oak-bench/photo/20230415_1200');
       });
 
       it('should give every tile of a year view a heart, project photos included', async () => {
@@ -415,6 +415,34 @@ describe('AppComponent', () => {
         expect(fixture.nativeElement.querySelector('.project-favorite').getAttribute('aria-pressed')).toEqual('false');
         // One project's own page doesn't repeat its name under each picture
         expect(fixture.nativeElement.querySelector('.piece-source')).toBeNull();
+      });
+    });
+
+    describe("a photo's own page", () => {
+      it('should open a project photo page in its project at that photo, keeping the URL', async () => {
+        const { app, fixture, location } = await openAt('/2023/oak-bench/photo/20230415_1200');
+
+        expect(app.selectedProject()?.name).toEqual('Oak Bench');
+        expect(fixture.nativeElement.querySelector('.single-view')).not.toBeNull();
+        expect(location.path()).toEqual('/2023/oak-bench/photo/20230415_1200');
+        expect(TestBed.inject(Title).getTitle()).toEqual('Oak Bench, photo - Oak Bench (2023) - Woodworking Projects by Ryan Brock');
+      });
+
+      it('should open the project at its grid for a photo that is gone', async () => {
+        const { app, fixture, location } = await openAt('/2023/oak-bench/photo/nope');
+
+        expect(app.selectedProject()?.name).toEqual('Oak Bench');
+        expect(fixture.nativeElement.querySelector('.single-view')).toBeNull();
+        expect(location.path()).toEqual('/2023/oak-bench');
+      });
+
+      it('should go back to the project path from the single view', async () => {
+        const { fixture, location } = await openAt('/2023/oak-bench/photo/20230415_1200');
+
+        (fixture.nativeElement.querySelector('.back-button') as HTMLButtonElement).click();
+        fixture.detectChanges();
+
+        expect(location.path().split('?')[0]).toEqual('/2023/oak-bench');
       });
     });
 
@@ -562,7 +590,7 @@ describe('AppComponent', () => {
         expect(photoClick).toHaveBeenCalledWith('2024', 'loose');
         expect(app.isImageEnlarged()).toBe(false);
         expect(app.selectedYear()).toEqual('2024');
-        expect(goSpy).toHaveBeenCalledWith('/2024', 'image=loose');
+        expect(goSpy).toHaveBeenCalledWith('/2024/photo/loose');
       });
 
       it('should drop a home search that would hide the photo, and keep one that shows it', async () => {
@@ -628,11 +656,19 @@ describe('AppComponent', () => {
       ];
       beforeEach(() => TestBed.inject(TransferState).set(PROJECTS_STATE_KEY, withLoose));
 
+      it('should open a photo in no project in its year at that photo', async () => {
+        const { app, fixture, location } = await openAt('/2024/photo/20241101_0900');
+
+        expect(app.selectedYear()).toEqual('2024');
+        expect(fixture.nativeElement.querySelector('.single-view')).not.toBeNull();
+        expect(location.path()).toEqual('/2024/photo/20241101_0900');
+      });
+
       it('should step from a project onto the photos beside it, marked as photos', async () => {
         const { fixture } = await openAt('/2024/baby-rattles');
 
         const links = navLinks(fixture);
-        expect(links.map(link => link.getAttribute('href'))).toEqual(['/2024?image=owl', '/2024?image=20241101_0900']);
+        expect(links.map(link => link.getAttribute('href'))).toEqual(['/2024/photo/owl', '/2024/photo/20241101_0900']);
         expect(links.map(link => link.querySelector('.project-nav-name')!.textContent)).toEqual(['2024 Carved owl', '2024 Fox sketch']);
         expect(links.map(link => link.querySelector('.project-nav-kind')!.classList.contains('photo'))).toEqual([true, true]);
         expect(links.map(link => link.querySelector('.project-nav-kind')!.textContent!.trim())).toEqual(['Photo', 'Photo']);
@@ -654,7 +690,7 @@ describe('AppComponent', () => {
 
         expect(click.defaultPrevented).toBe(true);
         expect(photoClick).toHaveBeenCalledWith('2024', '20241101_0900');
-        expect(goSpy).toHaveBeenCalledWith('/2024', 'image=20241101_0900');
+        expect(goSpy).toHaveBeenCalledWith('/2024/photo/20241101_0900');
         expect(app.selectedYear()).toEqual('2024');
       });
 
@@ -663,7 +699,7 @@ describe('AppComponent', () => {
         fixture.detectChanges();
 
         const links = navLinks(fixture);
-        expect(links.map(link => link.getAttribute('href'))).toEqual(['/2024?image=20241101_0900', '/2023/oak-bench']);
+        expect(links.map(link => link.getAttribute('href'))).toEqual(['/2024/photo/20241101_0900', '/2023/oak-bench']);
         expect(links[0].getAttribute('aria-label')).toEqual('Previous photo: Fox sketch, 2024');
         expect(links[1].getAttribute('aria-label')).toEqual('Next project: Oak Bench, 2023');
 

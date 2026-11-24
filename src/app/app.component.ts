@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, computed, effect, inject, signal} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, computed, effect, inject, signal, untracked} from '@angular/core';
 import {RouterOutlet, Router, NavigationEnd} from '@angular/router';
 import {Image, PhotoPlace, Project, Projects, ProjectsByYear} from "./type/project.type";
 import {getProjects, prepareProjects, PROJECTS_STATE_KEY} from "./services/project.service";
@@ -11,8 +11,8 @@ import {StatsComponent} from "./components/stats/stats.component";
 import {CommandPaletteService, PALETTE_LABEL} from "./services/command-palette.service";
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
-import { ALL, FAVORITES, URL_PARAM_IMAGE, URL_PARAM_SHARED, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, photoLabel, projectMonthRange, scrollPageToTop } from './constant/constants';
-import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parseProjectPath, parseSharedFavorites, photoPlaces, photosAtPaths, projectPath, SequenceLink, projectSlug, STATS_SEGMENT } from './constant/project-url';
+import { ALL, FAVORITES, URL_PARAM_SHARED, countProjects, createImageForAll, extractImagesByYear, looseImages, filterPhotoPlacesBySearch, filterProjectsBySearch, photoLabel, projectMonthRange, scrollPageToTop } from './constant/constants';
+import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoPlaces, photoUrl, photosAtPaths, projectPath, SequenceLink, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -123,6 +123,16 @@ export class AppComponent implements OnInit {
       this.showStats();
       scrollPageToTop();
     });
+
+    // Stepping through photos moves between photo pages, each with its own title, preview and canonical
+    effect(() => {
+      this.shownImage();
+      untracked(() => {
+        if (this.dataLoaded()) {
+          this.updateSeo();
+        }
+      });
+    });
   }
 
   ngOnInit(): void {
@@ -179,6 +189,7 @@ export class AppComponent implements OnInit {
 
   private selectFromPath(path: string): void {
     const target = parseProjectPath(path);
+    const photo = parsePhotoPath(path);
     const yearGroup = target && this.data().projectsByYear.find(x => x.year === target.year);
 
     if (isStatsPath(path)) {
@@ -190,6 +201,8 @@ export class AppComponent implements OnInit {
       } else if (this.favoriteCount() > 0) {
         this.selectAllFavorites();
       }
+    } else if (photo) {
+      this.selectPhotoPage(photo);
     } else if (target && yearGroup) {
       if (target.year === ALL) {
         this.select(yearGroup.projects[0], ALL);
@@ -209,6 +222,33 @@ export class AppComponent implements OnInit {
     }
 
     this.updateSeo();
+  }
+
+  /**
+   * A photo's own page: its project at that photo, or its year for a photo in no project. A photo that's gone
+   * leaves its project or year open at the grid.
+   */
+  private selectPhotoPage(photo: PhotoTarget): void {
+    const yearGroup = this.data().projectsByYear.find(x => x.year === photo.year && isYearSegment(x.year));
+    if (!yearGroup) {
+      return;
+    }
+
+    if (photo.slug !== null) {
+      const project = yearGroup.projects.find(p => projectSlug(p.name) === photo.slug);
+      if (project) {
+        this.select(project, photo.year);
+        if (this.isBrowser && !project.images.some(image => image.name === photo.name)) {
+          this.location.replaceState(projectPath(photo.year, project.name));
+        }
+      }
+      return;
+    }
+
+    this.selectAllProjectsByYear(photo.year);
+    if (this.isBrowser && !looseImages(yearGroup).some(image => image.name === photo.name)) {
+      this.location.replaceState(projectPath(photo.year));
+    }
   }
 
   searchChange(term: string): void {
@@ -365,7 +405,7 @@ export class AppComponent implements OnInit {
   linkPath(link: SequenceLink): string {
     return link.kind === 'project'
       ? projectPath(link.year, link.project.name)
-      : `${projectPath(link.year)}?${URL_PARAM_IMAGE}=${encodeURIComponent(link.image.name)}`;
+      : photoUrl(link.year, link.image.name);
   }
 
   linkName(link: SequenceLink): string {
@@ -425,13 +465,13 @@ export class AppComponent implements OnInit {
       : undefined;
     if (project) {
       this.isImageEnlarged.set(false);
-      this.location.go(projectPath(year, project.name), `${URL_PARAM_IMAGE}=${encodeURIComponent(imageName)}`);
+      this.location.go(photoUrl(year, imageName, project.name));
       this.select(project, year);
       this.updateSeo();
       return;
     }
 
-    this.location.go(projectPath(year), `${URL_PARAM_IMAGE}=${encodeURIComponent(imageName)}`);
+    this.location.go(photoUrl(year, imageName));
     this.selectAllProjectsByYear(year);
     this.updateSeo();
   }
@@ -465,11 +505,16 @@ export class AppComponent implements OnInit {
     return project ? projectPath(this.selectedYear(), project.name) : '/';
   }
 
+  /** The view a path shows; a photo's own page shows its project or year. */
   private pathOnly(path: string): string {
-    return path.split(/[?#]/)[0].replace(/\/+$/, '');
+    return viewPathOf(path);
   }
 
   private updateSeo(): void {
-    this.seo.update(describePage(this.data().projectsByYear, this.selectedPath()) ?? homePage(this.data().projectsByYear));
+    const projects = this.data().projectsByYear;
+    const path = this.location.path();
+    // A photo's own page while it's shown, else the view's
+    const photoPage = parsePhotoPath(path) && this.selectedProject() ? describePage(projects, path) : null;
+    this.seo.update(photoPage ?? describePage(projects, this.selectedPath()) ?? homePage(projects));
   }
 }

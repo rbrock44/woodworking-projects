@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, CanMatchFn, Router, Routes } from '@angular/router';
-import { ALL_SEGMENT, FAVORITES_SEGMENT, isYearSegment, legacyProjectPath, STATS_SEGMENT } from './constant/project-url';
+import { ALL_SEGMENT, FAVORITES_SEGMENT, PHOTO_SEGMENT, isYearSegment, legacyProjectPath, STATS_SEGMENT } from './constant/project-url';
 import { URL_PARAM_PROJECT, URL_PARAM_YEAR } from './constant/constants';
 
 /** Sends old `/?year=<year>&project=<name>` links to the project's own page, keeping other params. */
@@ -25,6 +25,9 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', canActivate: [redirectLegacyProject], children: [] },
   { path: STATS_SEGMENT, children: [] },
   { path: ':year', canMatch: [matchesYear], children: [] },
+  // A photo's own page, in no project or in one; three or four segments never match a project's two
+  { path: `:year/${PHOTO_SEGMENT}/:name`, canMatch: [matchesProject], children: [] },
+  { path: `:year/:project/${PHOTO_SEGMENT}/:name`, canMatch: [matchesProject], children: [] },
   { path: ':year/:project', canMatch: [matchesProject], children: [] },
   { path: '**', redirectTo: '' },
 ];
