@@ -1,4 +1,4 @@
-import { countProjects, yearEntries, createMidsizeImageUrl, extractImagesByYear, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, projectCover, projectMonthRange, projectThumbnailUrl, scrollPageToTop, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
+import { countProjects, yearEntries, createMidsizeImageUrl, extractImagesByYear, filterImagesBySearch, filterProjectsBySearch, imageAltText, neighborImageUrls, photoLabel, projectCover, projectMonthRange, projectThumbnailUrl, scrollPageToTop, splitSearchTerms, SwipeTracker, swipeDirection } from './constants';
 import { Image, ProjectsByYear } from '../type/project.type';
 
 const projectsByYear: ProjectsByYear[] = [
@@ -163,6 +163,14 @@ describe('projectMonthRange', () => {
     expect(projectMonthRange(photos('cover', '20241399_0000', '20240601_1200'))).toEqual('June 2024');
     expect(projectMonthRange(photos('cover'))).toBeNull();
     expect(projectMonthRange([])).toBeNull();
+  });
+});
+
+describe('photoLabel', () => {
+  const image = (desc: string): Image => ({ name: 'x', desc, url: 'https://example.com/x.jpg' });
+
+  it('should label a loose photo by its description, else its year', () => {
+    expect([photoLabel(image('Fox sketch'), '2024'), photoLabel(image('  '), '2024')]).toEqual(['Fox sketch', 'Photo from 2024']);
   });
 });
 

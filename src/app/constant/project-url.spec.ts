@@ -1,5 +1,5 @@
 import { ALL, FAVORITES } from './constants';
-import { adjacentProjects, isStatsPath, legacyProjectPath, parseProjectPath, parseSharedFavorites, pathsInGroups, photoPath, projectPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
+import { adjacentLinks, homeSequence, isStatsPath, SequenceLink, legacyProjectPath, parseProjectPath, parseSharedFavorites, pathsInGroups, photoPath, projectPath, projectsAtPaths, projectSlug, sharedFavoritesParam } from './project-url';
 import { ProjectsByYear } from '../type/project.type';
 
 describe('project-url', () => {
@@ -156,34 +156,91 @@ describe('project-url', () => {
   });
 });
 
-describe('adjacentProjects', () => {
+describe('adjacentLinks', () => {
   const project = (name: string) => ({ name, images: [] });
-  // Newest year first with All on top, the way prepareProjects leaves them
-  const projectsByYear: ProjectsByYear[] = [
-    { year: ALL, projects: [project(ALL)] },
-    { year: '2024', projects: [project('Pergola')] },
-    { year: '2023', projects: [project('Oak Bench'), project('Walnut Box')] },
-  ];
-  const names = (year: string, name: string) => {
-    const adjacent = adjacentProjects(projectsByYear, year, name);
-    return adjacent && [adjacent.previous?.project.name ?? null, adjacent.next?.project.name ?? null];
-  };
+  const photo = (name: string, after?: string) => ({ name, desc: '', url: `/images/${name}.jpg`, after });
+  const label = (link: SequenceLink | null) =>
+    link === null ? null : link.kind === 'project' ? link.project.name : `photo ${link.image.name}`;
 
-  it('should step within a year in listed order', () => {
-    expect(names('2023', 'Oak Bench')).toEqual([null, 'Walnut Box']);
+  describe('with projects only', () => {
+    // Newest year first with All on top, the way prepareProjects leaves them
+    const projectsByYear: ProjectsByYear[] = [
+      { year: ALL, projects: [project(ALL)] },
+      { year: '2024', projects: [project('Pergola')] },
+      { year: '2023', projects: [project('Oak Bench'), project('Walnut Box')] },
+    ];
+    const names = (year: string, name: string) => {
+      const adjacent = adjacentLinks(projectsByYear, year, { project: name });
+      return adjacent && [label(adjacent.previous), label(adjacent.next)];
+    };
+
+    it('should step within a year in listed order', () => {
+      expect(names('2023', 'Oak Bench')).toEqual(['Pergola', 'Walnut Box']);
+    });
+
+    it('should step across years, newest first like the home page', () => {
+      expect(names('2024', 'Pergola')).toEqual([null, 'Oak Bench']);
+      expect(names('2023', 'Walnut Box')).toEqual(['Oak Bench', null]);
+    });
+
+    it('should carry the year of the neighbor', () => {
+      expect(adjacentLinks(projectsByYear, '2023', { project: 'Oak Bench' })?.previous?.year).toEqual('2024');
+    });
+
+    it('should be null for the synthetic All group or an unknown project', () => {
+      expect(adjacentLinks(projectsByYear, ALL, { project: ALL })).toBeNull();
+      expect(adjacentLinks(projectsByYear, '2023', { project: 'Pergola' })).toBeNull();
+    });
   });
 
-  it('should step across years, oldest first', () => {
-    expect(names('2023', 'Walnut Box')).toEqual(['Oak Bench', 'Pergola']);
-    expect(names('2024', 'Pergola')).toEqual(['Walnut Box', null]);
-  });
+  describe('with loose photos', () => {
+    // Listed oldest first on purpose: the order comes from the years, not the input
+    const projectsByYear: ProjectsByYear[] = [
+      { year: '2024', projects: [project('Studies')] },
+      { year: '2025', projects: [], images: [photo('p5a'), photo('p5b')] },
+      {
+        year: '2026',
+        projects: [project('Bench'), project('Box')],
+        images: [photo('first'), photo('afterBench1', 'Bench'), photo('afterBench2', 'Bench'), photo('gone', 'Missing')],
+      },
+    ];
 
-  it('should carry the year of the neighbor', () => {
-    expect(adjacentProjects(projectsByYear, '2023', 'Walnut Box')?.next?.year).toEqual('2024');
-  });
+    it('should list projects and photos the way the home page does, a photo per step', () => {
+      expect(homeSequence(projectsByYear).map(link => `${link.year} ${label(link)}`)).toEqual([
+        '2026 photo first',
+        '2026 Bench',
+        '2026 photo afterBench1',
+        '2026 photo afterBench2',
+        '2026 Box',
+        '2026 photo gone',
+        '2025 photo p5a',
+        '2025 photo p5b',
+        '2024 Studies',
+      ]);
+    });
 
-  it('should be null for the synthetic All group or an unknown project', () => {
-    expect(adjacentProjects(projectsByYear, ALL, ALL)).toBeNull();
-    expect(adjacentProjects(projectsByYear, '2023', 'Pergola')).toBeNull();
+    it('should step from a project onto a photo', () => {
+      const adjacent = adjacentLinks(projectsByYear, '2026', { project: 'Bench' });
+      expect([label(adjacent!.previous), label(adjacent!.next)]).toEqual(['photo first', 'photo afterBench1']);
+    });
+
+    it('should step from a photo onto a project, across years too', () => {
+      const between = adjacentLinks(projectsByYear, '2026', { photo: 'afterBench2' });
+      expect([label(between!.previous), label(between!.next)]).toEqual(['photo afterBench1', 'Box']);
+
+      const lastOfYear = adjacentLinks(projectsByYear, '2025', { photo: 'p5b' });
+      expect(label(lastOfYear!.next)).toEqual('Studies');
+      expect(lastOfYear!.next!.year).toEqual('2024');
+    });
+
+    it('should have no previous for the first step and no next for the last', () => {
+      expect(adjacentLinks(projectsByYear, '2026', { photo: 'first' })?.previous).toBeNull();
+      expect(adjacentLinks(projectsByYear, '2024', { project: 'Studies' })?.next).toBeNull();
+    });
+
+    it('should not mix up a photo and a project of the same name, or a photo of another year', () => {
+      expect(adjacentLinks(projectsByYear, '2026', { photo: 'Bench' })).toBeNull();
+      expect(adjacentLinks(projectsByYear, '2024', { photo: 'p5a' })).toBeNull();
+    });
   });
 });

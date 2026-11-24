@@ -1,6 +1,6 @@
 import { Location, NgOptimizedImage } from '@angular/common';
 import { SubscriptionLike } from 'rxjs';
-import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ChangeDetectionStrategy, SimpleChanges, computed, effect, inject, input, output, signal } from '@angular/core';
 import { Image, ImageSize } from '../../type/project.type';
 import { ImageOverlayComponent } from '../image-overlay/image-overlay.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
@@ -26,6 +26,8 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   /** Each loose photo's year by its url; only those photos get a heart, project photos go with their project. */
   readonly loosePhotoYears = input<ReadonlyMap<string, string>>(new Map());
   @Output() enlargedChange = new EventEmitter<boolean>();
+  /** The photo the single view shows, null for the grid; the page's previous/next links follow it. */
+  readonly shownImageChange = output<Image | null>();
   readonly currentIndex = signal(0);
   readonly isOverlayOpen = signal(false);
   readonly singleView = signal(false);
@@ -45,6 +47,9 @@ export class ImagesViewerComponent implements OnInit, OnChanges, OnDestroy {
   private readonly preloaded = new Map<string, HTMLImageElement>();
 
   constructor(private route: ActivatedRoute, private location: Location) {
+    // Arrows and swipes step the shown photo without the parent hearing of it otherwise
+    effect(() => this.shownImageChange.emit(this.singleView() ? this.currentImage() ?? null : null));
+
     // Prerendering has no window, so those pages keep the default size until the browser takes over
     if (typeof window !== 'undefined') {
       this.adjustImageSize(window.innerWidth, window.innerHeight);

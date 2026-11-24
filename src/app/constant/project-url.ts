@@ -1,5 +1,5 @@
-import { ALL, FAVORITES, looseImages } from './constants';
-import { Project, ProjectsByYear } from '../type/project.type';
+import { ALL, FAVORITES, looseImages, yearEntries } from './constants';
+import { Image, Project, ProjectsByYear } from '../type/project.type';
 
 /** The middle segment of a favorited loose photo's key, `/<year>/photo/<name>`; three segments never match a project. */
 export const PHOTO_SEGMENT: string = 'photo';
@@ -98,21 +98,46 @@ export interface ProjectLink {
     year: string;
 }
 
-export interface AdjacentProjects {
-    previous: ProjectLink | null;
-    next: ProjectLink | null;
+/** A photo in no project as a step in the previous/next sequence. */
+export interface PhotoLink {
+    kind: 'photo';
+    image: Image;
+    year: string;
+}
+
+/** A project or loose photo as a step in the previous/next sequence. */
+export type SequenceLink = (ProjectLink & { kind: 'project' }) | PhotoLink;
+
+export interface AdjacentLinks {
+    previous: SequenceLink | null;
+    next: SequenceLink | null;
+}
+
+/** What the previous/next links sit around: a project by name, or a loose photo by file name. */
+export type SequenceTarget = { project: string } | { photo: string };
+
+/**
+ * Every project and loose photo in the order the home page lists them: newest year first, each year as
+ * `yearEntries` lays it out, a run of loose photos one step per photo. The synthetic groups are left out.
+ */
+export function homeSequence(projectsByYear: ProjectsByYear[]): SequenceLink[] {
+    return projectsByYear
+        .filter(group => isYearSegment(group.year))
+        .sort((a, b) => Number(b.year) - Number(a.year))
+        .flatMap(group => yearEntries(group).flatMap((entry): SequenceLink[] => 'project' in entry
+            ? [{ kind: 'project', project: entry.project, year: group.year }]
+            : entry.photos.map(image => ({ kind: 'photo', image, year: group.year }))));
 }
 
 /**
- * The projects built just before and after one: oldest year first, each year's projects in the order listed.
- * Null when the project isn't found, as for the synthetic All and Favorites groups.
+ * The steps just before and after a project or loose photo in `homeSequence`. Null when it isn't found, as for
+ * the synthetic All and Favorites groups.
  */
-export function adjacentProjects(projectsByYear: ProjectsByYear[], year: string, name: string): AdjacentProjects | null {
-    const ordered: ProjectLink[] = projectsByYear
-        .filter(group => isYearSegment(group.year))
-        .sort((a, b) => Number(a.year) - Number(b.year))
-        .flatMap(group => group.projects.map(project => ({ project, year: group.year })));
-    const index = ordered.findIndex(link => link.year === year && link.project.name === name);
+export function adjacentLinks(projectsByYear: ProjectsByYear[], year: string, target: SequenceTarget): AdjacentLinks | null {
+    const ordered = homeSequence(projectsByYear);
+    const index = ordered.findIndex(link => link.year === year && ('project' in target
+        ? link.kind === 'project' && link.project.name === target.project
+        : link.kind === 'photo' && link.image.name === target.photo));
 
     if (index === -1) {
         return null;

@@ -80,24 +80,46 @@
           [images]="project.images"
           [projectName]="project.name"
           [loosePhotoYears]="this.loosePhotoYears()"
-          (enlargedChange)="this.isImageEnlarged.set($event)">
+          (enlargedChange)="this.isImageEnlarged.set($event)"
+          (shownImageChange)="this.shownImage.set($event)">
         </app-images-viewer>
         @if (this.adjacent(); as adjacent) {
-          <nav class="project-nav" aria-label="Previous and next projects">
+          <nav class="project-nav" aria-label="Previous and next">
             @if (adjacent.previous; as previous) {
-              <a class="project-nav-link previous" [href]="this.linkPath(previous)" (click)="this.adjacentClick($event, previous)">
-                <span class="project-nav-label">&#8592; Previous</span>
-                <span class="project-nav-name"><span class="project-nav-year">{{ previous.year }}</span>&ngsp;{{ previous.project.name }}</span>
+              <a class="project-nav-link previous" [href]="this.linkPath(previous)"
+                [attr.aria-label]="this.linkLabel('Previous', previous)" (click)="this.adjacentClick($event, previous)">
+                <span class="project-nav-label">&#8592; Previous<ng-container *ngTemplateOutlet="kindBadge; context: { $implicit: previous }" /></span>
+                <span class="project-nav-name"><span class="project-nav-year">{{ previous.year }}</span>&ngsp;{{ this.linkName(previous) }}</span>
               </a>
             }
             @if (adjacent.next; as next) {
-              <a class="project-nav-link next" [href]="this.linkPath(next)" (click)="this.adjacentClick($event, next)">
-                <span class="project-nav-label">Next &#8594;</span>
-                <span class="project-nav-name"><span class="project-nav-year">{{ next.year }}</span>&ngsp;{{ next.project.name }}</span>
+              <a class="project-nav-link next" [href]="this.linkPath(next)"
+                [attr.aria-label]="this.linkLabel('Next', next)" (click)="this.adjacentClick($event, next)">
+                <span class="project-nav-label"><ng-container *ngTemplateOutlet="kindBadge; context: { $implicit: next }" />Next &#8594;</span>
+                <span class="project-nav-name"><span class="project-nav-year">{{ next.year }}</span>&ngsp;{{ this.linkName(next) }}</span>
               </a>
             }
           </nav>
         }
+        <!-- Tells a project from a single photo at a glance: folder or picture icon and the noun -->
+        <ng-template #kindBadge let-link>
+          <span class="project-nav-kind" [class.photo]="link.kind === 'photo'">
+            @if (link.kind === 'project') {
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              </svg>
+            } @else {
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <circle cx="9" cy="10" r="2" />
+                <path d="m21 17-5-5-9 8" />
+              </svg>
+            }
+            {{ this.linkKind(link) }}
+          </span>
+        </ng-template>
       </div>
     }
   </section>

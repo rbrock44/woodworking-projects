@@ -440,20 +440,125 @@ describe('AppComponent', () => {
       });
     });
 
-    it('should link to the previous and next projects', async () => {
-      const { fixture } = await openAt('/2023/walnut-box');
+    const navLinks = (fixture: ComponentFixture<AppComponent>): HTMLAnchorElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll('.project-nav-link'));
 
-      const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('.project-nav-link'));
-      expect(links.map(link => link.getAttribute('href'))).toEqual(['/2023/oak-bench', '/2024/baby-rattles']);
-      expect(links.map(link => link.querySelector('.project-nav-name')!.textContent)).toEqual(['2023 Oak Bench', '2024 Baby Rattles']);
-      expect(links.map(link => link.querySelector('.project-nav-label')!.textContent)).toEqual(['← Previous', 'Next →']);
-    });
-
-    it('should leave out the side with no project', async () => {
+    it('should link to the previous and next projects in home page order', async () => {
       const { fixture } = await openAt('/2023/oak-bench');
 
-      const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('.project-nav-link'));
-      expect(links.map(link => link.classList.contains('next'))).toEqual([true]);
+      const links = navLinks(fixture);
+      expect(links.map(link => link.getAttribute('href'))).toEqual(['/2024/baby-rattles', '/2023/walnut-box']);
+      expect(links.map(link => link.querySelector('.project-nav-name')!.textContent)).toEqual(['2024 Baby Rattles', '2023 Walnut Box']);
+      expect(links.map(link => link.querySelector('.project-nav-label')!.textContent!.replace(/\s+/g, ' ').trim()))
+        .toEqual(['← Previous Project', 'Project Next →']);
+    });
+
+    it('should mark each link as a project and say so in its name', async () => {
+      const { fixture } = await openAt('/2023/oak-bench');
+
+      const links = navLinks(fixture);
+      expect(links.map(link => link.querySelector('.project-nav-kind')!.classList.contains('photo'))).toEqual([false, false]);
+      expect(links.map(link => link.getAttribute('aria-label'))).toEqual([
+        'Previous project: Baby Rattles, 2024',
+        'Next project: Walnut Box, 2023',
+      ]);
+    });
+
+    it('should leave out the side with nothing there', async () => {
+      const first = await openAt('/2024/baby-rattles');
+      expect(navLinks(first.fixture).map(link => link.classList.contains('next'))).toEqual([true]);
+    });
+
+    it('should leave out next on the last project', async () => {
+      const { fixture } = await openAt('/2023/walnut-box');
+      expect(navLinks(fixture).map(link => link.classList.contains('previous'))).toEqual([true]);
+    });
+
+    describe('with photos in no project', () => {
+      // 2024: loose photos before and after its project; 2023: projects only
+      const withLoose: ProjectsByYear[] = [
+        PROJECTS[0],
+        {
+          ...PROJECTS[1],
+          images: [
+            { ...image('owl'), desc: 'Carved owl' },
+            { ...image('20241101_0900'), desc: 'Fox sketch', after: 'Baby Rattles' },
+            { ...image('20241102_0900'), after: 'Baby Rattles' },
+          ],
+        },
+      ];
+      beforeEach(() => TestBed.inject(TransferState).set(PROJECTS_STATE_KEY, withLoose));
+
+      it('should step from a project onto the photos beside it, marked as photos', async () => {
+        const { fixture } = await openAt('/2024/baby-rattles');
+
+        const links = navLinks(fixture);
+        expect(links.map(link => link.getAttribute('href'))).toEqual(['/2024?image=owl', '/2024?image=20241101_0900']);
+        expect(links.map(link => link.querySelector('.project-nav-name')!.textContent)).toEqual(['2024 Carved owl', '2024 Fox sketch']);
+        expect(links.map(link => link.querySelector('.project-nav-kind')!.classList.contains('photo'))).toEqual([true, true]);
+        expect(links.map(link => link.querySelector('.project-nav-kind')!.textContent!.trim())).toEqual(['Photo', 'Photo']);
+        expect(links.map(link => link.getAttribute('aria-label'))).toEqual([
+          'Previous photo: Carved owl, 2024',
+          'Next photo: Fox sketch, 2024',
+        ]);
+      });
+
+      it('should open the photo on its own the way the home page does', async () => {
+        const { app, fixture, location } = await openAt('/2024/baby-rattles');
+        const photoClick = vi.spyOn(app, 'photoClick');
+        const goSpy = vi.spyOn(location, 'go');
+
+        const next = fixture.nativeElement.querySelector('.project-nav-link.next') as HTMLAnchorElement;
+        const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+        next.dispatchEvent(click);
+        fixture.detectChanges();
+
+        expect(click.defaultPrevented).toBe(true);
+        expect(photoClick).toHaveBeenCalledWith('2024', '20241101_0900');
+        expect(goSpy).toHaveBeenCalledWith('/2024', 'image=20241101_0900');
+        expect(app.selectedYear()).toEqual('2024');
+      });
+
+      it('should show the sequence from a photo opened on its own and step on to a project', async () => {
+        const { app, fixture, location } = await openAt('/2024?image=20241102_0900');
+        fixture.detectChanges();
+
+        const links = navLinks(fixture);
+        expect(links.map(link => link.getAttribute('href'))).toEqual(['/2024?image=20241101_0900', '/2023/oak-bench']);
+        expect(links[0].getAttribute('aria-label')).toEqual('Previous photo: Fox sketch, 2024');
+        expect(links[1].getAttribute('aria-label')).toEqual('Next project: Oak Bench, 2023');
+
+        links[1].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
+        fixture.detectChanges();
+
+        expect(app.selectedProject()?.name).toEqual('Oak Bench');
+        expect(location.path()).toEqual('/2023/oak-bench');
+      });
+
+      it('should name a photo with no description by its year', async () => {
+        const { fixture } = await openAt('/2024?image=20241101_0900');
+        fixture.detectChanges();
+
+        expect(navLinks(fixture)[1].getAttribute('aria-label')).toEqual('Next photo: Photo from 2024, 2024');
+      });
+
+      it('should have no previous on the first photo of the newest year', async () => {
+        const { fixture } = await openAt('/2024?image=owl');
+        fixture.detectChanges();
+
+        expect(navLinks(fixture).map(link => link.classList.contains('next'))).toEqual([true]);
+      });
+
+      it('should show no links in the year grid', async () => {
+        const grid = await openAt('/2024');
+        expect(grid.fixture.nativeElement.querySelector('.project-nav')).toBeNull();
+      });
+
+      it('should show no links for a project photo opened in its year', async () => {
+        const { fixture } = await openAt('/2024?image=20241013_1750');
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('.project-nav')).toBeNull();
+      });
     });
 
     it('should show no project links for a whole year', async () => {
@@ -463,15 +568,15 @@ describe('AppComponent', () => {
     });
 
     it('should swap to the next project in place on a plain click', async () => {
-      const { app, fixture, location } = await openAt('/2023/walnut-box');
+      const { app, fixture, location } = await openAt('/2024/baby-rattles');
 
       const next = fixture.nativeElement.querySelector('.project-nav-link.next') as HTMLAnchorElement;
       const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
       next.dispatchEvent(click);
 
       expect(click.defaultPrevented).toBe(true);
-      expect(app.selectedProject()?.name).toEqual('Baby Rattles');
-      expect(location.path()).toEqual('/2024/baby-rattles');
+      expect(app.selectedProject()?.name).toEqual('Oak Bench');
+      expect(location.path()).toEqual('/2023/oak-bench');
     });
 
     it('should show jump and stats as labelled icon buttons', async () => {
@@ -529,14 +634,14 @@ describe('AppComponent', () => {
     });
 
     it('should leave a ctrl click to the browser so it opens a new tab', async () => {
-      const { app, fixture } = await openAt('/2023/walnut-box');
+      const { app, fixture } = await openAt('/2023/oak-bench');
 
       const next = fixture.nativeElement.querySelector('.project-nav-link.next') as HTMLAnchorElement;
       next.addEventListener('click', event => event.preventDefault()); // keep jsdom from navigating
       const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true });
       next.dispatchEvent(click);
 
-      expect(app.selectedProject()?.name).toEqual('Walnut Box');
+      expect(app.selectedProject()?.name).toEqual('Oak Bench');
     });
   });
 });

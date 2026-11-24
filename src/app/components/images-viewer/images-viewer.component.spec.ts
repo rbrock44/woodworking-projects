@@ -33,6 +33,41 @@ describe('ImagesViewerComponent', () => {
     }).compileComponents();
   });
 
+  it('should report the photo the single view shows, and null for the grid', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    const images = makeImages(2);
+    const shown: (string | null)[] = [];
+    fixture.componentInstance.shownImageChange.subscribe(image => shown.push(image?.name ?? null));
+    fixture.componentRef.setInput('images', images);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    (element.querySelector('.image-item img') as HTMLElement).click();
+    fixture.detectChanges();
+    (element.querySelector('.right-arrow') as HTMLElement).click();
+    fixture.detectChanges();
+
+    expect(shown).toEqual([null, 'img-0', 'img-1']);
+  });
+
+  it('should show a fresh picture in the single view when the photo or its size changes', () => {
+    const fixture = TestBed.createComponent(ImagesViewerComponent);
+    fixture.componentRef.setInput('images', makeImages(2));
+    fixture.detectChanges();
+    fixture.componentInstance.onGridImageClick(0);
+    fixture.detectChanges();
+    const singleSrc = () => (fixture.nativeElement.querySelector('.image-plus-desc img') as HTMLImageElement).getAttribute('src');
+    const first = singleSrc();
+
+    (fixture.nativeElement.querySelector('.right-arrow') as HTMLElement).click();
+    fixture.detectChanges();
+    expect(singleSrc()).not.toEqual(first);
+
+    fixture.componentInstance.singleImage.set({ width: 123, height: 164 });
+    fixture.detectChanges();
+    expect((fixture.nativeElement.querySelector('.image-plus-desc img') as HTMLImageElement).getAttribute('width')).toEqual('123');
+  });
+
   describe('favoriting a photo in no project', () => {
     beforeEach(() => localStorage.removeItem('favorite-projects'));
     afterEach(() => localStorage.removeItem('favorite-projects'));

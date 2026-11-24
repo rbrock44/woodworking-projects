@@ -246,6 +246,11 @@ export function imageAltText(image: Image, projectName?: string): string {
         : subject;
 }
 
+/** What to call a photo in no project in lists and links: its description, else 'Photo from <year>'. */
+export function photoLabel(image: Pick<Image, 'desc'>, year: string): string {
+    return image.desc.trim() !== '' ? image.desc : `Photo from ${year}`;
+}
+
 export function splitSearchTerms(search: string): string[] {
     return search.toLowerCase().split(/\s+/).filter(term => term !== '');
 }

@@ -37,6 +37,13 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 
 - `AppComponent` owns all view state (selected year/project, search, favorites) and picks the view from the URL.
   The routes in `app.routes.ts` only decide which URLs are valid; view changes move the URL with `Location`, not the router
+- Previous/next links (`.project-nav` under the viewer): `homeSequence` in `constant/project-url.ts` flattens
+  `yearEntries` newest year first into one list of projects and loose photos (a photo per step), and `adjacentLinks`
+  finds the neighbours of a project or loose photo. They show on a project page and on a loose photo's single view in
+  its year (`ImagesViewerComponent.shownImageChange` tells `AppComponent` which photo is shown), never in All or
+  Favorites, and ignore the home search. A project goes through `jumpToProject`, a photo through `jumpToPhoto` (so
+  `photoClick`). Each link has a `.project-nav-kind` badge (folder or picture icon and `Project` / `Photo`, `.photo`
+  for a photo), the photo named by `photoLabel` in `constants.ts`, and an aria-label like `Next photo: Fox sketch, 2024`
 - Prerendering: `app.routes.server.ts` lists every year and project from `project-list.server.ts` (reads the JSON
   at build time). On the server `AppComponent` renders the page from the `PROJECT_LIST` token and puts the list in
   `TransferState`; the browser reads it back so its first render matches without a fetch, falling back to
