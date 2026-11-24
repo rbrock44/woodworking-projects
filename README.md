@@ -91,6 +91,8 @@ npm start
 
 - Unit
     - `ng test` || `npm run test`
+- Built site (after `npm run deploy`)
+    - `npm run test:dist` - every page, its tags, the sitemap, the 404 page, each page's content policy and every file a page asks for
 
 ---
 

@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:dist": "node --test scripts/check-dist.test.mjs",
     "deploy": "ng build && node scripts/finish-static-build.mjs"
   },
   "private": true,

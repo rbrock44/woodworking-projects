@@ -9,6 +9,10 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 - Install: `npm ci` (Node version in `.nvmrc`)
 - Dev server: `npm start` (port 4201)
 - Test all: `npm test` (Vitest in jsdom, no browser), or `npx ng test --watch=false` as CI runs it
+- Test the built site: `npm run test:dist` after `npm run deploy` (`scripts/check-dist.test.mjs`, `node --test`): every
+  page prerendered with its own title, description and canonical, photo pages previewing a photo from the images repo,
+  the 404 shell and CNAME, sitemap and robots, every referenced file published, every page's content policy hashing its
+  inline scripts
 - Build: `npm run deploy` — `ng build` (prerenders every route) then `scripts/finish-static-build.mjs`, which
   writes `sitemap.xml`, copies `index.csr.html` to `404.html`, drops `prerendered-routes.json` and puts a
   Content-Security-Policy meta tag in every page (GitHub Pages can't send headers; inline scripts allowed by hash,
