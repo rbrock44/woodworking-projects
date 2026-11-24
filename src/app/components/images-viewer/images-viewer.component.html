@@ -64,12 +64,15 @@
             &#8592;
           </button>
           <div class="image-plus-desc" (touchstart)="this.onSwipeStart($event)" (touchend)="this.onSwipeEnd($event)">
+            <!-- NgOptimizedImage can't change its src or size once it's rendered, so each picture and size gets a fresh img -->
+            @for (key of [this.getMidsizeImage(image.url) + '@' + this.singleImage().width + 'x' + this.singleImage().height]; track key) {
             <img ngSrc="{{this.getMidsizeImage(image.url)}}" height="{{this.singleImage().height}}"
               width="{{this.singleImage().width}}" [alt]="this.altText(image)"
               role="button" tabindex="0" [attr.aria-label]="'Enlarge photo: ' + this.altText(image)"
               (click)="this.onSingleImageClick()"
               (keydown.enter)="this.onSingleImageClick()"
               (keydown.space)="$event.preventDefault(); this.onSingleImageClick()">
+            }
               @if (image.desc !== '') {
                 <p class="image-desc">
                   {{ image.desc }}
