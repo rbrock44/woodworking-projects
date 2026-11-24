@@ -122,6 +122,37 @@ html:has(app-image-overlay, app-command-palette .palette, dialog:modal) {
   }
 }
 
+// The plain heart beside a home page row and in the single view's header (each component adds its own placing)
+.heart-button {
+  display: flex;
+  padding: var(--space-1);
+  color: var(--color-heart-outline);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--transition), transform var(--transition);
+
+  svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    color: var(--color-heart);
+    transform: scale(1.15);
+  }
+
+  &.favorited {
+    color: var(--color-heart);
+
+    svg {
+      fill: currentColor;
+    }
+  }
+}
+
 // A heart over the top-right corner of a photo tile (home page rows and the year grid): shown on hover or focus,
 // always once favorited, and always on touch screens, which have no hover
 .tile-heart {

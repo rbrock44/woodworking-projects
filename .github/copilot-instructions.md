@@ -123,6 +123,8 @@ command palette, favorites, stats, SEO, prerendering). Keep them close:
   rather than string literals
 - Templates reference members through `this.` (`this.selectedProject`)
 - Specs sit next to their source as `*.spec.ts`
+- Component styles warn past 6kB (`angular.json` budgets, error at 8kB); shared looks such as `.heart-button` and
+  `.tile-heart` live in `src/styles.scss`, and a big component gets split rather than the budget raised
 - Fonts are self-hosted from fontsource packages (Fraunces and Work Sans variable, IBM Plex Mono 400/500), listed in
   `angular.json`'s `styles` and bundled into `media/`; no Google Fonts, so the content policy allows only `'self'` for
   fonts and styles

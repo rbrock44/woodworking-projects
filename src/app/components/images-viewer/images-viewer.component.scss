@@ -171,34 +171,7 @@ img {
 
 // Favorites a loose photo; same look as the home list's hearts
 .heart-button {
-  display: flex;
   margin: var(--space-1) var(--space-2) var(--space-1) auto;
-  padding: var(--space-1);
-  color: var(--color-heart-outline);
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color var(--transition), transform var(--transition);
-
-  svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linejoin: round;
-  }
-
-  &:hover {
-    color: var(--color-heart);
-    transform: scale(1.15);
-  }
-
-  &.favorited {
-    color: var(--color-heart);
-
-    svg {
-      fill: currentColor;
-    }
-  }
 }
 
 // Zero width with a full minimum: it wraps to the picture's width instead of widening the column

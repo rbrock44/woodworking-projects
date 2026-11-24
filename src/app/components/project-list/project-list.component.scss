@@ -216,34 +216,7 @@ p {
 
 .heart-button {
   flex: none;
-  display: flex;
-  padding: var(--space-1);
-  color: var(--color-heart-outline);
-  background-color: transparent;
-  border: none;
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: color var(--transition), transform var(--transition);
-
-  svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linejoin: round;
-  }
-}
-
-.heart-button:hover {
-  color: var(--color-heart);
-  transform: scale(1.15);
-}
-
-.heart-button.favorited {
-  color: var(--color-heart);
-
-  svg {
-    fill: currentColor;
-  }
 }
 
 // 'Projects' and 'Pieces' inside the Favorites group, so the two kinds of favorites never blur together
