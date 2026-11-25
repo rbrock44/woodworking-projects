@@ -1,6 +1,6 @@
-import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, computed, effect, inject, signal, untracked} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, PLATFORM_ID, TransferState, effect, inject, signal, untracked} from '@angular/core';
 import {RouterOutlet, Router, NavigationEnd} from '@angular/router';
-import {Image, PhotoPlace, Project, Projects, ProjectsByYear} from "./type/project.type";
+import {Project, Projects} from "./type/project.type";
 import {getProjects, prepareProjects, PROJECTS_STATE_KEY} from "./services/project.service";
 import { isPlatformBrowser, Location } from "@angular/common";
 import { filter, firstValueFrom } from 'rxjs';
@@ -15,8 +15,9 @@ import {CommandPaletteService, PALETTE_LABEL} from "./services/command-palette.s
 import {describePage, homePage, PROJECT_LIST, SeoService} from "./services/seo.service";
 import {FavoritesService} from "./services/favorites.service";
 import {GalleryService} from "./services/gallery.service";
-import { ALL, FAVORITES, URL_PARAM_SHARED, URL_PARAM_YEAR, createImageForAll, extractImagesByYear, looseImages, projectMonthRange, scrollPageToTop } from './constant/constants';
-import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoFavoritePath, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoUrl, photosAtPaths, projectPath, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
+import {ViewStateService} from "./services/view-state.service";
+import { ALL, FAVORITES, URL_PARAM_SHARED, URL_PARAM_YEAR, looseImages, scrollPageToTop } from './constant/constants';
+import { existingFavoritePaths, isPlainLeftClick, isStatsPath, isYearSegment, parsePhotoPath, parseProjectPath, parseSharedFavorites, PhotoTarget, photoUrl, projectPath, projectSlug, STATS_SEGMENT, viewPathOf } from './constant/project-url';
 
 @Component({
     selector: 'app-root',
@@ -37,10 +38,6 @@ import { adjacentLinks, existingFavoritePaths, favoriteProjectsAtPaths, isPhotoF
 })
 export class AppComponent implements OnInit {
   title = 'woodworking-projects';
-  readonly selectedProject = signal<Project | undefined>(undefined);
-  readonly selectedYear = signal('');
-  readonly isImageEnlarged = signal(false);
-  readonly showStats = signal(false);
   readonly palette = inject(CommandPaletteService);
   readonly paletteLabel = PALETTE_LABEL;
   private readonly favorites = inject(FavoritesService);
@@ -65,54 +62,25 @@ export class AppComponent implements OnInit {
   readonly placesByUrl = this.gallery.placesByUrl;
   readonly loosePhotoYears = this.gallery.loosePhotoYears;
 
-  /** Section headings for the Favorites grid's pictures, empty for every other view. */
-  readonly selectedSections = signal<ReadonlyMap<Image, string>>(new Map());
-  // Paths from a share link being viewed; the prompt to add them shows while there are any
-  readonly sharedPaths = signal<string[]>([]);
-  readonly sharedNewCount = computed(() => this.sharedPaths().filter(path => !this.favorites.hasPath(path)).length);
-  // Names both kinds: '1 project and 2 photos'
-  readonly sharedSummary = computed(() => {
-    const photos = this.sharedPaths().filter(isPhotoFavoritePath).length;
-    const projects = this.sharedPaths().length - photos;
-    return [
-      ...(projects > 0 ? [`${projects} ${projects === 1 ? 'project' : 'projects'}`] : []),
-      ...(photos > 0 ? [`${photos} ${photos === 1 ? 'photo' : 'photos'}`] : []),
-    ].join(' and ');
-  });
-  /** The open project's own favorite state; false for a year, All, Favorites or Featured. */
-  readonly isProjectFavorite = computed(() => {
-    const project = this.selectedProject();
-    return !!project?.name && this.favorites.isFavorite(this.selectedYear(), project);
-  });
+  // Which view is open lives in ViewStateService; this component picks it from the URL and keeps the URL and SEO in
+  // step, and the template reads it through here
+  private readonly view = inject(ViewStateService);
+  readonly selectedProject = this.view.selectedProject;
+  readonly selectedYear = this.view.selectedYear;
+  readonly isImageEnlarged = this.view.isImageEnlarged;
+  readonly showStats = this.view.showStats;
+  readonly selectedSections = this.view.selectedSections;
+  readonly shownImage = this.view.shownImage;
+  readonly sharedPaths = this.view.sharedPaths;
+  readonly sharedNewCount = this.view.sharedNewCount;
+  readonly sharedSummary = this.view.sharedSummary;
+  readonly isProjectFavorite = this.view.isProjectFavorite;
+  readonly selectedMonthRange = this.view.selectedMonthRange;
+  readonly adjacent = this.view.adjacent;
+  private readonly selectedPath = this.view.selectedPath;
+
   readonly shareCopied = signal(false);
   private shareCopiedTimer?: ReturnType<typeof setTimeout>;
-
-  readonly selectedMonthRange = computed(() => {
-    const project = this.selectedProject();
-    return project ? projectMonthRange(project.images, this.selectedYear()) : null;
-  });
-
-  /** The photo the single view shows, null for the grid. */
-  readonly shownImage = signal<Image | null>(null);
-
-  // Previous and next around a project, or around a loose photo shown on its own in its year; the All and
-  // Favorites views have none, as their photos aren't one place in the home page list
-  readonly adjacent = computed(() => {
-    const project = this.selectedProject();
-    const year = this.selectedYear();
-    if (!project) {
-      return null;
-    }
-    if (project.name) {
-      return adjacentLinks(this.data().projectsByYear, year, { project: project.name });
-    }
-
-    // Only a photo of the view now open; the viewer reports a new one after a swap
-    const image = this.shownImage();
-    return image && isYearSegment(year) && project.images.includes(image) && this.loosePhotoYears().get(image.url) === year
-      ? adjacentLinks(this.data().projectsByYear, year, { photo: image.name })
-      : null;
-  });
 
   constructor(private location: Location) {
     // A new view starts at the top, as it does in the card's own scroller on wide screens
@@ -163,11 +131,7 @@ export class AppComponent implements OnInit {
         return; // same project; the images viewer handles image-level history
       }
 
-      this.selectedProject.set(undefined);
-      this.selectedYear.set('');
-      this.showStats.set(false);
-      this.isImageEnlarged.set(false);
-      this.sharedPaths.set([]);
+      this.view.clear();
       this.selectFromPath(path);
     });
   }
@@ -205,21 +169,23 @@ export class AppComponent implements OnInit {
     } else if (target?.year === FAVORITES) {
       const shared = this.isBrowser ? this.sharedFromPath(path) : [];
       if (shared.length > 0) {
-        this.openShared(shared);
+        if (this.view.openShared(shared)) {
+          this.location.replaceState(projectPath(FAVORITES));
+        }
       } else if (this.favoriteCount() > 0) {
-        this.selectAllFavorites();
+        this.view.selectAllFavorites();
       }
     } else if (photo) {
       this.selectPhotoPage(photo);
     } else if (target && yearGroup) {
       if (target.year === ALL) {
-        this.select(yearGroup.projects[0], ALL);
+        this.view.select(yearGroup.projects[0], ALL);
       } else if (target.slug === null) {
-        this.selectAllProjectsByYear(target.year);
+        this.view.selectAllProjectsByYear(target.year);
       } else {
         const foundProject = yearGroup.projects.find(p => projectSlug(p.name) === target.slug);
         if (foundProject) {
-          this.select(foundProject, target.year);
+          this.view.select(foundProject, target.year);
         }
       }
     }
@@ -245,7 +211,7 @@ export class AppComponent implements OnInit {
     if (photo.slug !== null) {
       const project = yearGroup.projects.find(p => projectSlug(p.name) === photo.slug);
       if (project) {
-        this.select(project, photo.year);
+        this.view.select(project, photo.year);
         if (this.isBrowser && !project.images.some(image => image.name === photo.name)) {
           this.location.replaceState(projectPath(photo.year, project.name));
         }
@@ -253,7 +219,7 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    this.selectAllProjectsByYear(photo.year);
+    this.view.selectAllProjectsByYear(photo.year);
     if (this.isBrowser && !looseImages(yearGroup).some(image => image.name === photo.name)) {
       this.location.replaceState(projectPath(photo.year));
     }
@@ -264,7 +230,7 @@ export class AppComponent implements OnInit {
   }
 
   allFavorites(): void {
-    this.selectAllFavorites();
+    this.view.selectAllFavorites();
     this.location.go(projectPath(FAVORITES));
     this.updateSeo();
   }
@@ -277,48 +243,8 @@ export class AppComponent implements OnInit {
     return existingFavoritePaths(this.data().projectsByYear, paths);
   }
 
-  /**
-   * A favorites grid: the projects' photos under one heading, then the single photos under another, so a
-   * favorited project's photos and a favorited photo never read as the same kind.
-   */
-  private favoritesGrid(projects: ProjectsByYear[], photos: PhotoPlace[]): { images: Image[]; sections: Map<Image, string> } {
-    const projectImages = projects.flatMap(yearGroup => extractImagesByYear(yearGroup));
-    const photoImages = photos.map(place => createImageForAll(place.year, place.project, place.image));
-
-    return {
-      images: [...projectImages, ...photoImages],
-      sections: new Map([
-        ...projectImages.map(image => [image, 'Projects'] as const),
-        ...photoImages.map(image => [image, 'Photos'] as const),
-      ]),
-    };
-  }
-
-  /** No favorites yet, or nothing new: take the shared ones. Otherwise show them and ask before merging. */
-  private openShared(paths: string[]): void {
-    if (this.favoriteCount() === 0 || paths.every(path => this.favorites.hasPath(path))) {
-      this.favorites.addAll(paths);
-      this.location.replaceState(projectPath(FAVORITES));
-      this.selectAllFavorites();
-      return;
-    }
-
-    const shared = new Set(paths);
-    const { images, sections } = this.favoritesGrid(
-      favoriteProjectsAtPaths(this.data().projectsByYear, shared), photosAtPaths(this.data().projectsByYear, shared));
-
-    this.select({
-      name: '',
-      desc: 'Shared favorites',
-      images: images
-    }, FAVORITES, sections);
-    this.sharedPaths.set(paths);
-  }
-
   addSharedFavorites(): void {
-    this.favorites.addAll(this.sharedPaths());
-    this.isImageEnlarged.set(false);
-    this.selectAllFavorites();
+    this.view.addSharedFavorites();
     this.location.replaceState(projectPath(FAVORITES));
     this.updateSeo();
   }
@@ -354,19 +280,8 @@ export class AppComponent implements OnInit {
     this.shareCopiedTimer = setTimeout(() => this.shareCopied.set(false), 2000);
   }
 
-  private selectAllFavorites(): void {
-    // Search-aware like a year's 'All'; each image keeps its year and project in the description
-    const { images, sections } = this.favoritesGrid(this.filteredFavoriteProjects(), this.filteredFavoritePhotos());
-
-    this.select({
-      name: '',
-      desc: `All of ${FAVORITES}`,
-      images: images
-    }, FAVORITES, sections);
-  }
-
   projectClick(project: Project, year: string): void {
-    this.select(project, year);
+    this.view.select(project, year);
 
     this.location.go(projectPath(year, project.name));
     this.updateSeo();
@@ -387,28 +302,21 @@ export class AppComponent implements OnInit {
     }
 
     event.preventDefault();
-    this.sharedPaths.set([]);
-    this.selectedProject.set(undefined);
-    this.selectedYear.set('');
-    this.showStats.set(true);
+    this.view.selectStats();
 
     this.location.go(`/${STATS_SEGMENT}`);
     this.updateSeo();
   }
 
   homeClick(): void {
-    this.sharedPaths.set([]);
-    this.selectedProject.set(undefined);
-    this.selectedYear.set('');
-    this.showStats.set(false);
-    this.isImageEnlarged.set(false);
+    this.view.clear();
 
     this.location.go('/');
     this.updateSeo();
   }
 
   allProjectsByYear(year: string): void {
-    this.selectAllProjectsByYear(year);
+    this.view.selectAllProjectsByYear(year);
     this.location.go(projectPath(year));
     this.updateSeo();
   }
@@ -426,10 +334,7 @@ export class AppComponent implements OnInit {
 
   /** The heart beside an open project's name: favorites the whole project, not the photo shown. */
   toggleProjectFavorite(): void {
-    const project = this.selectedProject();
-    if (project?.name) {
-      this.favorites.toggle(this.selectedYear(), project);
-    }
+    this.view.toggleProjectFavorite();
   }
 
   /** A photo in no project opens in its year, shown on its own; one in a project opens in that project at it. */
@@ -440,43 +345,14 @@ export class AppComponent implements OnInit {
     if (project) {
       this.isImageEnlarged.set(false);
       this.location.go(photoUrl(year, imageName, project.name));
-      this.select(project, year);
+      this.view.select(project, year);
       this.updateSeo();
       return;
     }
 
     this.location.go(photoUrl(year, imageName));
-    this.selectAllProjectsByYear(year);
+    this.view.selectAllProjectsByYear(year);
     this.updateSeo();
-  }
-
-  private selectAllProjectsByYear(year: string): void {
-    // Search-aware: 'All' covers the projects currently visible for that year
-    const yearGroup = this.filteredProjectsByYear().find(x => x.year === year)
-      ?? this.data().projectsByYear.find(x => x.year === year)!;
-    const images = extractImagesByYear(yearGroup);
-
-    this.select({
-      name: '',
-      desc: `All of ${year}`,
-      images: images
-    }, year);
-  }
-
-  private select(project: Project, year: string, sections: ReadonlyMap<Image, string> = new Map()): void {
-    this.sharedPaths.set([]);
-    this.selectedSections.set(sections);
-    this.showStats.set(false);
-    this.selectedProject.set(project);
-    this.selectedYear.set(year);
-  }
-
-  private selectedPath(): string {
-    const project = this.selectedProject();
-    if (this.showStats()) {
-      return `/${STATS_SEGMENT}`;
-    }
-    return project ? projectPath(this.selectedYear(), project.name) : '/';
   }
 
   /** The view a path shows; a photo's own page shows its project or year. */

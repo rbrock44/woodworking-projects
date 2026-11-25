@@ -54,8 +54,11 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 - `GalleryService` holds the gallery as loaded (`data`, `dataLoaded`, `load`), the home search and everything that
   follows from them: filtered years, counts, favorites lists, each photo's place. It knows nothing of the open view or
   the URL
-- `AppComponent` owns the view state (selected year/project, stats, the shown photo, share prompt) and picks the view
-  from the URL; it exposes `GalleryService`'s signals under the same names for its template.
+- `ViewStateService` holds which view is open (selected year/project, stats, the shown photo, share prompt) and what
+  follows from it (month range, previous/next, the view's path), and builds the All, Favorites and shared views. Like
+  `GalleryService` it never reads or moves the URL
+- `AppComponent` picks the view from the URL, moves the URL with each view change and keeps SEO in step; it exposes
+  both services' signals under the same names for its template.
 The routes in `app.routes.ts` only decide which URLs are valid; view changes move the URL with `Location`, not the router
 - Previous/next links (`.project-nav` under the viewer): `homeSequence` in `constant/project-url.ts` flattens
   `yearEntries` newest year first into one list of projects and loose photos (a photo per step), and `adjacentLinks`
