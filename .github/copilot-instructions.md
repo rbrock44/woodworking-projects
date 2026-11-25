@@ -14,7 +14,7 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   the 404 shell and CNAME, sitemap and robots, every referenced file published, every page's content policy hashing its
   inline scripts
 - Build: `npm run deploy` — `ng build` (prerenders every route) then `scripts/finish-static-build.mjs`, which
-  writes `sitemap.xml`, copies `index.csr.html` to `404.html`, drops `prerendered-routes.json` and puts a
+  writes `sitemap.xml` (with each page's 900x1200 photos), copies `index.csr.html` to `404.html`, drops `prerendered-routes.json` and puts a
   Content-Security-Policy meta tag in every page (GitHub Pages can't send headers; inline scripts allowed by hash,
   photos only from `raw.githubusercontent.com`; a new outside origin has to be added there). Output in `dist/woodworking-projects/`
 - Deploy: CI only, `.github/workflows/deploy.yml` on push to `master` (tests, build, `peaceiris/actions-gh-pages`).

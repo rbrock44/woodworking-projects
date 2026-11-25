@@ -110,6 +110,18 @@ describe('sitemap and robots', () => {
     assert.deepEqual(listed, indexed);
   });
 
+  it('should list only mid-size photos from the images repo, and some', () => {
+    const sitemap = readFileSync(join(dist, 'sitemap.xml'), 'utf8');
+    const images = [...sitemap.matchAll(/<image:loc>([^<]*)<\/image:loc>/g)].map(([, url]) => decodeURI(url.replace(/&amp;/g, '&')));
+
+    assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
+    assert.ok(images.length > 0, 'no images in the sitemap');
+    for (const image of images) {
+      assert.ok(image.startsWith(PHOTO_HOST), `${image} is not from the images repo`);
+      assert.match(image, /-900x1200\.webp$/, `${image} is not the mid-size copy`);
+    }
+  });
+
   it('should point robots.txt at the sitemap', () => {
     assert.match(readFileSync(join(dist, 'robots.txt'), 'utf8'), new RegExp(`Sitemap: ${SITE_URL}/sitemap.xml`));
   });

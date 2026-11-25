@@ -19,21 +19,49 @@ function newestPhotoDate(html) {
   return dates.at(-1);
 }
 
+// Photos live in the images repo, not in the site
+const PHOTO_HOST = 'https://raw.githubusercontent.com/';
+
+// The photos a page shows, for the sitemap's image entries: its preview image and every grid or single view photo,
+// each as its 900x1200 copy (thumbnails are too small to be worth indexing)
+function pageImages(html) {
+  const preview = [...html.matchAll(/<meta property="og:image" content="([^"]*)"/g)].map(([, url]) => url);
+  const shown = [...html.matchAll(/<img [^>]*\bsrc="([^"]*)"/g)].map(([, url]) => url);
+  const urls = [...preview, ...shown]
+    .map(url => url.replace(/&amp;/g, '&'))
+    .filter(url => url.startsWith(PHOTO_HOST))
+    .map(url => url.replace(/-150x200\.jpg$/, '.jpg').replace(/(?<!-900x1200)\.jpg$/, '-900x1200.webp'));
+
+  return [...new Set(urls)];
+}
+
+const xmlEscape = text => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 const pages = Object.keys(routes)
   .map(route => ({ route, html: readFileSync(join(dist, route, 'index.html'), 'utf8') }))
   .filter(({ html }) => !/<meta name="robots" content="noindex"/.test(html))
-  .map(({ route, html }) => ({ route, lastmod: newestPhotoDate(html) }));
+  .map(({ route, html }) => ({ route, lastmod: newestPhotoDate(html), images: pageImages(html) }));
 
 // Pages with no photos of their own, like home, change whenever any project does.
 const newest = pages.map(page => page.lastmod).filter(Boolean).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
 
+// Google reads at most 1,000 images per page
+const MAX_IMAGES_PER_PAGE = 1000;
+const imageEntry = image => `    <image:image>\n      <image:loc>${xmlEscape(encodeURI(decodeURI(image)))}</image:loc>\n    </image:image>`;
 const urls = pages
-  .map(({ route, lastmod }) => ({ url: route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}/`, lastmod: lastmod ?? newest }))
-  .map(({ url, lastmod }) => `  <url>\n    <loc>${url}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`);
+  .map(({ route, lastmod, images }) => ({ url: route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}/`, lastmod: lastmod ?? newest, images }))
+  .map(({ url, lastmod, images }) => [
+    '  <url>',
+    `    <loc>${xmlEscape(url)}</loc>`,
+    `    <lastmod>${lastmod}</lastmod>`,
+    ...images.slice(0, MAX_IMAGES_PER_PAGE).map(imageEntry),
+    '  </url>',
+  ].join('\n'));
+const imageCount = pages.reduce((count, page) => count + Math.min(page.images.length, MAX_IMAGES_PER_PAGE), 0);
 
 writeFileSync(
   join(dist, 'sitemap.xml'),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join('\n')}\n</urlset>\n`
 );
 
 copyFileSync(join(dist, 'index.csr.html'), join(dist, '404.html'));
@@ -80,4 +108,4 @@ for (const file of files) {
   writeFileSync(file, html.replace('<meta charset="utf-8">', `<meta charset="utf-8">${securityTags}`));
 }
 
-console.log(`sitemap.xml: ${urls.length} urls, 404.html: copied from index.csr.html, content policy: ${files.length} pages, ${scriptHashes.size} inline script hashes`);
+console.log(`sitemap.xml: ${urls.length} urls, ${imageCount} images, 404.html: copied from index.csr.html, content policy: ${files.length} pages, ${scriptHashes.size} inline script hashes`);
