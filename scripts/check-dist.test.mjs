@@ -141,6 +141,30 @@ describe('web app manifest', () => {
   });
 });
 
+describe('feed', () => {
+  const feed = readFileSync(join(dist, 'feed.xml'), 'utf8');
+  const entries = [...feed.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map(([, entry]) => entry);
+
+  it('should list the newest work first, each entry a published page', () => {
+    assert.match(feed, /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
+    assert.ok(entries.length > 0 && entries.length <= 50, `${entries.length} entries`);
+
+    const updated = entries.map(entry => /<updated>([^<]*)<\/updated>/.exec(entry)[1]);
+    assert.deepEqual(updated, [...updated].sort().reverse());
+    for (const entry of entries) {
+      const url = /<link href="([^"]*)"\/>/.exec(entry)[1].replace(/&amp;/g, '&');
+      assert.ok(url.startsWith(`${SITE_URL}/`), `${url} is not on the site`);
+      // Entries link to the prerendered route as it is, so the path names its folder
+      const path = url.slice(SITE_URL.length);
+      assert.ok(existsSync(join(dist, path, 'index.html')), `${path} is not a published page`);
+    }
+  });
+
+  it('should be linked from every page', () => {
+    assert.match(readFileSync(join(dist, 'index.html'), 'utf8'), /<link rel="alternate" type="application\/atom\+xml" href="feed\.xml"/);
+  });
+});
+
 describe('published files', () => {
   /** Site-relative references in a page or stylesheet: src, href, srcset entries and css url()s. */
   function references(text) {

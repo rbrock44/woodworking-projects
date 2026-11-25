@@ -37,10 +37,24 @@ function pageImages(html) {
 
 const xmlEscape = text => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+// Meta tag text as Angular escaped it, back to plain text
+const unescapeHtml = text => text.replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const metaContent = (html, attribute) => {
+  const match = new RegExp(`<meta ${attribute} content="([^"]*)"`).exec(html);
+  return match ? unescapeHtml(match[1]) : '';
+};
+
 const pages = Object.keys(routes)
   .map(route => ({ route, html: readFileSync(join(dist, route, 'index.html'), 'utf8') }))
   .filter(({ html }) => !/<meta name="robots" content="noindex"/.test(html))
-  .map(({ route, html }) => ({ route, lastmod: newestPhotoDate(html), images: pageImages(html) }));
+  .map(({ route, html }) => ({
+    route,
+    lastmod: newestPhotoDate(html),
+    images: pageImages(html),
+    title: metaContent(html, 'property="og:title"'),
+    description: metaContent(html, 'name="description"'),
+    preview: metaContent(html, 'property="og:image"'),
+  }));
 
 // Pages with no photos of their own, like home, change whenever any project does.
 const newest = pages.map(page => page.lastmod).filter(Boolean).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
@@ -63,6 +77,53 @@ writeFileSync(
   join(dist, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join('\n')}\n</urlset>\n`
 );
+
+// An Atom feed of the newest work, so followers can subscribe: every project and every photo in no project, newest
+// first. A project dates from its newest photo; a loose photo from its own name (YYYYMMDD_HHMM), else its page's.
+const FEED_ENTRIES = 50;
+const home = pages.find(page => page.route === '/');
+const siteTitle = home?.title ?? 'Woodworking Projects';
+const isProjectRoute = route => /^\/\d{4}\/[^/]+$/.test(route) && !route.endsWith('/photo');
+const loosePhotoName = route => /^\/\d{4}\/photo\/([^/]+)$/.exec(route)?.[1];
+const nameDate = name => {
+  const match = /^(\d{4})(\d{2})(\d{2})_\d{4}/.exec(decodeURIComponent(name));
+  return match && match[2] >= '01' && match[2] <= '12' && match[3] >= '01' && match[3] <= '31' ? `${match[1]}-${match[2]}-${match[3]}` : undefined;
+};
+const titleSuffix = ` - ${siteTitle}`;
+const feedEntries = pages
+  .filter(({ route }) => isProjectRoute(route) || loosePhotoName(route))
+  .map(page => ({ ...page, updated: (loosePhotoName(page.route) && nameDate(loosePhotoName(page.route))) || page.lastmod || newest }))
+  .sort((a, b) => b.updated.localeCompare(a.updated) || a.route.localeCompare(b.route))
+  .slice(0, FEED_ENTRIES)
+  .map(({ route, updated, title, description, preview }) => {
+    const url = xmlEscape(`${SITE_URL}${route}/`);
+    const name = title.endsWith(titleSuffix) ? title.slice(0, -titleSuffix.length) : title;
+    const picture = preview ? `<p><img src="${preview.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" alt=""></p>` : '';
+    const content = `${picture}<p>${xmlEscape(description)}</p>`;
+    return [
+      '  <entry>',
+      `    <id>${url}</id>`,
+      `    <title>${xmlEscape(name)}</title>`,
+      `    <link href="${url}"/>`,
+      `    <updated>${updated}T00:00:00Z</updated>`,
+      `    <summary>${xmlEscape(description)}</summary>`,
+      `    <content type="html">${xmlEscape(content)}</content>`,
+      '  </entry>',
+    ].join('\n');
+  });
+
+writeFileSync(join(dist, 'feed.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>${xmlEscape(`${SITE_URL}/`)}</id>
+  <title>${xmlEscape(siteTitle)}</title>
+  <subtitle>${xmlEscape(home?.description ?? '')}</subtitle>
+  <link href="${xmlEscape(`${SITE_URL}/`)}"/>
+  <link rel="self" href="${xmlEscape(`${SITE_URL}/feed.xml`)}"/>
+  <updated>${newest}T00:00:00Z</updated>
+  <author><name>${xmlEscape(siteTitle)}</name></author>
+${feedEntries.join('\n')}
+</feed>
+`);
 
 copyFileSync(join(dist, 'index.csr.html'), join(dist, '404.html'));
 
@@ -108,4 +169,4 @@ for (const file of files) {
   writeFileSync(file, html.replace('<meta charset="utf-8">', `<meta charset="utf-8">${securityTags}`));
 }
 
-console.log(`sitemap.xml: ${urls.length} urls, ${imageCount} images, 404.html: copied from index.csr.html, content policy: ${files.length} pages, ${scriptHashes.size} inline script hashes`);
+console.log(`sitemap.xml: ${urls.length} urls, ${imageCount} images, feed.xml: ${feedEntries.length} entries, 404.html: copied from index.csr.html, content policy: ${files.length} pages, ${scriptHashes.size} inline script hashes`);
