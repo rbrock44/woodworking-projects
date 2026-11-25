@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Meta } from '@angular/platform-browser';
-import { describePage, homePage, SeoService } from './seo.service';
+import { describePage, homePage, pageData, SeoService } from './seo.service';
 import { ProjectsByYear } from '../type/project.type';
 
 describe('describePage', () => {
@@ -10,7 +10,7 @@ describe('describePage', () => {
   ];
 
   it('should describe a project from its description', () => {
-    expect(describePage(projectsByYear, '/2024/walnut-bench')).toEqual({
+    expect(describePage(projectsByYear, '/2024/walnut-bench')).toMatchObject({
       path: '/2024/walnut-bench',
       title: 'Walnut Bench (2024) - Woodworking Projects by Ryan Brock',
       description: 'Live edge seat',
@@ -39,7 +39,7 @@ describe('describePage', () => {
     }];
 
     it('should describe a project photo with that photo as its preview', () => {
-      expect(describePage(photos, '/2024/barn-owl/photo/owl-1/')).toEqual({
+      expect(describePage(photos, '/2024/barn-owl/photo/owl-1/')).toMatchObject({
         path: '/2024/barn-owl/photo/owl-1',
         title: 'Carved from oak - Barn Owl (2024) - Woodworking Projects by Ryan Brock',
         description: 'Carved from oak',
@@ -85,7 +85,7 @@ describe('describePage', () => {
   });
 
   it('should describe the stats page with the totals', () => {
-    expect(describePage(projectsByYear, '/stats')).toEqual({
+    expect(describePage(projectsByYear, '/stats')).toMatchObject({
       path: '/stats',
       title: 'Shop Stats - Woodworking Projects by Ryan Brock',
       description: '2 woodworking projects and 0 photos, 2024: projects per year, the most photographed and the longest builds.',
@@ -138,6 +138,56 @@ describe('preview images', () => {
   it('should leave the image out when there are no photos', () => {
     expect(homePage([]).image).toBeUndefined();
     expect(describePage([{ year: '2024', projects: [{ name: 'Bench', images: [] }] }], '/2024/bench')?.image).toBeUndefined();
+  });
+});
+
+describe('page data', () => {
+  const SITE_URL = 'https://woodworking-projects.ryan-brock.com';
+  const projectsByYear: ProjectsByYear[] = [{
+    year: '2024',
+    projects: [{ name: 'Barn Owl', images: [
+      { name: 'owl-1', desc: 'Carved from oak', url: 'https://example.com/owl-1.jpg' },
+      { name: 'owl-2', desc: '', url: 'https://example.com/owl-2.jpg' },
+    ] }],
+    images: [{ name: 'stamp', desc: '', url: 'https://example.com/stamp.jpg' }],
+  }];
+  const graph = (path: string) => (pageData(describePage(projectsByYear, path)!)?.['@graph'] ?? []) as Record<string, any>[];
+  const ofType = (path: string, type: string) => graph(path).find(item => item['@type'] === type);
+
+  it('should trail a photo page back through its project and year to home', () => {
+    const crumbs = ofType('/2024/barn-owl/photo/owl-1', 'BreadcrumbList')!['itemListElement'];
+
+    expect(crumbs.map((crumb: any) => crumb.item)).toEqual([
+      `${SITE_URL}/`, `${SITE_URL}/2024/`, `${SITE_URL}/2024/barn-owl/`, `${SITE_URL}/2024/barn-owl/photo/owl-1/`,
+    ]);
+    expect(crumbs.map((crumb: any) => crumb.position)).toEqual([1, 2, 3, 4]);
+  });
+
+  it('should describe a photo page as its image', () => {
+    expect(ofType('/2024/barn-owl/photo/owl-1', 'ImageObject')).toMatchObject({
+      contentUrl: 'https://example.com/owl-1.jpg',
+      url: `${SITE_URL}/2024/barn-owl/photo/owl-1/`,
+    });
+  });
+
+  it("should list a project's photos, and a year's with its loose ones, as a gallery", () => {
+    expect(ofType('/2024/barn-owl', 'ImageGallery')!['image']).toHaveLength(2);
+    expect(ofType('/2024', 'ImageGallery')!['image']).toHaveLength(3);
+    expect(ofType('/2024', 'BreadcrumbList')!['itemListElement']).toHaveLength(2);
+  });
+
+  it('should have none for home or a page kept out of search', () => {
+    expect(pageData(homePage(projectsByYear))).toBeNull();
+    expect(pageData(describePage(projectsByYear, '/favorites')!)).toBeNull();
+  });
+
+  it('should write it as one block and remove it on home', () => {
+    const seo = TestBed.inject(SeoService);
+    seo.update(describePage(projectsByYear, '/2024/barn-owl')!);
+    expect(JSON.parse(document.getElementById('page-data')!.textContent!)['@graph'].length).toBe(2);
+
+    seo.update(homePage(projectsByYear));
+    expect(document.getElementById('page-data')).toBeNull();
   });
 });
 

@@ -17,11 +17,72 @@ export interface PageMeta {
   noindex?: boolean;
   /** The preview photo link previews show; left out when there is no photo to show. */
   image?: PageImage;
+  /** The way here from home, home first and this page last; left out for home and pages kept out of search. */
+  breadcrumbs?: Crumb[];
+  /** Every photo a year or project page shows, for its schema.org ImageGallery. */
+  gallery?: PageImage[];
+  /** A photo's own page, described as a schema.org ImageObject of its `image`. */
+  photo?: boolean;
 }
 
 export interface PageImage {
   url: string;
   alt: string;
+}
+
+export interface Crumb {
+  name: string;
+  path: string;
+}
+
+/** Search engines only need a sample of a big gallery, and the page stays light. */
+const MAX_GALLERY_IMAGES = 100;
+
+const pageUrl = (path: string) => `${SITE_URL}${path}/`;
+const HOME_CRUMB: Crumb = { name: SITE_TITLE, path: '' };
+
+/**
+ * schema.org data for a page: its breadcrumb trail, a year or project's ImageGallery and a photo page's ImageObject,
+ * as one `@graph`. Null when there's none, as on home or a page kept out of search.
+ */
+export function pageData(page: PageMeta): Record<string, unknown> | null {
+  if (page.noindex) {
+    return null;
+  }
+
+  const url = pageUrl(page.path);
+  const graph: Record<string, unknown>[] = [];
+  if (page.breadcrumbs && page.breadcrumbs.length > 1) {
+    graph.push({
+      '@type': 'BreadcrumbList',
+      itemListElement: page.breadcrumbs.map((crumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+        item: pageUrl(crumb.path),
+      })),
+    });
+  }
+  if (page.gallery && page.gallery.length > 0) {
+    graph.push({
+      '@type': 'ImageGallery',
+      name: page.title,
+      description: page.description,
+      url,
+      image: page.gallery.slice(0, MAX_GALLERY_IMAGES).map(image => ({ '@type': 'ImageObject', contentUrl: image.url, name: image.alt })),
+    });
+  }
+  if (page.photo && page.image) {
+    graph.push({
+      '@type': 'ImageObject',
+      contentUrl: page.image.url,
+      name: page.title,
+      description: page.description,
+      url,
+    });
+  }
+
+  return graph.length > 0 ? { '@context': 'https://schema.org', '@graph': graph } : null;
 }
 
 /**
@@ -66,6 +127,7 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
       title: `Shop Stats - ${SITE_TITLE}`,
       description: `${stats.projectCount} woodworking projects and ${stats.photoCount} photos${span}: projects per year, the most photographed and the longest builds.`,
       image: coverImage(newestProject(projectsByYear)),
+      breadcrumbs: [HOME_CRUMB, { name: 'Shop Stats', path: `/${STATS_SEGMENT}` }],
     };
   }
 
@@ -85,6 +147,7 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
       title: `All Projects - ${SITE_TITLE}`,
       description: 'Every photo from every woodworking project, newest year first.',
       image: coverImage(newestProject(projectsByYear)),
+      breadcrumbs: [HOME_CRUMB, { name: 'All Projects', path: projectPath(ALL) }],
     };
   }
 
@@ -110,6 +173,11 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
       title: `${group.year} Projects - ${SITE_TITLE}`,
       description: yearDescription(group),
       image: yearImage(group),
+      breadcrumbs: [HOME_CRUMB, yearCrumb(group.year)],
+      gallery: [
+        ...group.projects.flatMap(project => project.images.map(image => ({ url: image.url, alt: imageAltText(image, project.name) }))),
+        ...looseImages(group).map(image => ({ url: image.url, alt: imageAltText(image) })),
+      ],
     };
   }
 
@@ -123,7 +191,17 @@ export function describePage(projectsByYear: ProjectsByYear[], path: string): Pa
     title: `${project.name} (${group.year}) - ${SITE_TITLE}`,
     description: project.desc?.trim() || `${project.name}, a woodworking project from ${group.year}.`,
     image: coverImage(project),
+    breadcrumbs: [HOME_CRUMB, yearCrumb(group.year), projectCrumb(group.year, project.name)],
+    gallery: project.images.map(image => ({ url: image.url, alt: imageAltText(image, project.name) })),
   };
+}
+
+function yearCrumb(year: string): Crumb {
+  return { name: year, path: projectPath(year) };
+}
+
+function projectCrumb(year: string, name: string): Crumb {
+  return { name, path: projectPath(year, name) };
 }
 
 /** A photo's own page, previewing that photo; null when its year, project or the photo itself doesn't exist. */
@@ -145,11 +223,19 @@ function describePhoto(projectsByYear: ProjectsByYear[], year: string, slug: str
   const description = image.desc.trim()
     || (project ? `${label}, a photo from ${project.name}, ${year}.` : `${label}, a woodworking photo.`);
 
+  const path = photoUrl(year, image.name, project?.name);
   return {
-    path: photoUrl(year, image.name, project?.name),
+    path,
     title: `${heading} - ${SITE_TITLE}`,
     description,
     image: { url: image.url, alt: imageAltText(image, project?.name) },
+    breadcrumbs: [
+      HOME_CRUMB,
+      yearCrumb(year),
+      ...(project ? [projectCrumb(year, project.name)] : []),
+      { name: label, path },
+    ],
+    photo: true,
   };
 }
 
@@ -159,6 +245,7 @@ export class SeoService {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
+  private static readonly PAGE_SCRIPT_ID = 'page-data';
 
   update(page: PageMeta): void {
     // GitHub Pages serves each prerendered page from its folder, so the trailing slash is the real URL.
@@ -173,7 +260,26 @@ export class SeoService {
     this.meta.updateTag({ name: 'twitter:title', content: page.title });
     this.meta.updateTag({ name: 'twitter:description', content: page.description });
     this.updateImage(page.image);
+    this.updateJsonLd(SeoService.PAGE_SCRIPT_ID, pageData(page) ?? undefined);
     this.document.querySelector('link[rel="canonical"]')?.setAttribute('href', url);
+  }
+
+  /** The page's JSON-LD block, replaced or removed as pages change. */
+  private updateJsonLd(id: string, data: Record<string, unknown> | undefined): void {
+    const existing = this.document.getElementById(id);
+    if (!data) {
+      existing?.remove();
+      return;
+    }
+
+    const script = existing ?? this.document.createElement('script');
+    script.id = id;
+    script.setAttribute('type', 'application/ld+json');
+    // '<' escaped so no text in the data can close the script tag
+    script.textContent = JSON.stringify(data).replace(/</g, '\\u003c');
+    if (!existing) {
+      this.document.head.appendChild(script);
+    }
   }
 
   /** A large photo card when there is a photo; otherwise the plain card, with no stale photo left from the last page. */

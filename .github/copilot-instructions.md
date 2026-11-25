@@ -95,7 +95,7 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
   shows nothing extra, and a project's own page shows none. Share links are
   `/favorites?shared=2024/slug,2023/photo/name,2023/slug/photo/name` (photo names encoded twice): with no favorites yet they're added outright, otherwise they're shown
   with a prompt to add them (`AppComponent.openShared`)
-- `SeoService` sets title, description, Open Graph, Twitter and canonical tags; `describePage` maps a path to them.
+- `SeoService` sets title, description, Open Graph, Twitter and canonical tags, plus a `page-data` JSON-LD `@graph` (`pageData`: breadcrumbs, a year or project's `ImageGallery`, a photo page's `ImageObject`; none on home or noindex pages); `describePage` maps a path to them.
   `SeoTitleStrategy` applies them during prerendering, `AppComponent.updateSeo` in the browser
 - Old `?year=&project=` links are redirected to the path form by `redirectLegacyProject` in `app.routes.ts`
 - Components in `src/app/components/`: `project-list` (home page title, search and year list; inputs in, events
