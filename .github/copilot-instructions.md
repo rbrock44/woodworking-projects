@@ -24,6 +24,8 @@ GitHub Pages at `woodworking-projects.ryan-brock.com`. No backend.
 
 ## Data
 
+- `public/site.webmanifest` names the site for "add to home screen"; keep its name, description and colors in step with
+  `homePage` in `seo.service.ts` and `theme-color` in `src/index.html`
 - `public/project-list.json` is the whole dataset: `projectsByYear[] -> projects[] -> images[]`. Shapes are in
   `src/app/type/project.type.ts`. It is produced with the `generate-json.ps1` script in the sibling
   [woodworking-projects-images](https://github.com/rbrock44/woodworking-projects-images) repo, which also hosts the

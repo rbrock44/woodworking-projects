@@ -1,0 +1,13 @@
+{
+  "name": "Woodworking Projects by Ryan Brock",
+  "short_name": "Woodworking",
+  "description": "A showcase of Ryan Brock's woodworking projects, featuring builds organized by year with detailed photo galleries for each project.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1c1815",
+  "theme_color": "#1c1815",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ]
+}

@@ -127,6 +127,20 @@ describe('sitemap and robots', () => {
   });
 });
 
+describe('web app manifest', () => {
+  it("should name the site and point at a published icon", () => {
+    const manifest = JSON.parse(readFileSync(join(dist, 'site.webmanifest'), 'utf8'));
+    const home = pages.find(page => page.path === '/');
+
+    assert.equal(manifest.name, tag(home.html, /<title>([^<]*)<\/title>/));
+    assert.equal(manifest.start_url, '/');
+    assert.ok(manifest.icons.length > 0, 'no icons');
+    for (const icon of manifest.icons) {
+      assert.ok(existsSync(join(dist, icon.src)), `${icon.src} is not published`);
+    }
+  });
+});
+
 describe('published files', () => {
   /** Site-relative references in a page or stylesheet: src, href, srcset entries and css url()s. */
   function references(text) {
